@@ -557,7 +557,7 @@ function frmOutput_OnMouseMove( _
     dim as point pt 
     dim as RECT rc
     GetWindowRect( HWND_FRMOUTPUT, @rc )
-    rc.Bottom = rc.Top + pWindow->ScaleY(3)
+    rc.Bottom = rc.Top + pWindow->ScaleY(SPLITSIZE)
     GetCursorPos(@pt)
     if PtInRect( @rc, pt ) then
         if WindowFromPoint(pt) = HWND_FRMOUTPUT then
@@ -585,7 +585,7 @@ function frmOutput_OnMouseMove( _
                 nTopLimit = rc2.bottom
             end if
             rc.top = max(rc.top, nTopLimit)
-            nHeight = (rc.bottom-rc.top) - pWindow->ScaleY(4) ' allow room to grab the top
+            nHeight = (rc.bottom-rc.top) - pWindow->ScaleY(SPLITSIZE) ' allow room to grab the top
             
             ' The minimum height of the Output window when visible is the height of the tabs
             nHeight = max( nHeight, pWindow->ScaleY(OUTPUT_TABS_HEIGHT) )
@@ -621,7 +621,7 @@ function frmOutput_OnLButtonDown( _
     gApp.bDragActive = False 
     
     GetWindowRect HWND_FRMOUTPUT, @rc
-    rc.Bottom = rc.Top + pWindow->ScaleY(3)
+    rc.Bottom = rc.Top + pWindow->ScaleY(SPLITSIZE)
     GetCursorPos(@pt)
     if PtInRect( @rc, pt ) then
         if WindowFromPoint(pt) = HWND_FRMOUTPUT then
