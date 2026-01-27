@@ -500,7 +500,11 @@ function code_Compile( byval wID as long ) as boolean
         end if
 
         if gCompile.CompileID = IDM_DEBUG_STARTDEBUGGING then
-           frmDebug_Show( HWND_FRMMAIN, gCompile.OutputFilename )
+           frmDebug_Show( _
+                HWND_FRMMAIN, _
+                gCompile.OutputFilename, _
+                iif( gApp.IsProjectActive, gApp.ProjectCommandLine, gApp.wszCommandLine ) _
+                )
         end if
         
         if gCompile.RunAfterCompile then 
@@ -508,7 +512,7 @@ function code_Compile( byval wID as long ) as boolean
                 pDocMain, _
                 gCompile.OutputFilename,    _
                 iif( gApp.IsProjectActive, gApp.ProjectCommandLine, gApp.wszCommandLine ) _
-            )
+                )
         end if
     
     end if

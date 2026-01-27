@@ -70,7 +70,7 @@ sub clearQueue()
 end sub
 
 ' Initialize GDB session
-function gdb_init( byval executable as DWSTRING = "" ) as boolean
+function gdb_init( byval executable as string = "", byval cmdparams as string = "" ) as boolean
     dim as SECURITY_ATTRIBUTES sa
     dim as HANDLE hStdInRead, hStdInWrite
     dim as HANDLE hStdOutRead, hStdOutWrite
@@ -108,11 +108,11 @@ function gdb_init( byval executable as DWSTRING = "" ) as boolean
     ' Build command line
     dim as DWSTRING wszGDBexe = AfxGetExePathName & "\bin\gdb\gdb.exe"
     if len(executable) > 0 then
-        cmdline = wszGDBexe & " -q -i=mi2 " & chr(34) & executable & chr(34)
+        cmdline = wszGDBexe & " -q -i=mi2 " & chr(34) & executable & chr(34) & " " & cmdparams
     else
         cmdline = wszGDBexe & " -q -i=mi2"
     end if
-    
+
     ' Create the GDB process
     ret = CreateProcess( NULL, cmdline, NULL, NULL, TRUE, _
                          CREATE_NO_WINDOW, NULL, NULL, @si, @pi )
@@ -1234,7 +1234,7 @@ end function
 ' ========================================================================================
 ' frmDebug_Show
 ' ========================================================================================
-function frmDebug_Show( byval hWndParent as HWND, byval executable as string ) as LRESULT
+function frmDebug_Show( byval hWndParent as HWND, byval executable as string, byval cmdparams as string ) as LRESULT
 
     '  Create the main window and child controls
     dim pWindow as CWindow ptr = new CWindow
@@ -1276,7 +1276,7 @@ function frmDebug_Show( byval hWndParent as HWND, byval executable as string ) a
     
     ' The debug executable has been sucessfully created so start the debug thread
     ' add feed any breakpoints into it.
-    if gdb_init( executable ) then
+    if gdb_init( executable, cmdparams ) then
         frmDebug_SetInitialBreakpoints( gdb_session )
         gdb_send("set confirm off" )
         gdb_send("set language pascal" )

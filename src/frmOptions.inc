@@ -260,7 +260,7 @@ function frmOptions_OnNotify( _
                         AfxSetWindowText( hLabel, " " & L(110,"Code Editor")) 
                         hForm = HWND_FRMOPTIONSEDITOR
                     case 2
-                        AfxSetWindowText( hLabel, " " & L(110,"Code Editor")) 
+                        AfxSetWindowText( hLabel, " " & L(107,"Advanced Code Editor")) 
                         hForm = HWND_FRMOPTIONSEDITOR2
                     case 3
                         AfxSetWindowText( hLabel, " " & L(111,"Themes and Fonts") )
@@ -416,13 +416,13 @@ function frmOptions_Show( byval hWndParent as HWND ) as LRESULT
 
     ' Configure the TreeView
     dim hItems(7) as HTREEITEM 
-    hItems(0) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(226,"General Options"),    0)
-    hItems(1) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(110,"Code Editor"),        1)
-    hItems(2) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(110,"Code Editor"),        2)
-    hItems(3) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(111,"Colors and Fonts"),   3)
-    hItems(4) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(112,"Compiler Setup"),     4)
-    hItems(5) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(129,"Localization"),       5)
-    hItems(6) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(177,"FreeBASIC Keywords"), 6)
+    hItems(0) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(226,"General Options"),      0)
+    hItems(1) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(110,"Code Editor"),          1)
+    hItems(2) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(107,"Advanced Code Editor"), 2)
+    hItems(3) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(111,"Colors and Fonts"),     3)
+    hItems(4) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(112,"Compiler Setup"),       4)
+    hItems(5) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(129,"Localization"),         5)
+    hItems(6) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(177,"FreeBASIC Keywords"),   6)
     hItems(7) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(435,"Windows API Keywords"), 7)
 
     ' Load all of the child dialogs
