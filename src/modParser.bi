@@ -45,29 +45,29 @@ type ctxParser
     as integer          n
     as integer          s
     as integer          i
-    as string           token
-    as string           ltoken
-    as string           fullLine
+    as DWSTRING         token
+    as DWSTRING         ltoken
+    as DWSTRING         fullLine
     as integer          nFileType    ' one of the DB2_FILETYPE_* codes
     
     as integer          objectStartLine
     as integer          objectEndLine
 
     ' FUNCTIONS
-    as string           functionName 
-    as string           functionAlias 
-    as string           functionParams
-    as string           functionReturnType
-    as string           GetSet
+    as DWSTRING         functionName 
+    as DWSTRING         functionAlias 
+    as DWSTRING         functionParams
+    as DWSTRING         functionReturnType
+    as DWSTRING         GetSet
     
     ' TYPES
-    as string           typeName 
-    as string           typeAlias
-    as string           typeExtends
+    as DWSTRING         typeName 
+    as DWSTRING         typeAlias
+    as DWSTRING         typeExtends
     
     ' VARIABLES
-    as string           varName 
-    as string           varType 
+    as DWSTRING         varName 
+    as DWSTRING         varType 
     as DIMSCOPE         varScope
     
     declare function Parse( byval pDoc as clsDocument ptr ) as boolean
