@@ -46,7 +46,7 @@ declare function DisableAllModeless() as long
 declare function EnableAllModeless() as long
 declare function GetTemporaryFilename( byref wszFolder as wstring, byref wszExtension as wstring) as string
 declare function GetFontCharSetID(byref wzCharsetName as DWSTRING ) as long
-declare function UnicodeToUtf8(byval wzUnicode as DWSTRING) as string
+declare function UnicodeToUtf8( byref wzUnicode as DWSTRING ) as string
 declare function Utf8ToAnsi(byref strUtf8 as string) as string
 declare function AnsiToUtf8( byref sAnsi as string ) as string
 declare function isUTF8encoded(byref s as string) as boolean

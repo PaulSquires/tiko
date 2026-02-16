@@ -585,84 +585,157 @@ end function
 ' ========================================================================================
 ' Maps UTF-8 string to Ansi string.
 ' ========================================================================================
-function Utf8ToAnsi(byref strUtf8 as string) as string
+function Utf8ToAnsi( byref sUtf8 as string ) as string
+    dim as long wlen, alen
+    dim as string sUnicode, sAnsi
 
-   dim i as long                ' // Loop counter
-   dim strAscii as string       ' // Ascii string
-   dim idx as long              ' // Position in the string
-   dim c as long                ' // ASCII code
-   dim b2 as long               ' // Second byte
-   dim fSkipChar as boolean     ' // Flag
+    if len(sUtf8) = 0 then return ""
 
-   if len(strUtf8) = 0 then exit function
-   
-   ' // The maximum length of the translated string will be
-   ' // the same as the length of the original string.
-   ' // We are pre-allocating the buffer for faster operation
-   ' // than concatenating each character one by one.
-   strAscii = space(len(strUtf8))
+    '-----------------------------------------
+    ' Step 1: UTF-8 ? UTF-16 (size query)
+    '-----------------------------------------
+    wlen = MultiByteToWideChar( _
+                CP_UTF8, _
+                0, _
+                strptr(sUtf8), _
+                len(sUtf8), _
+                NULL, _
+                0)
 
-   ' // Intialize index position in the string buffer
-   ' // used to store the converted Ascii string
-   idx = 1
-   
-   ' // Examine the contents of each character in the UTF-8 encoded string
-   for i = 1 to len(strUtf8)
-      ' // If fSkipChar is set we have to skip this character
-      if fSkipChar then
-         fSkipChar = 0
-         continue for
-      end if
-      ' // Get the Ascii code of the character
-      c = asc(mid(strUtf8, i, 1))
-      ' // If it is betwen 0 and 127...
-      if c < 128 then 
-         ' // ...we simply copy it to the string buffer...
-         mid(strAscii, idx, 1) = mid(strUtf8, idx, 1)
-         ' // ...and increase the position by 1.
-         idx = idx + 1
-      elseif c < 224 then
-         ' // We need to join this byte and the next byte.
-         b2 = asc(mid(strUtf8, i + 1, 1))
-         if b2 > 127 then
-            c = (c - 192) * 64 + (b2 - 128)
-            mid(strAscii, idx, 1) = chr(c)
-            ' // Set the flag to skip the next character
-            fSkipChar = true
-            ' // Increase the position by 1.
-            idx = idx + 1
-         end if
-      end if
-   next
+    if wlen = 0 then return ""
 
-   ' // Return the string
-   function = left(strAscii, idx - 1)
+    sUnicode = string(wlen * 2, 0)
 
+    MultiByteToWideChar( _
+        CP_UTF8, _
+        0, _
+        strptr(sUtf8), _
+        len(sUtf8), _
+        cast(LPWSTR, strptr(sUnicode)), _
+        wlen)
+
+    '-----------------------------------------
+    ' Step 2: UTF-16 ? ANSI (size query)
+    '-----------------------------------------
+    alen = WideCharToMultiByte( _
+                CP_ACP, _
+                0, _
+                cast(LPCWSTR, strptr(sUnicode)), _
+                wlen, _
+                NULL, _
+                0, _
+                NULL, _
+                NULL)
+
+    if alen = 0 then return ""
+
+    sAnsi = string(alen, 0)
+
+    WideCharToMultiByte( _
+        CP_ACP, _
+        0, _
+        cast(LPCWSTR, strptr(sUnicode)), _
+        wlen, _
+        strptr(sAnsi), _
+        alen, _
+        NULL, _
+        NULL)
+
+    return sAnsi
 end function
+
+'function Utf8ToAnsi(byref strUtf8 as string) as string
+
+'   dim i as long                ' // Loop counter
+'   dim strAscii as string       ' // Ascii string
+'   dim idx as long              ' // Position in the string
+'   dim c as long                ' // ASCII code
+'   dim b2 as long               ' // Second byte
+'   dim fSkipChar as boolean     ' // Flag
+
+'   if len(strUtf8) = 0 then exit function
+   
+'   ' // The maximum length of the translated string will be
+'   ' // the same as the length of the original string.
+'   ' // We are pre-allocating the buffer for faster operation
+'   ' // than concatenating each character one by one.
+'   strAscii = space(len(strUtf8))
+
+'   ' // Intialize index position in the string buffer
+'   ' // used to store the converted Ascii string
+'   idx = 1
+   
+'   ' // Examine the contents of each character in the UTF-8 encoded string
+'   for i = 1 to len(strUtf8)
+'      ' // If fSkipChar is set we have to skip this character
+'      if fSkipChar then
+'         fSkipChar = 0
+'         continue for
+'      end if
+'      ' // Get the Ascii code of the character
+'      c = asc(mid(strUtf8, i, 1))
+'      ' // If it is betwen 0 and 127...
+'      if c < 128 then 
+'         ' // ...we simply copy it to the string buffer...
+'         mid(strAscii, idx, 1) = mid(strUtf8, idx, 1)
+'         ' // ...and increase the position by 1.
+'         idx = idx + 1
+'      elseif c < 224 then
+'         ' // We need to join this byte and the next byte.
+'         b2 = asc(mid(strUtf8, i + 1, 1))
+'         if b2 > 127 then
+'            c = (c - 192) * 64 + (b2 - 128)
+'            mid(strAscii, idx, 1) = chr(c)
+'            ' // Set the flag to skip the next character
+'            fSkipChar = true
+'            ' // Increase the position by 1.
+'            idx = idx + 1
+'         end if
+'      end if
+'   next
+
+'   ' // Return the string
+'   function = left(strAscii, idx - 1)
+
+'end function
 
 
 ' ========================================================================================
 ' Maps Unicode character string to a UTF-8 string.
 ' ========================================================================================
-function UnicodeToUtf8( byval wzUnicode as DWSTRING ) as string
-    dim sUtf8 as string
+function UnicodeToUtf8( byref wzUnicode as DWSTRING ) as string
+    dim as long u8len
+    dim as string sUtf8
 
-    ' Maps Unicode character string to a UTF-8 string.
-    sUtf8 = string(len(wzUnicode) * 2, 0)
-    
-    dim as long bytesWritten = _
-        WideCharToMultiByte ( _
-        CP_UTF8, _                        'Set to UTF-8
-        0, _                              'Conversion type
-        cast(LPCWSTR, wzUnicode.vptr), _  'Unicode string to convert
-        len(wzUnicode), _                 'Length of Unicode string
-        cast(LPSTR, strptr(sUtf8)), _     'UTF-8 string
-        len(sUtf8), _                     'Length of UTF-8 buffer
-        byval 0, _                        'Invalid character replacement
-        byval 0)                          'Replacement was used flag
+    ' Step 1: get required UTF-8 size (including null terminator)
+    u8len = WideCharToMultiByte( _
+                CP_UTF8, _
+                0, _
+                cast(LPCWSTR, *wzUnicode), _
+                -1, _
+                NULL, _
+                0, _
+                NULL, _
+                NULL)
 
-    function = left(sUtf8, bytesWritten)
+    if u8len = 0 then return ""
 
+    ' Step 2: allocate buffer
+    sUtf8 = string(u8len, 0)
+
+    ' Step 3: convert
+    WideCharToMultiByte( _
+        CP_UTF8, _
+        0, _
+        cast(LPCWSTR, *wzUnicode), _
+        -1, _
+        strptr(sUtf8), _
+        u8len, _
+        NULL, _
+        NULL)
+
+    ' Remove null terminator
+    return left(sUtf8, u8len - 1)
 end function
 
 
@@ -670,84 +743,104 @@ end function
 ' Maps Ansi character string to a UTF-8 string.
 ' ========================================================================================
 function AnsiToUtf8( byref sAnsi as string ) as string
-    dim sUnicode as string
-    dim sUtf8    as string
+    dim as integer wlen, u8len
+    dim as string sUnicode, sUtf8
 
-    'Maps Ansi character string to a UTF-8 string.
+    if len(sAnsi) = 0 then return ""
 
-    'Step one, convert to UNICODE
-    sUnicode = string(len(sAnsi) * 2, 0)
-    MultiByteToWideChar(CP_ACP, _                  'System default Windows ANSI code page
-                     MB_PRECOMPOSED, _          'Conversion type
-                     cast(LPCSTR, strptr(sAnsi)), _     'ANSI string to convert
-                     len(sAnsi), _              'Lenght of ANSI string
-                     cast(LPWSTR, strptr(sUnicode)), _  'Unicode string
-                     len(sUnicode))             'Lenght of Unicode buffer
+    ' Step 1: ANSI ? UTF-16 (size query)
+    wlen = MultiByteToWideChar(CP_ACP, 0, strptr(sAnsi), len(sAnsi), NULL, 0)
+    if wlen = 0 then return ""
 
-    'Step two, convert to UTF-8
-    sUtf8 = string(len(sAnsi), 0)
-    WideCharToMultiByte(CP_UTF8, _                 'Set to UTF-8
-                     0, _                       'Conversion type
-                     cast(LPCWSTR, strptr(sUnicode)), _  'Unicode string to convert
-                     len(sUnicode) / 2, _       'Lenght of Unicode string
-                     cast(LPSTR, strptr(sUtf8)), _     'UTF-8 string
-                     len(sUtf8), _              'Length of UTF-8 buffer
-                     byval 0, _                 'Invalid character replacement
-                     byval 0)                   'Replacement was used flag
-    function = sUtf8
+    sUnicode = string(wlen * 2, 0)
 
+    if MultiByteToWideChar(CP_ACP, 0, strptr(sAnsi), len(sAnsi), cast(LPWSTR, strptr(sUnicode)), wlen) = 0 then
+        return ""
+    end if
+
+    ' Step 2: UTF-16 ? UTF-8 (size query)
+    u8len = WideCharToMultiByte(CP_UTF8, 0, cast(LPCWSTR, strptr(sUnicode)), wlen, NULL, 0, NULL, NULL)
+    if u8len = 0 then return ""
+
+    sUtf8 = string(u8len, 0)
+
+    if WideCharToMultiByte(CP_UTF8, 0, cast(LPCWSTR, strptr(sUnicode)), wlen, strptr(sUtf8), u8len, NULL, NULL) = 0 then
+        return ""
+    end if
+
+    return sUtf8
 end function
 
 
 ' ========================================================================================
 ' Determine if a string is likely UTF-8 encoded
 ' ========================================================================================
-function isUTF8encoded(byref text as string) as boolean
-    dim as ubyte ptr p = strptr(text)
-    dim as integer nlen = len(text)
-    dim as integer i = 0
-    dim as boolean hasUTF8Sequences = false
+function isUTF8encoded( byref s as string ) as boolean
+    if len(s) = 0 then return false
 
-    while i < nlen
-        dim as ubyte c = p[i]
+    ' Optional: Detect UTF-8 BOM
+    if len(s) >= 3 then
+        if asc(s,1)=&hEF and asc(s,2)=&hBB and asc(s,3)=&hBF then return true
+    end if
 
-        if c < &h80 then
-            ' ASCII character
-            i += 1
+    dim as long wlen = MultiByteToWideChar( _
+        CP_UTF8, _
+        MB_ERR_INVALID_CHARS, _   ' strict validation
+        strptr(s), _
+        len(s), _
+        NULL, _
+        0)
 
-        elseif (c and &hE0) = &hC0 then
-            ' 2-byte UTF-8 sequence
-            if i + 1 >= nlen then return false
-            if (p[i + 1] and &hC0) <> &h80 then return false
-            if c < &hC2 then return false
-            hasUTF8Sequences = true
-            i += 2
-
-        elseif (c and &hF0) = &hE0 then
-            ' 3-byte UTF-8 sequence
-            if i + 2 >= nlen then return false
-            if (p[i + 1] and &hC0) <> &h80 then return false
-            if (p[i + 2] and &hC0) <> &h80 then return false
-            hasUTF8Sequences = true
-            i += 3
-
-        elseif (c and &hF8) = &hF0 then
-            ' 4-byte UTF-8 sequence
-            if i + 3 >= nlen then return false
-            if (p[i + 1] and &hC0) <> &h80 then return false
-            if (p[i + 2] and &hC0) <> &h80 then return false
-            if (p[i + 3] and &hC0) <> &h80 then return false
-            hasUTF8Sequences = true
-            i += 4
-
-        else
-            ' Invalid byte for UTF-8
-            return false
-        end if
-    wend
-
-    return hasUTF8Sequences
+    return (wlen <> 0)
 end function
+
+
+'function isUTF8encoded(byref text as string) as boolean
+'    dim as ubyte ptr p = strptr(text)
+'    dim as integer nlen = len(text)
+'    dim as integer i = 0
+'    dim as boolean hasUTF8Sequences = false
+
+'    while i < nlen
+'        dim as ubyte c = p[i]
+
+'        if c < &h80 then
+'            ' ASCII character
+'            i += 1
+
+'        elseif (c and &hE0) = &hC0 then
+'            ' 2-byte UTF-8 sequence
+'            if i + 1 >= nlen then return false
+'            if (p[i + 1] and &hC0) <> &h80 then return false
+'            if c < &hC2 then return false
+'            hasUTF8Sequences = true
+'            i += 2
+
+'        elseif (c and &hF0) = &hE0 then
+'            ' 3-byte UTF-8 sequence
+'            if i + 2 >= nlen then return false
+'            if (p[i + 1] and &hC0) <> &h80 then return false
+'            if (p[i + 2] and &hC0) <> &h80 then return false
+'            hasUTF8Sequences = true
+'            i += 3
+
+'        elseif (c and &hF8) = &hF0 then
+'            ' 4-byte UTF-8 sequence
+'            if i + 3 >= nlen then return false
+'            if (p[i + 1] and &hC0) <> &h80 then return false
+'            if (p[i + 2] and &hC0) <> &h80 then return false
+'            if (p[i + 3] and &hC0) <> &h80 then return false
+'            hasUTF8Sequences = true
+'            i += 4
+
+'        else
+'            ' Invalid byte for UTF-8
+'            return false
+'        end if
+'    wend
+
+'    return hasUTF8Sequences
+'end function
 
 
 ' ========================================================================================
