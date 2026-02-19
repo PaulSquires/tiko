@@ -15,6 +15,8 @@
 ''  frmEditorHScroll.inc
 ''   
 
+' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line 
+
 #include once "frmEditorHScroll.bi"
 
     
@@ -55,7 +57,7 @@ function frmEditorHScroll_WndProc( _
 
             if PtInRect( @rcClient, pt ) then
                 prev_pt = pt
-                gApp.bDragActive = true
+                gApp.bHorizDragActive = true
                 SetCapture( hwnd )
             end if
 
@@ -69,7 +71,7 @@ function frmEditorHScroll_WndProc( _
 '                MapWindowPoints( HWND_FRMEDITOR_HSCROLLBAR(idxWindow), HWND_DESKTOP, cast(point ptr, @rc), 2)
 '                if PtInRect( @rc, pt ) then
 '                    prev_pt = pt
-'                    gApp.bDragActive = true
+'                    bHorizDragActive = true
 '                    SetCapture( hwnd )
 '                elseif pt.x < rc.left then
 '                    delta = -(rc.left - pt.x)
@@ -99,7 +101,7 @@ function frmEditorHScroll_WndProc( _
             
         case WM_MOUSEMOVE
 
-            if gApp.bDragActive = false then exit select
+            if gApp.bHorizDragActive = false then exit select
 
             dim as POINT pt
             GetCursorPos( @pt )
@@ -147,7 +149,7 @@ function frmEditorHScroll_WndProc( _
             return 0
 
 '        case WM_MOUSEMOVE
-'            if gApp.bDragActive then
+'            if gApp.bHorizDragActive then
 '                dim as POINT pt: GetCursorPos( @pt )
 '                if pt.x <> prev_pt.x then 
 '                    dim as long delta = pt.x - prev_pt.x 
@@ -177,7 +179,7 @@ function frmEditorHScroll_WndProc( _
             
         case WM_LBUTTONUP   
             gApp.SuppressNotify = false   ' allow SCN_UPDATEUI
-            gApp.bDragActive = false
+            gApp.bHorizDragActive = false
             prev_pt.x = 0
             prev_pt.y = 0
             ReleaseCapture
@@ -382,6 +384,7 @@ function frmEditorHScroll_DoNeedScrollBar( byval pDoc as clsDocument ptr ) as lo
             isMouseOverWindow( HWND_FRMEDITOR_HSCROLLBAR(i) ) then 
             newState = frmEditorHScroll_NeedScrollBar( pDoc, i )
         end if
+        if gApp.bHorizDragActive = true then newState = SW_SHOWNOACTIVATE
         if newState <> curState then 
             ShowWindow( HWND_FRMEDITOR_HSCROLLBAR(i), newState )
             frmMain_PositionWindows()
