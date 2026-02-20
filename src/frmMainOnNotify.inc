@@ -359,14 +359,6 @@ function Scintilla_OnNotify( _
                     if pDoc->lastCaretPos <> caretPos then
                         pDoc->lastCaretPos = caretPos
 
-                        ' If the xOffset has changed then we need to update the horizontal scrollbar
-                        dim as long GetXOffset = SciExec( pDoc->hWndActiveScintilla, SCI_GETXOFFSET, 0, 0 )
-                        if pDoc->lastXOffsetPos <> GetXOffset then
-                            pDoc->lastXOffsetPos = GetXOffset
-                            AfxRedrawWindow( HWND_FRMEDITOR_HSCROLLBAR(0) )
-                            AfxRedrawWindow( HWND_FRMEDITOR_HSCROLLBAR(1) )
-                        end if
-
                         ' Update any occurrence highlights
                         if gConfig.OccurrenceHighlight then
                             static as string sCurWord, sPrevWord

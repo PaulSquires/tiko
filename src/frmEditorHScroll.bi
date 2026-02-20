@@ -15,7 +15,7 @@
 type EDITOR_HSCROLL_TYPE
     lineLength    as long
     clientWidth   as long
-    thumbWidth    as long
+    ratio         as double
     rc            as RECT
 end type
 

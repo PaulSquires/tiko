@@ -43,6 +43,7 @@ function frmEditorHScroll_WndProc( _
             if hwnd = HWND_FRMEDITOR_HSCROLLBAR(1) then HWND_FRMEDITOR_HSCROLLBAR(1) = 0
             return 0
                 
+
         case WM_LBUTTONDOWN
             dim pDoc as clsDocument ptr = gTTabCtl.GetActiveDocumentPtr()
             if pDoc = 0 then exit select
@@ -61,121 +62,36 @@ function frmEditorHScroll_WndProc( _
                 SetCapture( hwnd )
             end if
 
-'        case WM_LBUTTONDOWN
-'            dim pDoc as clsDocument ptr = gTTabCtl.GetActiveDocumentPtr()
-'            if pDoc then
-'                gApp.SuppressNotify = true   ' prevent SCN_UPDATEUI
-'                dim as long delta = 0
-'                dim as point pt: GetCursorPos( @pt )
-'                dim as RECT rc = gEditorHScroll(idxWindow).rc ' covert copy to screen coordinates
-'                MapWindowPoints( HWND_FRMEDITOR_HSCROLLBAR(idxWindow), HWND_DESKTOP, cast(point ptr, @rc), 2)
-'                if PtInRect( @rc, pt ) then
-'                    prev_pt = pt
-'                    bHorizDragActive = true
-'                    SetCapture( hwnd )
-'                elseif pt.x < rc.left then
-'                    delta = -(rc.left - pt.x)
-'                elseif pt.x > rc.right then
-'                    delta = pt.x - rc.right
-'                end if
-                
-'                ' The client area was clicked
-'                if delta <> 0 then
-'                    dim as RECT rc: GetClientRect( HWND_FRMEDITOR_HSCROLLBAR(idxWindow), @rc )
-'                    dim as long xOffset = SciExec( pDoc->hWindow(idxWindow), SCI_GETXOFFSET, 0, 0 )
-'                    gEditorHScroll(idxWindow).rc = rc
-'                    gEditorHScroll(idxWindow).rc.left = xOffset
-'                    gEditorHScroll(idxWindow).rc.right = xOffset + ((rc.right / gEditorHScroll(idxWindow).lineLength) * rc.right)
-
-'                    if gEditorHScroll(idxWindow).rc.right + delta < rc.right then
-'                        xOffset = xOffset + delta
-'                        xOffset = max( 0, xOffset )
-'                        if xOffset <> prev_xOffset then
-'                            SendMessage( pDoc->hWindow(idxWindow), SCI_SETXOFFSET, xOffset, 0) 
-'                            prev_xOffset = xOffset
-'                            AfxRedrawWindow( HWND_FRMEDITOR_HSCROLLBAR(idxWindow) )
-'                        end if   
-'                    end if
-'                end if
-'            end if
             
         case WM_MOUSEMOVE
-
             if gApp.bHorizDragActive = false then exit select
 
             dim as POINT pt
             GetCursorPos( @pt )
 
-            dim as long deltaThumb = pt.x - prev_pt.x
-            if deltaThumb = 0 then exit select
+            dim as long delta = pt.x - prev_pt.x
+            if delta = 0 then exit select
 
             prev_pt = pt
 
             dim pDoc as clsDocument ptr = gTTabCtl.GetActiveDocumentPtr()
             if pDoc = 0 then exit select
 
-            dim as long trackWidth
             dim as RECT rcClient
             GetClientRect( hwnd, @rcClient )
-            trackWidth = rcClient.right - rcClient.left
 
-            dim as long visibleWidth = gEditorHScroll(idxWindow).clientWidth
-            dim as long documentWidth = gEditorHScroll(idxWindow).lineLength
-
-            dim as long maxDocScroll = documentWidth - visibleWidth
-            if maxDocScroll <= 0 then exit select
-
-            ' Calculate thumb size
-            dim as double ratio = visibleWidth / documentWidth
-            dim as long thumbWidth = ratio * trackWidth
-            dim as long maxThumbPos = trackWidth - thumbWidth
-
-            if maxThumbPos <= 0 then exit select
-
-            ' Convert thumb delta to document delta
-            dim as double docPerPixel = maxDocScroll / maxThumbPos
-            dim as long deltaDoc = deltaThumb * docPerPixel
-
-            dim as long xOffset = SciExec( pDoc->hWindow(idxWindow), SCI_GETXOFFSET, 0, 0 )
-            xOffset += deltaDoc
-
-            ' Clamp in document space
-            if xOffset < 0 then xOffset = 0
-            if xOffset > maxDocScroll then xOffset = maxDocScroll
-
-            SendMessage( pDoc->hWindow(idxWindow), SCI_SETXOFFSET, xOffset, 0 )
-            AfxRedrawWindow( hwnd )
+            if gEditorHScroll(idxWindow).rc.right + delta < rcClient.right then
+                if gEditorHScroll(idxWindow).ratio = 0 then gEditorHScroll(idxWindow).ratio = 1
+                dim as double docPerPixel = 1 / gEditorHScroll(idxWindow).ratio
+                dim as long xOffset = SciExec( pDoc->hWindow(idxWindow), SCI_GETXOFFSET, 0, 0 )
+                xOffset = xOffset + (delta * docPerPixel)
+                xOffset = max( 0, xOffset )
+                SendMessage( pDoc->hWindow(idxWindow), SCI_SETXOFFSET, xOffset, 0) 
+                AfxRedrawWindow( HWND_FRMEDITOR_HSCROLLBAR(idxWindow) )
+            end if
 
             return 0
 
-'        case WM_MOUSEMOVE
-'            if gApp.bHorizDragActive then
-'                dim as POINT pt: GetCursorPos( @pt )
-'                if pt.x <> prev_pt.x then 
-'                    dim as long delta = pt.x - prev_pt.x 
-
-'                    prev_pt = pt
-                    
-'                    dim pDoc as clsDocument ptr = gTTabCtl.GetActiveDocumentPtr()
-'                    if pDoc then
-'                        dim as RECT rc: GetClientRect( HWND_FRMEDITOR_HSCROLLBAR(idxWindow), @rc )
-'                        dim as long xOffset = SciExec( pDoc->hWindow(idxWindow), SCI_GETXOFFSET, 0, 0 )
-'                        gEditorHScroll(idxWindow).rc = rc
-'                        gEditorHScroll(idxWindow).rc.left = xOffset
-'                        gEditorHScroll(idxWindow).rc.right = xOffset + ((rc.right / gEditorHScroll(idxWindow).lineLength) * rc.right)
-
-'                        if gEditorHScroll(idxWindow).rc.right + delta < rc.right then
-'                            xOffset = xOffset + delta
-'                            xOffset = max( 0, xOffset )
-'                            if xOffset <> prev_xOffset then
-'                                SendMessage( pDoc->hWindow(idxWindow), SCI_SETXOFFSET, xOffset, 0) 
-'                                prev_xOffset = xOffset
-'                                AfxRedrawWindow( HWND_FRMEDITOR_HSCROLLBAR(idxWindow) )
-'                            end if   
-'                        end if
-'                    end if
-'                end if
-'            end if
             
         case WM_LBUTTONUP   
             gApp.SuppressNotify = false   ' allow SCN_UPDATEUI
@@ -197,31 +113,20 @@ function frmEditorHScroll_WndProc( _
 
             dim pDoc as clsDocument ptr = gTTabCtl.GetActiveDocumentPtr()
             if pDoc then
+                dim as long clientWidth = gEditorHScroll(idxWindow).clientWidth
+                dim as long lineWidth   = gEditorHScroll(idxWindow).lineLength
+                dim as long thumbWidth  = 0
+                dim as long thumbLeft   = 0
 
-                dim as long trackWidth = b.rcClient.right - b.rcClient.left
-                dim as long visibleWidth = gEditorHScroll(idxWindow).clientWidth
-                dim as long documentWidth = gEditorHScroll(idxWindow).lineLength
-
-                dim as long xOffset = SciExec( pDoc->hWindow(idxWindow), SCI_GETXOFFSET, 0, 0 )
-
-                dim as long thumbWidth
-                dim as long thumbLeft
-
-                dim as long maxDocScroll = documentWidth - visibleWidth
-
-                if documentWidth <= visibleWidth orelse maxDocScroll <= 0 then
-                    ' No scrolling needed
-                    thumbWidth = trackWidth
-                    thumbLeft = 0
-                else
+                if (lineWidth > clientWidth) then 
                     ' Thumb size proportional to visible area
-                    dim as double ratio = visibleWidth / documentWidth
-                    thumbWidth = ratio * trackWidth
-
-                    dim as long maxThumbPos = trackWidth - thumbWidth
+                    gEditorHScroll(idxWindow).ratio = clientWidth / lineWidth
+                    thumbWidth = gEditorHScroll(idxWindow).ratio * clientWidth
 
                     ' Thumb position proportional to xOffset
-                    thumbLeft = (xOffset / maxDocScroll) * maxThumbPos
+                    'if gEditorHScroll(idxWindow).ratio = 0 then gEditorHScroll(idxWindow).ratio = 1
+                    dim as long xOffset = SciExec( pDoc->hWindow(idxWindow), SCI_GETXOFFSET, 0, 0 )
+                    thumbLeft = gEditorHScroll(idxWindow).ratio * xOffset
                 end if
 
                 gEditorHScroll(idxWindow).rc = b.rcClient
@@ -234,53 +139,6 @@ function frmEditorHScroll_WndProc( _
 
             b.EndDoubleBuffer()
             return 0
-
-'        case WM_PAINT
-'            dim as clsDoubleBuffer b
-
-'            b.BeginDoubleBuffer(hwnd)
-'            b.SetBackColors( ghEditor.BackColorScrollBar, ghEditor.BackColorScrollBar )
-'            b.PaintClientRect()
-
-'            dim pDoc as clsDocument ptr = gTTabCtl.GetActiveDocumentPtr()
-'            if pDoc then
-'                b.SetBackColors( ghEditor.ForeColorScrollBar, ghEditor.ForeColorScrollBar )
-
-'                ' Total window client width
-'                dim as long clientWidth = b.rcClient.right - b.rcClient.left
-
-'                ' Sum all margins
-'                dim as long totalMarginWidth = 0
-'                'for i as long = 0 to SC_MAX_MARGIN - 1
-'                '    totalMarginWidth += SciExec( pDoc->hWindow(idxWindow), SCI_GETMARGINWIDTHN, i, 0)
-'                'next
-
-'                ' Visible text area width
-'                dim as long visibleTextWidth = clientWidth - totalMarginWidth
-
-'                ' Current horizontal scroll offset (pixels)
-'                dim as long GetXOffset = SciExec( pDoc->hWindow(idxWindow), SCI_GETXOFFSET, 0, 0 )
-
-'                dim as long thumbWidth = 0
-'                dim as long trackWidth = clientWidth
-
-'                if gEditorHScroll(idxWindow).lineLength <= visibleTextWidth then 
-'                    thumbWidth = 0
-'                else
-'                    dim as double ratio = (visibleTextWidth / gEditorHScroll(idxWindow).lineLength)
-'                    thumbWidth = ratio * trackWidth
-'                end if
-
-'                gEditorHScroll(idxWindow).rc = b.rcClient
-'                gEditorHScroll(idxWindow).rc.left = GetXOffset
-'                gEditorHScroll(idxWindow).rc.right = GetXOffset + thumbWidth
-
-'                b.PaintRect( @gEditorHScroll(idxWindow).rc )
-'            end if
-            
-'            b.EndDoubleBuffer()
-
-'            return 0
 
     end Select
 
@@ -357,7 +215,8 @@ function frmEditorHScroll_NeedScrollBar( _
         dim as long endPos = SciExec( pDoc->hWindow(idxWindow), SCI_GETLINEENDPOSITION, docLine, 0)
 
         ' Convert to X coordinate in pixels
-        dim as long x = SciExec( pDoc->hWindow(idxWindow), SCI_POINTXFROMPOSITION, 0, endPos)
+        dim as long xOffset = SciExec( pDoc->hWindow(idxWindow), SCI_GETXOFFSET, 0, 0 )
+        dim as long x = xOffset + SciExec( pDoc->hWindow(idxWindow), SCI_POINTXFROMPOSITION, 0, endPos)
 
         if x > maxWidth then maxWidth = x
 

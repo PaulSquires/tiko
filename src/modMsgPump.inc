@@ -33,6 +33,13 @@ function handleMouseShowScrollBar( byval uMsg as MSG ) as boolean
     ' Should we show an Editor HScrollbar
     dim as clsDocument ptr pDoc = gTTabCtl.GetActiveDocumentPtr()
     if (pDoc <> 0) andalso (pDoc->bSizing = false) then   ' no testing during split panel resizing
+        ' If the xOffset has changed then we need to update the horizontal scrollbar
+        dim as long GetXOffset = SciExec( pDoc->hWndActiveScintilla, SCI_GETXOFFSET, 0, 0 )
+        if pDoc->lastXOffsetPos <> GetXOffset then
+            pDoc->lastXOffsetPos = GetXOffset
+            AfxRedrawWindow( HWND_FRMEDITOR_HSCROLLBAR(0) )
+            AfxRedrawWindow( HWND_FRMEDITOR_HSCROLLBAR(1) )
+        end if
         frmEditorHScroll_DoNeedScrollBar( pDoc )
     end if
     
