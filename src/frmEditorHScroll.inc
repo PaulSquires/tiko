@@ -15,8 +15,6 @@
 ''  frmEditorHScroll.inc
 ''   
 
-' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line ' thi sis a ver long line 
-
 #include once "frmEditorHScroll.bi"
 
     
