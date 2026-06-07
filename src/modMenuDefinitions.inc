@@ -53,6 +53,11 @@ Function getMenuText( byval idMenu as long ) As DWSTRING
         case IDC_MENUBAR_COMPILE: wszText = L(64,"Compile")
         case IDC_MENUBAR_DEBUG: wszText = L(309,"Debug")
         case IDC_MENUBAR_HELP: wszText = L(73,"Help")
+        case IDC_MENUBAR_UPDATE
+            if gApp.IsUpdateAvailable then
+                wszText = L(100,"Update Available")
+            end if
+
         case IDM_FILENEW: wszText = L(3,"New")
         case IDM_FILEOPEN: wszText = L(4,"Open") & "..." 
         case IDM_FILEOPENASTEMPLATE: wszText = L(12,"Open File As Template") & "..." 

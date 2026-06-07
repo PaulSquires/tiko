@@ -21,15 +21,17 @@
 #define IDC_MENUBAR_COMPILE   1005
 #define IDC_MENUBAR_DEBUG     1006  
 #define IDC_MENUBAR_HELP      1007
+#define IDC_MENUBAR_UPDATE    1008
 
 ''  Menu message identifiers
 enum
     '' USER MESSAGES
     MSG_USER_SETFOCUS = WM_USER + 1     ' 1024 + 1
     MSG_USER_PROCESS_COMMANDLINE 
+    MSG_USER_PROCESS_STARTUPUSERTOOLS
+    MSG_USER_PROCESS_CHECKFORUPDATE
     MSG_USER_SHOWAUTOCOMPLETE
     MSG_USER_APPENDEQUALSSIGN
-    MSG_USER_PROCESS_STARTUPUSERTOOLS
     MSG_USER_TOPTABS_CHANGING
     MSG_USER_TOPTABS_CHANGED
     MSG_USER_LOAD_EXPLORERFILES
@@ -250,6 +252,7 @@ type FINDREPLACE_TYPE
 end type
 dim shared gFind as FINDREPLACE_TYPE
 dim shared gFindInFiles as FINDREPLACE_TYPE
+dim shared ghFindTooltip as HWND
 
 
 TYPE MENUBAR_ITEM
@@ -260,6 +263,7 @@ end type
 
 ' shared variables that control the state of what menubar button is active.
 dim shared gMenuBar(any) as MENUBAR_ITEM
+dim shared gMenuUpdateMessage as MENUBAR_ITEM
 dim shared gActiveMenuBarIndex as long = -1
 dim shared as long gMenuLastCurSel = -1
 dim shared as boolean gPrevent_WM_NCACTIVATE = false

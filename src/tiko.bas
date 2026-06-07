@@ -32,6 +32,7 @@
 #include once "AfxNova\AfxCom.inc" 
 #include once "AfxNova\CImageCtx.inc"
 #include once "AfxNova\AfxStr.inc"
+#include once "AfxNova\CWinHttpRequest.inc"
 
 using AfxNova
 
