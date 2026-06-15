@@ -9,7 +9,7 @@
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-#define UNICODE
+#define UNICODE   ' Header_InsertItem needs the UNICODE flag
 #INCLUDE ONCE "AfxNova/CWindow.inc"
 USING AfxNova
 

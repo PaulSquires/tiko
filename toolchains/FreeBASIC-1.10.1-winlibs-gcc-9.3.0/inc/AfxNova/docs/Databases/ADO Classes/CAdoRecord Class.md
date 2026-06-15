@@ -87,7 +87,7 @@ All of the metadata properties (**Name**, **Type_**, **DefinedSize**, **Precisio
 
 ---
 
-## ActiveConnection
+### ActiveConnection
 
 Sets or returns a string value that contains a definition for a connection if the connection is closed, or a Variant containing the current `Connection` object if the connection is open. Default is a null object reference.
 
@@ -119,7 +119,7 @@ A `Connection` object is created implicitly when the `Record` object is opened f
 
 ---
 
-## Attach
+### Attach
 
 Attaches a record to the class.
 
@@ -134,7 +134,7 @@ FUNCTION Attach (BYVAL pRecordset AS Afx_ADORecord PTR, BYVAL fAddRef AS BOOLEAN
 
 ---
 
-## Cancel
+### Cancel
 
 Cancels execution of a pending, asynchronous method call.
 
@@ -154,7 +154,7 @@ For a `Record` object, the last asynchronous call to the **CopyRecord**, **Delet
 
 ---
 
-## Close
+### Close
 
 Closes a `Record` object and any dependent objects.
 
@@ -172,7 +172,7 @@ Use the **Close** method to close a `Record` to free any associated system resou
 
 ---
 
-## CopyRecord
+### CopyRecord
 
 Copies a entity represented by a `Record` to another location.
 
@@ -221,7 +221,7 @@ This method fails if *Destination* identifies an existing entity (for example, a
 
 ---
 
-## DeleteRecord
+### DeleteRecord
 
 Deletes the entity represented by a `Record`.
 
@@ -248,7 +248,7 @@ If this `Record` was obtained from a `Recordset`, then the results of this opera
 
 ---
 
-## Fields
+### Fields
 
 Gets a reference to the `Fields` collection of a `Record` object.
 
@@ -257,7 +257,7 @@ PROPERTY Fields () AS Afx_ADOFields PTR
 ```
 ---
 
-## GetChildren
+### GetChildren
 
 Returns a `Recordset` whose rows represent the children of a collection `Record`.
 
@@ -275,7 +275,7 @@ The provider determines what columns exist in the returned `Recordset`. For exam
 
 ---
 
-# GetErrorInfo
+### GetErrorInfo
 
 Returns information about ADO errors.
 
@@ -293,7 +293,7 @@ A description of the error(s).
 
 ---
 
-## Mode
+### Mode
 
 Sets or returns a **ConnectModeEnum** value. The default value for a `Record` object is **adModeRead**.
 
@@ -328,7 +328,7 @@ Specifies the available permissions for modifying data in a `Connection`, openin
 
 ---
 
-## MoveRecord
+### MoveRecord
 
 Moves a entity represented by a `Record` to another location.
 
@@ -375,7 +375,7 @@ If this `Record` was obtained from a `Recordset`, the new location of the moved 
 
 ---
 
-## Open
+### Open
 
 Opens an existing `Record` object, or creates a new item represented by the `Record` (such as a file or directory).
 
@@ -420,7 +420,7 @@ Source may be:
 
 ---
 
-## ParentURL
+### ParentURL
 
 Indicates an absolute URL string that points to the parent `Record` of the current `Record` object.
 
@@ -460,7 +460,7 @@ This property is read-only.
 
 ---
 
-## Properties
+### Properties
 
 Returns a reference to the **Properties** collection.
 
@@ -474,7 +474,7 @@ A `Properties` object reference.
 
 ---
 
-# <a name="RecordType"></a>RecordType
+### RecordType
 
 Indicates the type of `Record` object.
 
@@ -499,7 +499,7 @@ Specifies the type of `Record` object.
 
 ---
 
-## Source
+### Source
 
 Indicates the data source or object represented by the `Record`.
 
@@ -528,7 +528,7 @@ The **Source** property can also contain a reference to an already open `Records
 
 ---
 
-## State
+### State
 
 Indicates for all applicable objects whether the state of the object is open or closed.
 

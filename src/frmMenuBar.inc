@@ -41,6 +41,13 @@ function frmMenuBar_PositionWindows() as LRESULT
         nLeft += nWidth
     next
     
+    ' Position the Tiko Update Available message
+    gMenuUpdateMessage.id = IDC_MENUBAR_UPDATE
+    gMenuUpdateMessage.wszText = getMenuText(gMenuUpdateMessage.id)
+    nWidth = pWindow->ScaleX(getTextWidth( HWND_FRMMAIN, gMenuUpdateMessage.wszText, GUIFONT_10) + nPadding)
+    nLeft = AfxGetWindowClientWidth( HWND_FRMMAIN ) - nWidth - nPadding
+    gMenuUpdateMessage.rcItem = type(nLeft, nTop, nLeft + nWidth, nTop + nHeight)
+    
     AfxRedrawWindow( HWND_FRMMAIN_MENUBAR )
     
     function = 0
@@ -119,6 +126,7 @@ function frmMenuBar_WndProc( _
         b.SetBackColors( ghMenuBar.BackColor, ghMenuBar.BackColor )
         b.PaintClientRect()
 
+        b.SetFont( GUIFONT_10 )
         for i as integer = lbound(gMenuBar) to ubound(gMenuBar)
             if i = gActiveMenuBarIndex then
                 b.SetBackColors( ghMenuBar.BackColorHot, ghMenuBar.BackColorHot )
@@ -127,10 +135,21 @@ function frmMenuBar_WndProc( _
                 b.SetBackColors( ghMenuBar.BackColor, ghMenuBar.BackColorHot )
                 b.SetForeColors( ghMenuBar.ForeColor, ghMenuBar.ForeColorHot )
             end if
-            b.SetFont( GUIFONT_10 )
             b.PaintRect( @gMenuBar(i).rcItem )
             b.PaintText( gMenuBar(i).wszText, @gMenuBar(i).rcItem, DT_CENTER, true )
         next
+        
+        ' Paint the Update Available message
+        if isMouseOverRECT( hwnd, gMenuUpdateMessage.rcItem ) then
+            b.SetBackColors( ghMenuBar.BackColorHot, ghMenuBar.BackColorHot )
+            b.SetForeColors( ghMenuBar.ForeColorHot, ghMenuBar.ForeColorHot )
+        else
+            b.SetBackColors( ghMenuBar.BackColor, ghMenuBar.BackColorHot )
+            b.SetForeColors( ghMenuBar.ForeColor, ghMenuBar.ForeColorHot )
+        end if
+        b.PaintRect( @gMenuUpdateMessage.rcItem )
+        b.PaintText( gMenuUpdateMessage.wszText, @gMenuUpdateMessage.rcItem, DT_CENTER, true )
+        
         b.EndDoubleBuffer()
 
         return 0
@@ -150,17 +169,16 @@ function frmMenuBar_WndProc( _
             if isPopupMenuOpen() then
                 frmPopupMenu_Show( ID_POPUP, 0, hwnd, gMenuBar(gActiveMenuBarIndex).rcItem )
             end if   
-            ' Track that we are over the control in order to catch the 
-            ' eventual WM_MOUSELEAVE event
-            dim tme as TrackMouseEvent
-            tme.cbSize = Sizeof(TrackMouseEvent)
-            tme.dwFlags = TME_HOVER or TME_LEAVE
-            tme.hwndTrack = hwnd
-            TrackMouseEvent(@tme)
-
-            AfxRedrawWindow( hwnd )
         end if   
-        
+
+        ' Track that we are over the control in order to catch the 
+        ' eventual WM_MOUSELEAVE event
+        dim tme as TrackMouseEvent
+        tme.cbSize = Sizeof(TrackMouseEvent)
+        tme.dwFlags = TME_HOVER or TME_LEAVE
+        tme.hwndTrack = hwnd
+        TrackMouseEvent(@tme)
+        AfxRedrawWindow( hwnd )
         
     case WM_MOUSELEAVE
         if isPopupMenuOpen() = false then
@@ -170,6 +188,11 @@ function frmMenuBar_WndProc( _
         end if   
         
     case WM_LBUTTONDOWN
+        ' Check if the Tiko Update Available label has been pressed
+        if isMouseOverRECT( hwnd, gMenuUpdateMessage.rcItem ) then
+            ShellExecute( NULL, "open", "https://github.com/PaulSquires/tiko/releases", Null, Null, SW_SHOWNORMAL )
+        end if
+
         ' Get the button index of the current hot state button or the wParam
         ' if this button press was sent by an ENTER keypress originating from
         ' handleKeysTopMenu() in modMsgPump.
@@ -187,7 +210,7 @@ function frmMenuBar_WndProc( _
         end if
         AfxRedrawWindow(hwnd)
         
-    end Select
+    end select
     
     ' for messages that we don't deal with
     function = DefWindowProc(hwnd, uMsg, wParam, lParam)

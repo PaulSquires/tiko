@@ -1,6 +1,8 @@
 # DWStrList
 
-`DWStrList`implements an indexed singly-linked list for the `DWSTRING` (Unicode dynamic string) data type.
+`DWStrList`implements an indexed doubly-linked list for the `DWSTRING` (Unicode dynamic string) data type.
+
+**Include file** : DWStrProcs.inc
 
 #### Usage examples
 
@@ -52,12 +54,15 @@ Delete List
 | [Insert](#insert) | Inserts an item at the specific index. |
 | [Item](#item) | Retrieves the item at the specified index. |
 | [Remove](#remove) | Removes the specified item from the list. |
+| [Replace](#replace) | Replaces the item at the specified index. |
 
 ---
 
 # DVarList
 
-`DVarList`implements an indexed singly-linked list for the `DVARIANT` (dynamic variant) data type. A `DVARIANT` can contain any kind of data except fixed-length string data (if you pass it as the input it will be converted to a unicode dynamic string).
+`DVarList`implements an indexed doubly-linked list for the `DVARIANT` (dynamic variant) data type. A `DVARIANT` can contain any kind of data except fixed-length string data (if you pass it as the input it will be converted to a unicode dynamic string).
+
+**Include file** : DVariant.inc
 
 #### Usage examples
 
@@ -109,6 +114,7 @@ Delete List
 | [Insert](#insert2) | Inserts an item at the specific index. |
 | [Item](#item2) | Retrieves the item at the specified index. |
 | [Remove](#remove2) | Removes the specified item from the list. |
+| [Replace](#replace2) | Replaces the item at the specified index. |
 
 ---
 
@@ -158,12 +164,13 @@ Returns the number of items in the list.
 Inserts an item at the specific index.
 
 ```
-FUNCTION Insert (BYVAL idx AS LONG) AS BOOLEAN
+FUNCTION Insert (BYVAL idx AS LONG, BYREF dws AS DWSTRING) AS BOOLEAN
 ```
 
 | Parameter  | Description |
 | ---------- | ----------- |
 | *idx* | The one-based index where to insert the item. |
+| *dws* | The string to insert. |
 
 #### Return value
 
@@ -200,6 +207,26 @@ FUNCTION Remove (BYVAL idx AS LONG) AS BOOLEAN
 | Parameter  | Description |
 | ---------- | ----------- |
 | *idx* | The one-based index of the item to remove. |
+
+#### Return value
+
+If the method succeeds, it returns TRUE; otherwise, FALSE.
+
+---
+
+## <a name="replace"></a>Replace (DWStrList)
+
+Replaces the item at the specified index.
+
+```
+FUNCTION Replace (BYVAL idx AS LONG, BYREF dws AS DWSTRING) AS BOOLEAN
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *idx* | The one-based index of the item to replace. |
+| *dws* | The replacement string. |
+
 
 #### Return value
 
@@ -253,12 +280,13 @@ Returns the number of items in the list.
 Inserts an item at the specific index.
 
 ```
-FUNCTION Insert (BYVAL idx AS LONG) AS BOOLEAN
+FUNCTION Insert (BYVAL idx AS LONG, BYREF dv AS DVARIANT) AS BOOLEAN
 ```
 
 | Parameter  | Description |
 | ---------- | ----------- |
 | *idx* | The one-based index where to insert the item. |
+| *dv* | The variant to insert. |
 
 #### Return value
 
@@ -295,6 +323,26 @@ FUNCTION Remove (BYVAL idx AS LONG) AS BOOLEAN
 | Parameter  | Description |
 | ---------- | ----------- |
 | *idx* | The one-based index of the item to remove. |
+
+#### Return value
+
+If the method succeeds, it returns TRUE; otherwise, FALSE.
+
+---
+
+## <a name="replace2"></a>Replace (DVarList)
+
+Replaces the item at the specified index.
+
+```
+FUNCTION Replace (BYVAL idx AS LONG, BYREF dv AS DVARIANT) AS BOOLEAN
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *idx* | The one-based index of the item to replace. |
+| *dv* | The replacement variant. |
+
 
 #### Return value
 

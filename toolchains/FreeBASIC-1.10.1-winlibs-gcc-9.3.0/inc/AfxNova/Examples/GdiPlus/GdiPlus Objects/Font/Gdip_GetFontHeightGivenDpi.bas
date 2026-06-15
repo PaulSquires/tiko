@@ -3,7 +3,7 @@
 ' File: Gdip_GetFontHeightGivenDpi.bas
 ' Contents: GDI+ Flat API - GdipGetFontHeight example
 ' Compiler: FreeBasic 32 & 64 bit
-' Copyright (c) 2025 José Roca. Freeware. Use at your own risk.
+' Copyright (c) 2026 José Roca. Freeware. Use at your own risk.
 ' THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
 ' EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
@@ -38,29 +38,24 @@ SUB Example_GetFontHeightGivenDpi (BYVAL hdc AS HDC)
    ' // Set the scale transform
    graphics.ScaleTransform
 
-   ' // Create a font from the font family
-   DIM fontFamily AS GdiPlusFontFamily = "Arial"
-   DIM font AS GdiPlusFont = GdiPlusFont(*fontFamily, AfxGdipPointsToPixels(18, TRUE), FontStyleRegular, UnitPixel)
+   ' // Create a font from a font family
+   DIM font AS GdiPlusFont = GdiPlusFont("Arial", 18, TRUE)
 
    ' // Create a solid brush
    DIM brush1 AS GdiPlusSolidBrush = ARGB_BLACK
 
    ' // Draw first line of text
-   DIM text1 AS WSTRING * 64 = "The first line of text"
-   DIM rcf1 AS GpRectF = (0, 0, 300, 100)
-   GdipDrawString(graphics, text1, LEN(text1), font, @rcf1, NULL, brush1)
+   graphics.DrawString("The first line of text", font, brush1, 0, 0, 300, 100)
+
+   ' // Create second brush (red)
+   DIM brush2 AS GdiPlusSolidBrush = ARGB_RED
 
    ' // Get the font height
    DIM height AS SINGLE
    GdipGetFontHeightGivenDpi(font, graphics.dpiY, @height)
 
-   ' // Create second brush (red)
-   DIM brush2 AS GdiPlusSolidBrush = ARGB_RED
-
    ' // Draw second line of text below the first
-   DIM text2 AS WSTRING * 64 = "The second line of text"
-   DIM rcf2 AS GpRectF = (0, height, 300, 100)
-   GdipDrawString(graphics, text2, LEN(text2), font, @rcf2, NULL, brush2)
+   graphics.DrawString("The second line of text", font, brush2, 0, height, 300, 100)
 
 END SUB
 ' ========================================================================================
@@ -92,20 +87,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_GetFontHeightGivenDpi(hdc)
+   Example_GetFontHeightGivenDpi(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

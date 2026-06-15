@@ -42,7 +42,7 @@ SUB Example_FillRegion (BYVAL hdc AS HDC)
 
    ' // Create a Region object from a rectangle.
    DIM rcf AS GpRectF, region AS GpRegion PTR
-   rcf.x = 0 : rcf.y = 0 : rcf.Width = 200 : rcf.Height = 100
+   rcf.x = 10 : rcf.y = 10 : rcf.Width = 200 : rcf.Height = 100
    GdipCreateRegionRect(@rcf, @region)
 
    ' // Fill the rectangle.
@@ -78,20 +78,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_FillRegion(hdc)
+   Example_FillRegion(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

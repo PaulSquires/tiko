@@ -9,8 +9,6 @@
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-'#RESOURCE "Resource.rc"
-' AfxEnableVisualStyles can't be used. This example needs a manifest in a resource file.
 #define UNICODE
 #define _WIN32_WINNT &h0602
 #INCLUDE ONCE "AfxNova/CWindow.inc"
@@ -40,7 +38,7 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
 
    ' // Creates the main window
    DIM pWindow AS CWindow = "MyClassName"   ' Use the name you wish
-   DIM hWin AS HWND = pWindow.Create(NULL, "CWindow - Task Dialog", @WndProc)
+   DIM hWin AS HWND = pWindow.Create(NULL, "CWindow - Task Dialog Indirect", @WndProc)
    ' // Sizes it by setting the wanted width and height of its client area
    pWindow.SetClientSize(400, 220)
    ' // Centers the window
@@ -84,7 +82,7 @@ FUNCTION WndProc (BYVAL hwnd AS HWND, BYVAL uMsg AS UINT, BYVAL wParam AS WPARAM
                ' // Display the message
                IF CBCTLMSG(wParam, lParam) = BN_CLICKED THEN
                   DIM nClickedButton AS LONG
-                  DIM hr AS HRESULT = TaskDialog(hwnd, NULL, "CWindow", "CWindow", _
+                  DIM hr AS HRESULT = AfxTaskDialog(hwnd, NULL, "CWindow", "CWindow", _
                         "An update for the CWindow framework has just been released", _
                         TDCBF_YES_BUTTON OR TDCBF_NO_BUTTON, _
                         TD_INFORMATION_ICON, @nClickedButton)

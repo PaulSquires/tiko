@@ -359,14 +359,6 @@ function Scintilla_OnNotify( _
                     if pDoc->lastCaretPos <> caretPos then
                         pDoc->lastCaretPos = caretPos
 
-                        ' If the xOffset has changed then we need to update the horizontal scrollbar
-                        dim as long GetXOffset = SciExec( pDoc->hWndActiveScintilla, SCI_GETXOFFSET, 0, 0 )
-                        if pDoc->lastXOffsetPos <> GetXOffset then
-                            pDoc->lastXOffsetPos = GetXOffset
-                            AfxRedrawWindow( HWND_FRMEDITOR_HSCROLLBAR(0) )
-                            AfxRedrawWindow( HWND_FRMEDITOR_HSCROLLBAR(1) )
-                        end if
-
                         ' Update any occurrence highlights
                         if gConfig.OccurrenceHighlight then
                             static as string sCurWord, sPrevWord
@@ -410,14 +402,14 @@ function Scintilla_OnNotify( _
                 ' flags because the file could stay dirty for a long time before it gets saved and 
                 ' every call to the parser would happen even in cases where only directional 
                 ' movement has occured with no text modifications at all.
-                
+               
                 ' Get the pDoc from the Scintilla HWND because this is the most reliable
                 ' method of knowing which scintilla window sent the notification (rather than
                 ' using gTTabCtl.GetActiveDocumentPtr. Possible that a control is sending the message
                 ' as it is loading and is not yet the active document ptr.
                 pDoc = gApp.GetDocumentPtrByWindow( pNSC->hdr.hwndFrom )
                 if pDoc then 
-                       
+
                     frmMain_SetStatusbar
                             
                     ' If text was pasted ensure that the scrollbars are updated because it could be the 
@@ -454,7 +446,7 @@ function Scintilla_OnNotify( _
                     end if
                 end if
             end if
-            return true
+            
             
         case SCN_MARGINCLICK
             ' Folder margin
@@ -478,7 +470,7 @@ function Scintilla_OnNotify( _
                 end select 
             end if           
                         
-        
+
         case SCN_AUTOCCANCELLED
             ' Destroy the popup information window
             pDoc = gTTabCtl.GetActiveDocumentPtr()
@@ -504,7 +496,6 @@ function Scintilla_OnNotify( _
             ' ourselves because the startpos of the word is not the same as the start position
             ' used by the autocomplete listbox (because we are doing incremental searches).
             pDoc = gTTabCtl.GetActiveDocumentPtr()
-            
             if pDoc then 
                 hEdit = pDoc->hWndActiveScintilla
                 
@@ -599,7 +590,7 @@ function Scintilla_OnNotify( _
 
     function = 0
 end Function
-         
+   
 
 ' ========================================================================================
 ' Process WM_NOTIFY message for window/dialog: frmMain

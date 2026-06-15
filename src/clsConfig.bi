@@ -95,6 +95,7 @@ type clsConfig
         RestoreSession            as long = true
         wszLastActiveSession      as DWSTRING
         CompactMenus              as long = false
+        CheckUpdates              as long = true
         ShowPanel                 as long = true
         ShowPanelWidth            as long = 250
         ShowOutputPanel           as long = true

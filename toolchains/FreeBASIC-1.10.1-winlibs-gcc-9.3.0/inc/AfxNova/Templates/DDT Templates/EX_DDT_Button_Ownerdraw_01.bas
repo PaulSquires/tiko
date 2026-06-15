@@ -96,7 +96,7 @@ FUNCTION DlgProc (BYVAL hDlg AS HWND, BYVAL uMsg AS DWORD, BYVAL wParam AS DWORD
          SetBkMode pDis->hDC, TRANSPARENT
          SetTextColor pDis->hDC, IIF((pDis->itemState AND ODS_DISABLED), GetSysColor(COLOR_GRAYTEXT), GetSysColor(COLOR_BTNTEXT))
          DIM wszText AS WSTRING * 260
-         GetWindowTextW(pDis->hWndItem, wszText, SIZEOF(wszText))
+         GetWindowTextW(pDis->hWndItem, wszText, SIZEOF(wszText)\2)
          DrawTextW pDis->hDC, wszText, -1, @rc, DT_CENTER OR DT_VCENTER ' or DT_SINGLELINE
          SelectObject pDis->hDC, hOldFont
          DeleteObject(hNewFont)

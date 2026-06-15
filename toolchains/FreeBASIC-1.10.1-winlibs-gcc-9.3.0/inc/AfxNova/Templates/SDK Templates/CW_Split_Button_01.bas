@@ -9,7 +9,7 @@
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-'#RESOURCE "CW_SplitButton_01.rc"
+#cmdline "CW_SplitButton_01.rc"
 #define UNICODE
 #define _WIN32_WINNT &h0602
 #INCLUDE ONCE "AfxNova/CWindow.inc"
@@ -58,7 +58,7 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Create an image list for the button
    DIM hImageList AS HIMAGELIST = ImageList_Create(cx, cx, ILC_COLOR32 OR ILC_MASK, 1, 0)
    ' // --> Remember to change the path and name of the icon
-   IF hImageList THEN ImageList_ReplaceIcon(hImageList, -1, AfxGdipImageFromRes(hInstance, "IDI_SHUTDOWN_48"))
+   IF hImageList THEN AfxGdipAddIconFromRes(hImageList, hInstance, "IDI_SHUTDOWN_48")
    ' // Fill a BUTTON_IMAGELIST structure and set the image list
    DIM bi AS BUTTON_IMAGELIST = (hImageList, (3, 3, 3, 3), BUTTON_IMAGELIST_ALIGN_LEFT)
    Button_SetImageList(hSplitButton, @bi)

@@ -48,9 +48,11 @@ END FUNCTION
 ' ========================================================================================
 SUB Example_EnumerateMetafileDestRect (BYVAL hdc AS HDC)
 
-   DIM status AS GpStatus
+   ' // Create graphics object from HDC
+   DIM graphics AS GdiPlusGraphics = hdc
 
    ' // Load a metafile
+   DIM status AS GpStatus
    DIM metafile AS GpMetafile PTR
    DIM filename AS WSTRING * 64 = "SampleMetafile.emf"
    status = GdipCreateMetafileFromFile(@filename, @metafile)
@@ -58,9 +60,6 @@ SUB Example_EnumerateMetafileDestRect (BYVAL hdc AS HDC)
       AfxMsg "Failed to load metafile: " & WSTR(status)
       EXIT SUB
    END IF
-
-   ' // Create graphics object from HDC
-   DIM graphics AS GdiPlusGraphics = hdc
 
    ' // Define destination rectangle
    DIM destRect AS GpRectF = (50.0, 50.0, 300.0, 200.0)
@@ -104,20 +103,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_EnumerateMetafileDestRect(hdc)
+   Example_EnumerateMetafileDestRect(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

@@ -40,23 +40,20 @@ SUB Example_GetFontUnit (BYVAL hdc AS HDC)
    graphics.ScaleTransform
 
    ' // Create the font
-   DIM fontFamily AS GdiPlusFontFamily = "Arial"
-   DIM font AS GdiPlusFont = GdiPlusFont(*fontFamily, AfxGdipPointsToPixels(18, TRUE), FontStyleRegular, UnitPixel)
+   DIM font AS GdiPlusFont = GdiPlusFont("Arial", 18, TRUE)
 
    ' // Get the unit of measure
    DIM unit AS GpUnit
    GdipGetFontUnit(font, @unit)
 
    ' // Set the Graphics units of graphics to the retrieved unit value.
-   GdipSetPageUnit(*graphics, unit)
+   GdipSetPageUnit(graphics, unit)
 
    ' // Create a solid brush
-   DIM solidBrush AS GdiPlusSolidBrush = ARGB_BLUE
+   DIM brush AS GdiPlusSolidBrush = ARGB_BLUE
 
    ' // Draw a string
-   DIM rcf AS GpRectF = (30, 30, 0, 0)
-   DIM wszText AS WSTRING * 64 = "Here is some text"
-   GdipDrawString(graphics, wszText, LEN(wszText), font, @rcf, NULL, solidBrush)
+   graphics.DrawString("Here is some text", font, brush, 30, 30)
 
 END SUB
 ' ========================================================================================
@@ -88,20 +85,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_GetFontUnit(hdc)
+   Example_GetFontUnit(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

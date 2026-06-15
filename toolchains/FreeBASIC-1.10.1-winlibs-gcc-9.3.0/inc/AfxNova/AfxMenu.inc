@@ -1608,11 +1608,11 @@ END FUNCTION
 '   MenuCheckRadioButton(GetSubMenu(hMenu, 0), 1, 2, 2, TRUE)   ' By position
 ' =====================================================================================
 PRIVATE FUNCTION MenuCheckRadioButton (BYVAL hMenu AS HMENU, BYVAL first AS LONG, BYVAL last AS LONG, BYVAL check AS LONG, BYVAL fByPosition AS BOOLEAN = FALSE) AS BOOLEAN
-   IF fByPosition = TRUE THEN
-      first -= 1 : IF first < 0 THEN first = 0
-      last -= 1 : IF last < 0 THEN last = 0
-      check -= 1 : IF check < 0 THEN check = 0
-   END IF
+'   IF fByPosition = TRUE THEN
+'      first -= 1 : IF first < 0 THEN first = 0
+'      last -= 1 : IF last < 0 THEN last = 0
+'      check -= 1 : IF check < 0 THEN check = 0
+'   END IF
    DIM dwFlags AS DWORD
    IF fByPosition = TRUE THEN dwFlags = MF_BYPOSITION ELSE dwFlags = MF_BYCOMMAND
    DIM bRes AS BOOLEAN = CheckMenuRadioItem(hMenu, first, last, check, dwFlags)
@@ -1794,6 +1794,49 @@ PRIVATE FUNCTION MenuAddIconToItem (BYVAL hMenu AS HMENU, BYVAL item AS LONG, BY
 END FUNCTION
 ' ========================================================================================
 #endif
+
+' ========================================================================================
+' If the menu uses bitmaps, call this function in WM_DESTROY to delete them.
+' CASE WM_DESTROY
+'     // Destroy the menu and the bitmaps
+'     DIM hMenu AS HMENU = GetMenu(hwnd)
+'     AfxDestroyMenuBitmaps(hMenu)
+'     DestroyMenu(hMenu)              
+' ========================================================================================
+SUB AfxDestroyMenuBitmaps (BYVAL hMenu AS HMENU)
+   DIM count AS LONG = GetMenuItemCount(hMenu)
+   DIM mii AS MENUITEMINFOW
+   mii.cbSize = SIZEOF(MENUITEMINFOW)
+   mii.fMask = MIIM_BITMAP OR MIIM_SUBMENU
+   FOR i AS LONG = 0 TO count - 1
+      IF GetMenuItemInfoW(hMenu, i, TRUE, @mii) THEN
+         ' If it has a submenu, process it recursively
+         IF mii.hSubMenu THEN
+            AfxDestroyMenuBitmaps(mii.hSubMenu)
+         END IF
+         ' If it has a bitmap and is NOT one of the special ones
+         IF mii.hbmpItem <> NULL _
+            ANDALSO mii.hbmpItem <> HBMMENU_CALLBACK _
+            ANDALSO mii.hbmpItem <> HBMMENU_SYSTEM _
+            ANDALSO mii.hbmpItem <> HBMMENU_MBAR_CLOSE _
+            ANDALSO mii.hbmpItem <> HBMMENU_MBAR_CLOSE_D _
+            ANDALSO mii.hbmpItem <> HBMMENU_MBAR_MINIMIZE _
+            ANDALSO mii.hbmpItem <> HBMMENU_MBAR_MINIMIZE_D _
+            ANDALSO mii.hbmpItem <> HBMMENU_MBAR_RESTORE _
+            ANDALSO mii.hbmpItem <> HBMMENU_POPUP_CLOSE _
+            ANDALSO mii.hbmpItem <> HBMMENU_POPUP_RESTORE _
+            ANDALSO mii.hbmpItem <> HBMMENU_POPUP_MAXIMIZE _
+            ANDALSO mii.hbmpItem <> HBMMENU_POPUP_MINIMIZE THEN
+            DeleteObject(mii.hbmpItem)
+            mii.hbmpItem = NULL
+            SetMenuItemInfoW(hMenu, i, TRUE, @mii)
+         END IF
+      END IF
+    NEXT
+END SUB
+' ========================================================================================
+#define MenudestroyBitmaps AfxDestroyMenuBitmaps
+' ========================================================================================
 
 END NAMESPACE
 ' ########################################################################################

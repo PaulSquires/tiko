@@ -1,7 +1,7 @@
 ' ########################################################################################
 ' Platform: Microsoft Windows
 ' Filename: AfxDwmApi.bi
-' Purpose:  TRanslation of DwmApi.h
+' Purpose:  Translation of DwmApi.h
 ' Compiler: FreeBASIC 32 & 64 bit
 ' Copyright (c) 2025 José Roca
 '

@@ -27,6 +27,7 @@
 #pragma once
 #INCLUDE ONCE "windows.bi"
 #include once "crt/time.bi"
+#include once "AfxNova/AfxWin.inc"
 #include once "AfxNova/DWSTRING.inc"
 USING AfxNova
 
@@ -165,7 +166,7 @@ PRIVATE FUNCTION AfxMonthName (BYVAL nMonth AS LONG, BYVAL lcid AS LCID = LOCALE
    DIM ST AS SYSTEMTIME, wszDate AS WSTRING * 260
    GetLocalTime(@ST)
    ST.wMonth = nMonth
-   GetDateFormatW(lcid, NULL, @ST, "MMMM", wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, NULL, @ST, "MMMM", wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -176,7 +177,7 @@ END FUNCTION
 PRIVATE FUNCTION AfxLocalMonthName (BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM ST AS SYSTEMTIME, wszDate AS WSTRING * 260
    GetLocalTime(@ST)
-   GetDateFormatW(lcid, NULL, @ST, "MMMM", wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, NULL, @ST, "MMMM", wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -184,7 +185,7 @@ END FUNCTION
 PRIVATE FUNCTION AfxSystemMonthName (BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM ST AS SYSTEMTIME, wszDate AS WSTRING * 260
    GetSystemTime(@ST)
-   GetDateFormatW(lcid, NULL, @ST, "MMMM", wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, NULL, @ST, "MMMM", wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -196,7 +197,7 @@ PRIVATE FUNCTION AfxShortMonthName (BYVAL nMonth AS LONG, BYVAL lcid AS LCID = L
    DIM ST AS SYSTEMTIME, wszDate AS WSTRING * 260
    GetLocalTime(@ST)
    ST.wMonth = nMonth
-   GetDateFormatW(lcid, NULL, @ST, "MMM", wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, NULL, @ST, "MMM", wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -207,7 +208,7 @@ END FUNCTION
 PRIVATE FUNCTION AfxLocalShortMonthName (BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM ST AS SYSTEMTIME, wszDate AS WSTRING * 260
    GetLocalTime(@ST)
-   GetDateFormatW(lcid, NULL, @ST, "MMM", wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, NULL, @ST, "MMM", wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -215,7 +216,7 @@ END FUNCTION
 PRIVATE FUNCTION AfxSystemShortMonthName (BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM ST AS SYSTEMTIME, wszDate AS WSTRING * 260
    GetSystemTime(@ST)
-   GetDateFormatW(lcid, NULL, @ST, "MMM", wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, NULL, @ST, "MMM", wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -227,7 +228,7 @@ PRIVATE FUNCTION AfxLocalDayName (BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS D
    DIM ST AS SYSTEMTIME, wszDate AS WSTRING * 260
    GetLocalTime(@ST)
    IF lcid = 0 THEN lcid = LOCALE_USER_DEFAULT
-   GetDateFormatW(lcid, NULL, @ST, "dddd", wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, NULL, @ST, "dddd", wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -236,7 +237,7 @@ PRIVATE FUNCTION AfxSystemDayName (BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS 
    DIM ST AS SYSTEMTIME, wszDate AS WSTRING * 260
    GetSystemTime(@ST)
    IF lcid = 0 THEN lcid = LOCALE_USER_DEFAULT
-   GetDateFormatW(lcid, NULL, @ST, "dddd", wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, NULL, @ST, "dddd", wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -247,7 +248,7 @@ END FUNCTION
 PRIVATE FUNCTION AfxLocalDayShortName (BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM ST AS SYSTEMTIME, wszDate AS WSTRING * 260
    GetLocalTime(@ST)
-   GetDateFormatW(lcid, NULL, @ST, "ddd", wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, NULL, @ST, "ddd", wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -255,7 +256,7 @@ END FUNCTION
 PRIVATE FUNCTION AfxSystemDayShortName (BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM ST AS SYSTEMTIME, wszDate AS WSTRING * 260
    GetSystemTime(@ST)
-   GetDateFormatW(lcid, NULL, @ST, "ddd", wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, NULL, @ST, "ddd", wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -293,7 +294,7 @@ PRIVATE FUNCTION AfxLocalDayOfWeekName (BYVAL nDay AS LONG, BYVAL nMonth AS LONG
    ST.wYear = nYear
    ST.wMonth = nMonth
    ST.wDay = nDay
-   GetDateFormatW(lcid, NULL, @ST, "dddd", wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, NULL, @ST, "dddd", wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -313,7 +314,7 @@ PRIVATE FUNCTION AfxLocalDayOfWeekShortName (BYVAL nDay AS LONG, BYVAL nMonth AS
    ST.wYear = nYear
    ST.wMonth = nMonth
    ST.wDay = nDay
-   GetDateFormatW(lcid, NULL, @ST, "ddd", wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, NULL, @ST, "ddd", wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -323,7 +324,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION AfxLocalDateStr (BYREF wszMask AS WSTRING, BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM wszDateStr AS WSTRING * 260
-   GetDateFormatW(lcid, NULL, NULL, wszMask, wszDateStr, SIZEOF(wszDateStr))
+   GetDateFormatW(lcid, NULL, NULL, wszMask, wszDateStr, SIZEOF(wszDateStr) \ 2)
    RETURN wszDateStr
 END FUNCTION
 ' ========================================================================================
@@ -333,7 +334,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION AfxLocalTimeStr (BYREF wszMask AS WSTRING, BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM wszDateStr AS WSTRING * 260
-   GetTimeFormatW(lcid, NULL, NULL, wszMask, wszDateStr, SIZEOF(wszDateStr))
+   GetTimeFormatW(lcid, NULL, NULL, wszMask, wszDateStr, SIZEOF(wszDateStr) \ 2)
    RETURN wszDateStr
 END FUNCTION
 ' ========================================================================================
@@ -345,7 +346,7 @@ PRIVATE FUNCTION AfxUtcDateStr (BYREF wszMask AS WSTRING, BYVAL lcid AS LCID = L
    DIM utctime AS SYSTEMTIME
    GetSystemTime(@utctime)
    DIM wszDateStr AS WSTRING * 260
-   GetDateFormatW(lcid, NULL, @utctime, wszMask, wszDateStr, SIZEOF(wszDateStr))
+   GetDateFormatW(lcid, NULL, @utctime, wszMask, wszDateStr, SIZEOF(wszDateStr) \ 2)
    RETURN wszDateStr
 END FUNCTION
 ' ========================================================================================
@@ -357,7 +358,7 @@ PRIVATE FUNCTION AfxUtcTimeStr (BYREF wszMask AS WSTRING, BYVAL lcid AS LCID = L
    DIM utctime AS SYSTEMTIME
    GetSystemTime(@utctime)
    DIM wszTimeStr AS WSTRING * 260
-   GetTimeFormatW(lcid, NULL, @utctime, wszMask, wszTimeStr, SIZEOF(wszTimeStr))
+   GetTimeFormatW(lcid, NULL, @utctime, wszMask, wszTimeStr, SIZEOF(wszTimeStr) \ 2)
    RETURN wszTimeStr
 END FUNCTION
 ' ========================================================================================
@@ -636,7 +637,7 @@ PRIVATE FUNCTION AfxJulianToGregorianStr (BYREF wszMask AS WSTRING, BYVAL nJulia
    DIM ST AS SYSTEMTIME
    DIM wszDate AS WSTRING * 260
    AfxJulianToGregorian(nJulian, ST.wDay, ST.wMonth, ST.wYear)
-   GetDateFormatW(lcid, NULL, @ST, wszMask, wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, NULL, @ST, wszMask, wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -664,7 +665,7 @@ PRIVATE FUNCTION AfxLongDate (BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTR
    DIM ST AS SYSTEMTIME
    DIM wszDate AS WSTRING * 260
    GetLocalTime @ST
-   GetDateFormatW(lcid, DATE_LONGDATE, @ST, BYVAL NULL, wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, DATE_LONGDATE, @ST, BYVAL NULL, wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -676,7 +677,7 @@ PRIVATE FUNCTION AfxShortDate (BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWST
    DIM ST AS SYSTEMTIME
    DIM wszDate AS WSTRING * 260
    GetLocalTime @ST
-   GetDateFormatW(lcid, DATE_SHORTDATE, @ST, NULL, wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, DATE_SHORTDATE, @ST, NULL, wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -708,7 +709,7 @@ PRIVATE FUNCTION AfxQuadDateToStr (BYREF wszMask AS WSTRING, BYVAL ullTime AS UL
    FT.dwHighDateTime = uli.HighPart
    FileTimeToSystemTime(@FT, @ST)
    DIM wszDate AS WSTRING * 260
-   GetDateFormatW(lcid, NULL, @ST, wszMask, wszDate, SIZEOF(wszDate))
+   GetDateFormatW(lcid, NULL, @ST, wszMask, wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -726,7 +727,7 @@ PRIVATE FUNCTION AfxQuadTimeToStr (BYREF wszMask AS WSTRING, BYVAL ullTime AS UL
    FT.dwHighDateTime = uli.HighPart
    FileTimeToSystemTime(@FT, @ST)
    DIM wszDate AS WSTRING * 260
-   GetTimeFormatW(lcid, NULL, @ST, wszMask, wszDate, SIZEOF(wszDate))
+   GetTimeFormatW(lcid, NULL, @ST, wszMask, wszDate, SIZEOF(wszDate) \ 2)
    RETURN wszDate
 END FUNCTION
 ' ========================================================================================
@@ -1038,7 +1039,7 @@ END FUNCTION
 PRIVATE FUNCTION AfxFileTimeToDateStr (BYREF FT AS FILETIME, BYREF wszMask AS WSTRING, BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM ST AS SYSTEMTIME, wszDateStr AS WSTRING * 260
    FileTimeToSystemTime(@FT, @ST)
-   GetDateFormatW(lcid, NULL, @ST, wszMask, wszDateStr, SIZEOF(wszDateStr))
+   GetDateFormatW(lcid, NULL, @ST, wszMask, wszDateStr, SIZEOF(wszDateStr) \ 2)
    RETURN wszDateStr
 END FUNCTION
 ' ========================================================================================
@@ -1049,7 +1050,7 @@ END FUNCTION
 PRIVATE FUNCTION AfxFileTimeToTimeStr (BYREF FT AS FILETIME, BYREF wszMask AS WSTRING, BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM ST AS SYSTEMTIME, wszDateStr AS WSTRING * 260
    FileTimeToSystemTime(@FT, @ST)
-   GetTimeFormatW(lcid, NULL, @ST, wszMask, wszDateStr, SIZEOF(wszDateStr))
+   GetTimeFormatW(lcid, NULL, @ST, wszMask, wszDateStr, SIZEOF(wszDateStr) \ 2)
    RETURN wszDateStr
 END FUNCTION
 ' ========================================================================================
@@ -1060,7 +1061,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION AfxSystemTimeToDateStr (BYREF ST AS SYSTEMTIME, BYREF wszMask AS WSTRING, BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM wszDateStr AS WSTRING * 260
-   GetDateFormatW(lcid, NULL, @ST, wszMask, wszDateStr, SIZEOF(wszDateStr))
+   GetDateFormatW(lcid, NULL, @ST, wszMask, wszDateStr, SIZEOF(wszDateStr) \ 2)
    RETURN wszDateStr
 END FUNCTION
 ' ========================================================================================
@@ -1071,7 +1072,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION AfxSystemTimeToTimeStr (BYREF ST AS SYSTEMTIME, BYREF wszMask AS WSTRING, BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM wszDateStr AS WSTRING * 260
-   GetTimeFormatW(lcid, NULL, @ST, wszMask, wszDateStr, SIZEOF(wszDateStr))
+   GetTimeFormatW(lcid, NULL, @ST, wszMask, wszDateStr, SIZEOF(wszDateStr) \ 2)
    RETURN wszDateStr
 END FUNCTION
 ' ========================================================================================
@@ -1249,5 +1250,67 @@ PRIVATE FUNCTION AfxIsValidFILETIME (BYREF ft AS FILETIME) AS BOOLEAN
    DIM sysTime AS SYSTEMTIME
    IF FileTimeToSystemTime(@ftlocalTime, @sysTime) = 0 THEN RETURN FALSE
    RETURN TRUE
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Comverts Unix time to FileTime.
+' ========================================================================================
+FUNCTION AfxUnixTimeToFileTime (BYVAL unixTime AS DWORD) AS FILETIME
+   ' 11644473600 = seconds between entre 1601 y 1970
+   DIM t AS ULONGLONG = (culngint(unixTime) + 11644473600ull) * 10000000ull
+   DIM ft AS FILETIME
+   ft.dwLowDateTime  =  cast(DWORD, t and &hFFFFFFFFull)
+   ft.dwHighDateTime =  cast(DWORD, t shr 32)
+   RETURN ft
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Comverts Unix time to SystemTime.
+' ========================================================================================
+FUNCTION AfxUnixTimeToSystemTime (BYVAL unixTime AS DWORD) AS SYSTEMTIME
+   ' 11644473600 = seconds between entre 1601 y 1970
+   DIM t AS ULONGLONG = (culngint(unixTime) + 11644473600ull) * 10000000ull
+   DIM ft AS FILETIME
+   ft.dwLowDateTime  =  cast(DWORD, t and &hFFFFFFFFull)
+   ft.dwHighDateTime =  cast(DWORD, t shr 32)
+   DIM st AS SYSTEMTIME
+   FileTimeToSystemTime(@ft, @st)
+   RETURN st
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Retuns an Unix date based on the specified mask, e.g. "dd-MM-yyyy".
+' ========================================================================================
+FUNCTION AfxUnixDateStr (BYVAL unixTime AS DWORD, BYREF wszMask AS WSTRING, BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
+   ' 11644473600 = seconds between entre 1601 y 1970
+   DIM t AS ULONGLONG = (culngint(unixTime) + 11644473600ull) * 10000000ull
+   DIM ft AS FILETIME
+   ft.dwLowDateTime  =  cast(DWORD, t and &hFFFFFFFFull)
+   ft.dwHighDateTime =  cast(DWORD, t shr 32)
+   DIM st AS SYSTEMTIME
+   FileTimeToSystemTime(@ft, @st)
+   DIM wszDate AS WSTRING * 260
+   GetDateFormatW(lcid, NULL, @st, wszMask, wszDate, SIZEOF(wszDate) \ 2)
+   RETURN wszDate
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Retuns an Unix time based on the specified mask, e.g. "hh':'mm':'ss"."
+' ========================================================================================
+FUNCTION AfxUnixTimeStr (BYVAL unixTime AS DWORD, BYREF wszMask AS WSTRING, BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
+   ' 11644473600 = seconds between entre 1601 y 1970
+   DIM t AS ULONGLONG = (culngint(unixTime) + 11644473600ull) * 10000000ull
+   DIM ft AS FILETIME
+   ft.dwLowDateTime  =  cast(DWORD, t and &hFFFFFFFFull)
+   ft.dwHighDateTime =  cast(DWORD, t shr 32)
+   DIM st AS SYSTEMTIME
+   FileTimeToSystemTime(@ft, @st)
+   DIM wszTime AS WSTRING * 260
+   GetTimeFormatW(lcid, NULL, @st, wszMask, wszTime, SIZEOF(wszTime) \ 2)
+   RETURN wszTime
 END FUNCTION
 ' ========================================================================================

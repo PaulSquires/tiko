@@ -177,7 +177,7 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    DIM hWb AS HWND = GetDlgItem(pWindow.hWindow, IDC_WEBBROWSER)
    DIM pWb AS Afx_IWebBrowser2 PTR = CAST(ANY PTR, AfxCAxHostDispPtr(hWb))
    IF pWb THEN
-      DIM dvUrl AS DVARIANT = "https://www.planetsquires.com/protect/forum/index.php"
+      DIM dvUrl AS DVARIANT = "http://www.jose.it-berater.org/index.html"
       DIM hr AS HRESULT = pWb->Navigate2(dvUrl, NULL, NULL, NULL, NULL)
    END IF
 

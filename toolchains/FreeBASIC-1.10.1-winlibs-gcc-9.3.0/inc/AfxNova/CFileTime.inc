@@ -503,7 +503,7 @@ END FUNCTION
 PRIVATE FUNCTION CFileTime.DateString (BYREF wszMask AS WSTRING, BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM st AS SYSTEMTIME = this.GetAsSystemTime
    DIM wszDateStr AS WSTRING * 260
-   GetDateFormatW(lcid, NULL, @st, wszMask, wszDateStr, SIZEOF(wszDateStr))
+   GetDateFormatW(lcid, NULL, @st, wszMask, wszDateStr, SIZEOF(wszDateStr)\2)
    RETURN wszDateStr
 END FUNCTION
 ' ========================================================================================
@@ -514,7 +514,7 @@ END FUNCTION
 PRIVATE FUNCTION CFileTime.TimeString (BYREF wszMask AS WSTRING, BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM st AS SYSTEMTIME = this.GetAsSystemTime
    DIM wszDateStr AS WSTRING * 260
-   GetTimeFormatW(lcid, NULL, @st, wszMask, wszDateStr, SIZEOF(wszDateStr))
+   GetTimeFormatW(lcid, NULL, @st, wszMask, wszDateStr, SIZEOF(wszDateStr)\2)
    RETURN wszDateStr
 END FUNCTION
 ' ========================================================================================

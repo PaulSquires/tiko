@@ -428,7 +428,7 @@ function ctxParser.ParseFunction( byval action as PARSEACTION ) as boolean
             case else
             ' Get the parameter tokens until we get (right parenthesis)
             if readingAllParams andalso readingSingleParam then
-                this.functionParams = this.functionParams & iif(this.token = ",", ",", " " & this.token)
+                this.functionParams = this.functionParams & iif(this.token = ",", wstr(","), wstr(" ") & this.token)
                 if this.token = "," then readingSingleParam = true
             else
                 ' we are not reading params so maybe we have encountered the start of the RETURN_TYPE

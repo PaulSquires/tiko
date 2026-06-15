@@ -661,6 +661,9 @@ function frmFindReplace_OnDestroy( byval hwnd as HWND ) as LRESULT
         gFind.hCueBannerFont = 0
     end if
 
+    DestroyWindow(ghFindTooltip)
+    ghFindTooltip = 0
+
     ' ensure that the tabcontrol shadow is painted once the find dialog disappears
     frmMain_PositionWindows()
     
@@ -701,9 +704,6 @@ function frmFindReplace_WndProc( _
             byval lParam as LPARAM _
             ) as LRESULT
     
-    static hTooltip as HWND
-    if (uMsg = WM_DESTROY) andalso (IsWindow(hToolTip)) then DestroyWindow(hToolTip)
-    
     select case uMsg
         HANDLE_MSG (hwnd, WM_CLOSE,    frmFindReplace_OnClose)
         HANDLE_MSG (hwnd, WM_DESTROY,  frmFindReplace_OnDestroy)
@@ -731,7 +731,7 @@ function frmFindReplace_WndProc( _
         tme.dwHoverTime = 20    ' system default is 400ms
         TrackMouseEvent(@tme) 
 
-        if IsWindow(hTooltip) = 0 then hTooltip = AfxAddTooltip( hwnd, "", false, false )
+        if IsWindow(ghFindTooltip) = 0 then ghFindTooltip = AfxAddTooltip( hwnd, "", false, false )
         AfxRedrawWindow(hwnd)
 
     case WM_MOUSELEAVE
@@ -762,7 +762,7 @@ function frmFindReplace_WndProc( _
         end if
 
         ' Display the tooltip
-        if len(wszTooltip) then AfxSetTooltipText( hTooltip, hwnd, wszTooltip )
+        AfxSetTooltipText( ghFindTooltip, hwnd, wszTooltip )
         AfxRedrawWindow( hwnd )
 
 
@@ -829,7 +829,7 @@ function frmFindReplace_WndProc( _
             SendMessage( hwnd, WM_CLOSE, 0, 0 )
         end if
             
-    End Select
+    end select
 
     function = DefWindowProc(hwnd, uMsg, wParam, lParam)
 
@@ -979,6 +979,9 @@ function frmFindReplace_Show( _
     dim as HWND hCtlFind, hCtlReplace 
     
     gFind.bExpanded = fShowReplace
+
+    if IsWindow(ghFindTooltip) then DestroyWindow(ghFindTooltip)
+    ghFindTooltip = 0
     
     if IsWindow( HWND_FRMFINDREPLACE ) = 0 then
         gFind.nMatchCase = false
@@ -1047,11 +1050,11 @@ function frmFindReplace_Show( _
     gFind.wszResults = L(269, "No results")
 
     ' position the child windows of the find/replace dialog
-    frmFindReplace_PositionWindows
+    frmFindReplace_PositionWindows()
     
     ' Position this Find/Replace popup window separately because this
     ' function is also used during WM_MOVE of frmMain.
-    frmFindReplace_PositionMainWindow
+    frmFindReplace_PositionMainWindow()
     
 
     dim as boolean isOriginalSelectionMultiline = _

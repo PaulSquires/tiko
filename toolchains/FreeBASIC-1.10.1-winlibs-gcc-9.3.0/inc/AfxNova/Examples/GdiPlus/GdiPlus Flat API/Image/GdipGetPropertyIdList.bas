@@ -9,12 +9,12 @@
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-'#CONSOLE ON
+#cmdline "-s console"
 #define _WIN32_WINNT &h0602
 #INCLUDE ONCE "AfxNova/AfxGdiPlus.inc"
 
 ' ========================================================================================
-' Gets a globally unique identifier (GUID) that identifies the format of the image.
+' Gets a list of the property identifiers used in the metadata of an Image object.
 ' ========================================================================================
 
 DIM hStatus AS LONG
@@ -31,7 +31,7 @@ DIM rguid AS GUID
 hStatus = GdipGetImageRawFormat(image, @rguid)
 
 ' // Get the number of properties
-DIm count AS UINT
+DIM count AS UINT
 hStatus = GdipGetPropertyCount(image, @count)
 PRINT "Number of properties =" & STR(count)
 

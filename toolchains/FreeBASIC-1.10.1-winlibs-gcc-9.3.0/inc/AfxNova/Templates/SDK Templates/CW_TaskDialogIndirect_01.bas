@@ -9,8 +9,6 @@
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-'#RESOURCE "Resource.rc"
-' AfxEnableVisualStyles can't be used. This example needs a manifest in a resource file.
 #define UNICODE
 #define _WIN32_WINNT &h0602
 #INCLUDE ONCE "AfxNova/CWindow.inc"
@@ -101,7 +99,7 @@ FUNCTION WndProc (BYVAL hwnd AS HWND, BYVAL uMsg AS UINT, BYVAL wParam AS WPARAM
                      .pfCallback = @TaskDialogIndirectCallbackProc
                   END WITH
                   DIM nClickedButton AS LONG
-                  DIM hr AS HRESULT = TaskDialogIndirect(@TaskConfig, @nClickedButton, NULL, NULL)
+                  DIM hr AS HRESULT = AfxTaskDialogIndirect(@TaskConfig, @nClickedButton, NULL, NULL)
                END IF
          END SELECT
          RETURN 0

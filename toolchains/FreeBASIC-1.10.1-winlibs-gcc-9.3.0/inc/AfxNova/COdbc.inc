@@ -13,6 +13,7 @@
 #include once "windows.bi"
 #include once "win/sql.bi"
 #include once "win/sqlucode.bi"
+#include once "AfxNova/AfxWin.inc"
 #include once "AfxNova/DWSTRING.inc"
 
 NAMESPACE AfxNova
@@ -139,7 +140,7 @@ PRIVATE FUNCTION COdbcBase.GetErrorInfo (BYVAL HandleType AS SQLSMALLINT, BYVAL 
    END IF
    IF ErrorCount THEN
       FOR i AS LONG = 1 TO ErrorCount
-         iResult = SQLGetDiagRecW(HandleType, Handle, 1, @wszSqlState, @lNativeError, @wszErrMsg, SIZEOF(wszErrMsg), @cbbytes)
+         iResult = SQLGetDiagRecW(HandleType, Handle, 1, @wszSqlState, @lNativeError, @wszErrMsg, SIZEOF(wszErrMsg)\2, @cbbytes)
          IF iResult <> SQL_SUCCESS AND iResult <> SQL_SUCCESS_WITH_INFO THEN EXIT FOR
          dwsErrMsg = wszErrMsg & CHR(13, 10) & "SqlState: " & wszSqlState & "; Native error: " & STR(lNativeError) & CHR(13, 10)
       NEXT
@@ -167,7 +168,7 @@ PRIVATE FUNCTION COdbcBase.GetSqlState (BYVAL HandleType AS SQLSMALLINT, BYVAL H
    DIM lNativeError AS SQLINTEGER, cbbytes AS SQLSMALLINT
    DIM wszSqlState AS WSTRING * 6, wszErrMsg AS WSTRING * SQL_MAX_MESSAGE_LENGTH + 1
    SetResult(SQLGetDiagRecW(HandleType, Handle, 1, @wszSqlState, @lNativeError, @wszErrMsg, _
-      SIZEOF(wszErrMsg), @cbbytes), "COdbcBase.GetSqlState", HandleType, Handle)
+      SIZEOF(wszErrMsg)\2, @cbbytes), "COdbcBase.GetSqlState", HandleType, Handle)
    RETURN wszSqlState
 END FUNCTION
 ' ========================================================================================

@@ -127,7 +127,7 @@ When a `Recordset` object is passed across processes, only the rowset values are
 
 ---
 
-### Recordset Dynamic Properties
+## Recordset Dynamic Properties
 
 The table below is a cross-index of the ADO and OLE DB names for each standard OLE DB provider dynamic property. Your providers may add more properties than listed here. For the specific information about provider-specific dynamic properties, see your provider documentation.
 
@@ -250,7 +250,7 @@ Note numbers used in the cross-index:
 
 ---
 
-### In-memory recordsets
+## In-memory recordsets
 
 As an alternative to arrays and/or dictionary objects, we can use ADO to create in-memory recordsets. Some advantages of using ADO over SQLite for this task is that we don't need to use a third party DLL and that we can save a recordset to disk as a stream or as XML just calling **Save** or **SaveAsXml**.
 
@@ -357,7 +357,7 @@ pRecordset.Close
 ```
 ---
 
-## AbsolutePage
+### AbsolutePage
 
 Sets or returns a Long value from 1 to the number of pages in the `Recordset` object (**PageCount**), or returns one of the **PositionEnum** values.
 
@@ -435,7 +435,7 @@ pConnection.Close
 ```
 ---
 
-## <a name="AbsolutePosition"></a>AbsolutePosition
+### <a name="AbsolutePosition"></a>AbsolutePosition
 
 Sets or returns a Long value from 1 to the number of records in the `Recordset` object (**RecordCount**), or returns one of the **PositionEnum** values.
 
@@ -508,7 +508,7 @@ pRecordset.Close
 pConnection.Close
 ```
 
-## ActiveCommand
+### ActiveCommand
 
 Indicates the `Command` object that created the associated `Recordset` object.
 
@@ -582,7 +582,7 @@ pConnection.Close
 ```
 ---
 
-# <a name="ActiveConnection"></a>ActiveConnection
+### ActiveConnection
 
 Sets or returns an string value that contains a definition for a connection if the connection is closed, or a Variant containing the current **Connection** object if the connection is open. Default is a null object reference.
 
@@ -704,7 +704,7 @@ pRecordset.Close
 ```
 ---
 
-## AddNew
+### AddNew
 
 Creates a new record for an updatable `Recordset` object.
 
@@ -772,7 +772,7 @@ pRecordset.Close
 pConnection.Close
 ```
 
-## Attach
+### Attach
 
 Attaches a recordset to the class.
 
@@ -791,7 +791,7 @@ S_OK or an HRESULT code.
 
 ---
 
-## BOF
+### BOF
 
 Indicates that the current record position is before the first record in a `Recordset` object.
 
@@ -805,7 +805,7 @@ TRUE if the current record position is before the first record; FALSE, otherwise
 
 ---
 
-## EOF
+### EOF
 
 Indicates that the current record position is after the last record in a `Recordset` object.
 
@@ -819,7 +819,7 @@ TRUE if the current record position is after the last record; FALSE, otherwise.
 
 ---
 
-## Bookmark
+### Bookmark
 
 Sets or returns a Variant expression that evaluates to a valid bookmark.
 
@@ -848,7 +848,7 @@ When used on a client-side Recordset object, the **Bookmark** property is always
 
 ---
 
-## CacheSize
+### CacheSize
 
 Sets or returns a Long value that must be greater than 0. Default is 1.
 
@@ -883,7 +883,7 @@ If **CacheSize** is set to a value greater than one, the navigation methods (**M
 
 ---
 
-## Cancel
+### Cancel
 
 Cancels execution of a pending, asynchronous method call.
 
@@ -903,7 +903,7 @@ For a `Recordset` object, the last asynchronous call to the **Open** method is t
 
 ---
 
-## CancelBatch
+### CancelBatch
 
 Cancels a pending batch update.
 
@@ -942,7 +942,7 @@ If the attempt to cancel the pending updates fails because of a conflict with th
 
 ---
 
-## CancelUpdate
+### CancelUpdate
 
 Cancels any changes made to the current or new row of a `Recordset` object before calling the **Update** method.
 
@@ -964,7 +964,7 @@ If you are in edit mode and want to move off the current record (for example, wi
 
 ---
 
-## Clone
+### Clone
 
 Creates a duplicate `Recordset` object from an existing **Recordset object**. Optionally, specifies that the clone be read-only.
 
@@ -1026,7 +1026,7 @@ The following table provided a full listing of all `Recordset` events and indica
 
 ---
 
-## Close
+### Close
 
 Closes a `Recordset` object and any dependent objects.
 
@@ -1044,7 +1044,7 @@ Use the **Close** method to close a `Recordset` to free any associated system re
 
 ---
 
-## Collect
+### Collect
 
 Sets or returns a Variant value that indicates the value of the object
 
@@ -1135,7 +1135,7 @@ pConnection.Close
 ```
 ---
 
-## CompareBookmarks
+### CompareBookmarks
 
 Compares two bookmarks and returns an indication of their relative values.
 
@@ -1178,7 +1178,7 @@ A bookmark that is not valid or incorrectly formed will cause an error.
 
 ---
 
-## CursorLocation
+### CursorLocation
 
 Indicates the location of the cursor service.
 
@@ -1207,7 +1207,7 @@ Specifies the location of the cursor service.
 
 ---
 
-## CursorType
+### CursorType
 
 Sets or returns a **CursorTypeEnum** value. The default value is **adOpenForwardOnly**.
 
@@ -1238,7 +1238,7 @@ Specifies the type of cursor used in a `Recordset` object.
 
 ---
 
-## DataMember
+### DataMember
 
 Indicates the name of the data member that will be retrieved from the object referenced by the **DataSource** property.
 
@@ -1265,7 +1265,7 @@ The **DataMember** property determines which object specified by the **DataSourc
 
 ---
 
-## DataSource
+### DataSource
 
 Indicates an object that contains data to be represented as a `Recordset` object.
 
@@ -1292,7 +1292,7 @@ The object referenced must implement the **IDataSource** interface and must cont
 
 ---
 
-## Delete_
+### Delete_
 
 Deletes the current record or a group of records.
 
@@ -1361,7 +1361,7 @@ pConnection.Close
 ```
 ---
 
-## EditMode
+### EditMode
 
 Indicates the editing status of the current record.
 
@@ -1382,7 +1382,7 @@ Specifies the editing status of a record.
 
 ---
 
-## Fields
+### Fields
 
 Gets a reference to the `Fields` collection of a `Record` object.
 
@@ -1396,7 +1396,7 @@ An **Afx_ADOFields** object reference.
 
 ---
 
-## Filter
+### Filter
 
 Indicates a filter for data in a `Recordset`.
 
@@ -1501,7 +1501,7 @@ pConnection.Close
 ```
 ---
 
-## Find
+### Find
 
 Searches a `Recordset` for the row that satisfies the specified criteria. Optionally, the direction of the search, starting row, and offset from the starting row may be specified. If the criteria is met, the current row position is set on the found record; otherwise, the position is set to the end (or start) of the `Recordset`.
 
@@ -1579,7 +1579,7 @@ pConnection.Close
 ```
 ---
 
-## GetErrorInfo
+### GetErrorInfo
 
 Returns information about ADO errors.
 
@@ -1597,7 +1597,7 @@ A description of the error(s).
 
 ---
 
-## GetRows
+### GetRows
 
 Retrieves multiple records of a `Recordset` object into an array.
 
@@ -1673,7 +1673,7 @@ pConnection.Close
 ```
 ---
 
-## GetString
+### GetString
 
 Returns the `Recordset` as a string.
 
@@ -1727,7 +1727,7 @@ pConnection.Close
 ```
 ---
 
-## Index
+### Index
 
 Indicates the name of the index currently in effect for a `Recordset` object.
 
@@ -1810,7 +1810,7 @@ pConnection.Close
 ```
 ---
 
-## LockType
+### LockType
 
 Sets or returns the lock type, a Long value that must be greater than 0. Default is 1.
 
@@ -1853,7 +1853,7 @@ The **LockType** property is read/write when the `Recordset` is closed and read-
 
 ---
 
-## MarshalOptions
+### MarshalOptions
 
 Indicates which records are to be marshaled back to the server.
 
@@ -1887,7 +1887,7 @@ When using a client-side `Recordset`, records that have been modified on the cli
 
 ---
 
-## MaxRecords
+### MaxRecords
 
 Indicates the maximum number of records to return to a `Recordset` from a query.
 
@@ -1933,7 +1933,7 @@ SELECT TOP 20 PERCENT EmployeeID, LastName, FirstName FROM Employees ORDER BY La
 ```
 ---
 
-## Move
+### Move
 
 Moves the position of the current record in a `Recordset` object.
 
@@ -1984,7 +1984,7 @@ If the `Recordset` object is forward only, a user can still pass a *NumRecords* 
 
 ---
 
-## MoveFirst
+### MoveFirst
 
 Moves to the first record in a specified `Recordset` object and makes that record the current record.
 
@@ -2014,7 +2014,7 @@ If the `Recordset` is forward only and you want to support both forward and back
 
 ---
 
-## MoveLast
+### MoveLast
 
 Moves to the last record in a specified `Recordset` object and makes that record the current record.
 
@@ -2044,7 +2044,7 @@ If the `Recordset` is forward only and you want to support both forward and back
 
 ---
 
-## MoveNext
+### MoveNext
 
 Moves to the next record in a specified `Recordset` object and makes that record the current record.
 
@@ -2074,7 +2074,7 @@ If the `Recordset` is forward only and you want to support both forward and back
 
 ---
 
-## MovePrevious
+### MovePrevious
 
 Moves to the previous record in a specified `Recordset` object and makes that record the current record.
 
@@ -2104,7 +2104,7 @@ If the `Recordset` is forward only and you want to support both forward and back
 
 ---
 
-## NextRecordset
+### NextRecordset
 
 Moves to the previous record in a specified `Recordset` object and makes that record the current record.
 
@@ -2138,7 +2138,7 @@ However, other providers may execute the next command in a statement only after 
 
 ---
 
-## Open
+### Open
 
 Opens a connection to a data source.
 
@@ -2296,7 +2296,7 @@ pConnection.Close
 ```
 ---
 
-## PageCount
+### PageCount
 
 Indicates how many pages of data the `Recordset` object contains.
 
@@ -2312,7 +2312,7 @@ See the **PageSize** and **AbsolutePage** properties for more on page functional
 
 ---
 
-## PageSize
+### PageSize
 
 Indicates how many records constitute one page in the `Recordset`.
 
@@ -2339,7 +2339,7 @@ This property can be set at any time, and its value will be used for calculating
 
 ---
 
-## Properties
+### Properties
 
 Returns a reference to the **Properties** collection.
 
@@ -2427,7 +2427,7 @@ pConnection.Close
 ```
 ---
 
-## <a name="RecordCount"></a>RecordCount
+### RecordCount
 
 Indicates the number of records in a `Recordset` object.
 
@@ -2461,7 +2461,7 @@ This behavior is by design.
 
 ---
 
-## Requery
+### Requery
 
 Updates the data in a `Recordset` object by re-executing the query on which the object is based.
 
@@ -2513,7 +2513,7 @@ While the `Recordset` object is open, the properties that define the nature of t
 
 ---
 
-## <a name="Resync"></a>Resync
+### <a name="Resync"></a>Resync
 
 Refreshes the data in the current `Recordset` object from the underlying database.
 
@@ -2565,7 +2565,7 @@ If the Unique Table and Resync Command dynamic properties are set, and the `Reco
 
 ---
 
-## Save
+### Save
 
 Saves the `Recordset` in a file or **Stream** object.
 
@@ -2721,7 +2721,7 @@ pConnection.Close
 ```
 ---
 
-## Seek
+### Seek
 
 Searches the index of a `Recordset` to quickly locate the row that matches the specified values, and changes the current row position to that row.
 
@@ -2806,7 +2806,7 @@ pConnection.Close
 ```
 ---
 
-## Sort
+### Sort
 
 Indicates one or more field names on which the `Recordset` is sorted, and whether each field is sorted in ascending or descending order.
 
@@ -2877,7 +2877,7 @@ pRecordset.Close
 pConnection.Close
 ```
 
-## Source
+### Source
 
 Indicates the data source for a `Recordset` object.
 
@@ -2925,7 +2925,7 @@ DIM hr AS HRESULT = pRecordset.Open
 ```
 ---
 
-## State
+### State
 
 Indicates for whether the state of the `Recordset` object is open or closed.
 
@@ -2957,7 +2957,7 @@ The object's **State** property can have a combination of values. For example, i
 
 ---
 
-## Status
+### Status
 
 Indicates the status of the current record with respect to batch updates or other bulk operations.
 
@@ -2987,7 +2987,7 @@ Use the **Status** property to see what changes are pending for records modified
 
 ---
 
-## StayInSync
+### StayInSync
 
 Indicates, in a hierarchical `Recordset` object, whether the reference to the underlying child records (that is, the chapter) changes when the parent row position changes.
 
@@ -3010,7 +3010,7 @@ This property applies to hierarchical recordsets, such as those supported by the
 
 ---
 
-## Supports
+### Supports
 
 Determines whether a specified `Recordset` object supports a particular type of functionality.
 
@@ -3048,7 +3048,7 @@ True if the object supports the specified type of functionality; False, otherwis
 
 ---
 
-## Update
+### Update
 
 Saves any changes you make to the current row of a `Recordset` object.
 
@@ -3102,7 +3102,7 @@ pConnection.Close
 ```
 ---
 
-## UpdateBatch
+### UpdateBatch
 
 Writes all pending batch updates to disk.
 
@@ -3131,7 +3131,7 @@ S_OK (0) or an HRESULT code.
 
 ---
 
-## SetEvents
+### SetEvents
 
 Sets the events sink.
 

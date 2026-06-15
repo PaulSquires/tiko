@@ -183,15 +183,7 @@ function frmStatusBar_WndProc( _
         return true
 
     case WM_LBUTTONDOWN
-        ' Are we over the resize gripper
-'      dim as POINT pt: GetCursorPos( @pt )
-'      MapWindowPoints( HWND_DESKTOP, hwnd, cast( POINT ptr, @pt ), 1 )
-'      if PtInRect( @grcGripper, pt ) then
-'         SetCursor LoadImage( Null, MAKEINTRESOURCEW(OCR_SIZENWSE), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE or LR_SHARED )
-'         resizing = true
-'         prev_pt = pt
-            SetCapture( hwnd )
-'      end if
+        SetCapture( hwnd )
         
     case WM_MOUSEMOVE
         dim tme as TrackMouseEvent
@@ -201,43 +193,55 @@ function frmStatusBar_WndProc( _
         tme.dwHoverTime = 20    ' HOVER_DEFAULT is 500
         TrackMouseEvent(@tme) 
 
-        if IsWindow(hTooltip) = 0 then hTooltip = AfxAddTooltip( hwnd, "", false, false )
+        if IsWindow(hTooltip) = 0 then 
+            hTooltip = AfxAddTooltip( hwnd, "", false, false )
+        end if
         
         dim as point pt: GetCursorPos( @pt )
-        MapWindowPoints( HWND_DESKTOP, hwnd, cast( point ptr, @pt ), 1 )
-        ' Are we over the resize gripper
-'      if PtInRect( @grcGripper, pt ) then
-'         SetCursor LoadImage( Null, MAKEINTRESOURCEW(OCR_SIZENWSE), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE or LR_SHARED )
-'      else
-'         SetCursor( LoadCursor( null, IDC_ARROW ))
-'      end if
-        if resizing then
-'         dim as long xDelta = prev_pt.x - pt.x 
-'         dim as long yDelta = prev_pt.y - pt.y
-'         ' Resize the main form
-'         dim as RECT rcMain = AfxGetWindowRect( HWND_FRMMAIN )
-'         dim as long nWidth = rcMain.right - rcMain.left - xDelta
-'         dim as long nHeight = rcMain.bottom - rcMain.top - yDelta
-'         SetWindowPos( HWND_FRMMAIN, 0, 0, 0, nWidth, nHeight, SWP_NOMOVE or SWP_NOZORDER )
-        else
-            ' Are we over one of the status bar panels
-            curr_idxHot = -1
-            for i as long = lbound(gSBPanels) to ubound(gSBPanels)
-                if PtInRect( @gSBPanels(i).rc, pt ) then
-                    ' Only make hot panels that have actual text
-                    if len(gSBPanels(i).wszText) then
-                        curr_idxHot = i
-                        gSBPanels(i).isHot = true
-                    end if   
-                else   
-                    gSBPanels(i).isHot = false
-                end if
-            next
-            if curr_idxHot <> prev_idxHot then
-                AfxRedrawWindow( hwnd )
-                prev_idxHot = curr_idxHot 
-            end if
+        
+        ' Move the tooltip into place
+        dim as DWSTRING wszTooltip
+        if IsMouseOverRECT(hwnd,  gSBPanels(BUILD_DIALOG_PANEL).rc ) then 
+            wszTooltip = L(277,"Build Configurations") & "..."
         end if
+        if IsMouseOverRECT(hwnd,  gSBPanels(THEMES_DIALOG_PANEL).rc ) then 
+            wszTooltip = L(111,"Themes and Fonts")
+        end if
+        if IsMouseOverRECT(hwnd,  gSBPanels(COMPILE_STATUS_PANEL).rc ) then 
+            wszTooltip = L(251,"View Output Window")
+        end if
+        if (wszTooltip = "") andalso (IsWindow(hToolTip)) then 
+            DestroyWindow(hToolTip)
+        else
+            dim as DWSTRING wszCurTooltip = AfxGetWindowText(hTooltip)
+            if wszTooltip <> wszCurTooltip then
+                AfxSetTooltipText( hTooltip, hwnd, wszTooltip )
+            end if    
+        end if
+        
+        SetWindowPos( hTooltip, 0, _
+                        pt.x + AfxScaleX(12), pt.y + AfxScaleY(16), _
+                        0, 0, SWP_NOZORDER or SWP_NOSIZE or SWP_NOACTIVATE )
+
+        ' Are we over one of the status bar panels
+        MapWindowPoints( HWND_DESKTOP, hwnd, cast( point ptr, @pt ), 1 )
+        curr_idxHot = -1
+        for i as long = lbound(gSBPanels) to ubound(gSBPanels)
+            if PtInRect( @gSBPanels(i).rc, pt ) then
+                ' Only make hot panels that have actual text
+                if len(gSBPanels(i).wszText) then
+                    curr_idxHot = i
+                    gSBPanels(i).isHot = true
+                end if   
+            else   
+                gSBPanels(i).isHot = false
+            end if
+        next
+        if curr_idxHot <> prev_idxHot then
+            AfxRedrawWindow( hwnd )
+            prev_idxHot = curr_idxHot 
+        end if
+
             
     case WM_MOUSELEAVE
         for i as long = lbound(gSBPanels) to ubound(gSBPanels)
@@ -246,6 +250,7 @@ function frmStatusBar_WndProc( _
         prev_idxHot = -1
         curr_idxHot = -1
         AfxRedrawWindow( hwnd )
+
 
     case WM_LBUTTONUP
         dim as point pt: GetCursorPos( @pt )
@@ -261,23 +266,6 @@ function frmStatusBar_WndProc( _
             end if
         next   
 
-    case WM_MOUSEHOVER
-        dim as DWSTRING wszTooltip
-        if IsMouseOverRECT(hwnd,  gSBPanels(BUILD_DIALOG_PANEL).rc ) then 
-            wszTooltip = L(277,"Build Configurations") & "..."
-        end if
-        if IsMouseOverRECT(hwnd,  gSBPanels(THEMES_DIALOG_PANEL).rc ) then 
-            wszTooltip = L(111,"Themes and Fonts")
-        end if
-        if IsMouseOverRECT(hwnd,  gSBPanels(COMPILE_STATUS_PANEL).rc ) then 
-            wszTooltip = L(251,"View Output Window")
-        end if
-        if (wszTooltip = "") andalso (IsWindow(hToolTip)) then 
-            DestroyWindow(hToolTip)
-        else    
-            AfxSetTooltipText( hTooltip, hwnd, wszTooltip )
-        end if
-        
 
     case WM_PAINT
         dim pWindow as CWindow ptr = AfxCWindowPtr(HWND_FRMMAIN_STATUSBAR)

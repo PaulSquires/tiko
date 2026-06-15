@@ -34,10 +34,18 @@
 #INCLUDE ONCE "win/commdlg.bi"
 #INCLUDE ONCE "win/cderr.bi"
 #INCLUDE ONCE "crt/string.bi"
+#INCLUDE ONCE "win/wincrypt.bi"
+#INCLUDE ONCE "win/iphlpapi.bi"
+#INCLUDE ONCE "win/wininet.bi"
 #INCLUDE ONCE "AfxNova/DWSTRProcs.inc"
 #INCLUDE ONCE "AfxNova/AfxPath.inc"
+#INCLUDE ONCE "AfxNova/AfxTime.inc"
+'#INCLUDE ONCE "AfxNova/AfxWsh.inc"   ' Don't include it; creates a circular dependency
 #INCLUDE ONCE "AfxNova/AfxExt.bi"   ' // Windows API extensions
 USING AfxNova
+
+' // The linker fails when calling GetUserNameExW because the function is not exported by libsecur32.dll.a
+DECLARE FUNCTION __GetUserNameExW LIB "secur32.dll" ALIAS "GetUserNameExW" (BYVAL NameFormat AS LONG, BYVAL lpNameBuffer AS LPWSTR, BYVAL nSize AS PULONG) as BOOLEAN
 
 NAMESPACE AfxNova
 
@@ -103,24 +111,56 @@ END FUNCTION
 'PowerBasic's MsgBox has the style and c aption parameters reversed
 ' ========================================================================================
 PRIVATE FUNCTION MsgBox OVERLOAD (BYREF wszText AS WSTRING, BYVAL uType AS DWORD = 0, BYREF wszCaption AS WSTRING = "Message") AS LONG
-   RETURN MessageBoxW(GetActiveWindow, @wszText, @wszCaption, MB_APPLMODAL OR uType) 
+   RETURN MessageBoxW(GetActiveWindow, @wszText, @wszCaption, MB_APPLMODAL OR uType)
 END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION MsgBox OVERLOAD (BYVAL pwszText AS WSTRING PTR, BYVAL uType AS DWORD = 0, BYREF wszCaption AS WSTRING = "Message") AS LONG
-   RETURN MessageBoxW(GetActiveWindow, pwszText, @wszCaption, MB_APPLMODAL OR uType) 
+   RETURN MessageBoxW(GetActiveWindow, pwszText, @wszCaption, MB_APPLMODAL OR uType)
 END FUNCTION
 ' ========================================================================================
 ' ========================================================================================
 ' PowerBasic has no parameter for the parent window.
 ' ========================================================================================
 PRIVATE FUNCTION MsgBox OVERLOAD (BYVAL hwnd AS HWND, BYREF wszText AS WSTRING, BYVAL uType AS DWORD = 0, BYREF wszCaption AS WSTRING = "Message") AS LONG
-   RETURN MessageBoxW(hWnd, @wszText, @wszCaption, MB_APPLMODAL OR uType) 
+   RETURN MessageBoxW(hWnd, @wszText, @wszCaption, MB_APPLMODAL OR uType)
 END FUNCTION
 ' ========================================================================================
 ' ========================================================================================
 PRIVATE FUNCTION MsgBox OVERLOAD (BYVAL hwnd AS HWND, BYREF pwszText AS WSTRING PTR, BYVAL uType AS DWORD = 0, BYREF wszCaption AS WSTRING = "Message") AS LONG
-   RETURN MessageBoxW(hWnd, pwszText, @wszCaption, MB_APPLMODAL OR uType) 
+   RETURN MessageBoxW(hWnd, pwszText, @wszCaption, MB_APPLMODAL OR uType)
 END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Creates, displays, and operates a task dialog.
+' Needed if we use AfxEnableVisualStyles instead of a manifest.
+' Otherwise, the linker will search the function in comctl32.dll version 5 instead of 6
+' and it will fail because it does not exist in versions prior to 6.
+' ========================================================================================
+#if _WIN32_WINNT >= &h0600
+PRIVATE FUNCTION AfxTaskDialog (BYVAL hwndOwner AS HWND, BYVAL hInst AS HINSTANCE, BYVAL pwszWindowTitle AS PCWSTR, BYVAL pwszMainInstruction AS PCWSTR, BYVAL pwszContent AS PCWSTR, BYVAL dwCommonButtons AS TASKDIALOG_COMMON_BUTTON_FLAGS, BYVAL pwszIcon AS PCWSTR, BYVAL pnButton AS LONG PTR) AS HRESULT
+   DIM hLib AS HMODULE = LoadLibraryW("comctl32.dll")
+   IF hLib = NULL THEN RETURN HRESULT_FROM_WIN32(GetLastError)
+   DIM pfnTaskDialog AS FUNCTION (BYVAL hwndOwner AS HWND, BYVAL hInst AS HINSTANCE, BYVAL pwszWindowTitle AS PCWSTR, BYVAL pwszMainInstruction AS PCWSTR, BYVAL pwszContent AS PCWSTR, BYVAL dwCommonButtons AS TASKDIALOG_COMMON_BUTTON_FLAGS, BYVAL pwszIcon AS PCWSTR, BYVAL pnButton AS LONG PTR) AS HRESULT
+   pfnTaskDialog = CAST(ANY PTR, GetProcAddress(hLib, "TaskDialog"))
+   DIM hr AS HRESULT
+   IF pfnTaskDialog THEN hr = pfnTaskDialog(hwndOwner, hInst, pwszWindowTitle, pwszMainInstruction, pwszContent, dwCommonButtons, pwszIcon, pnButton)
+   FreeLibrary hLib
+   RETURN hr
+END FUNCTION
+' ========================================================================================
+' ========================================================================================
+PRIVATE FUNCTION AfxTaskDialogIndirect (BYVAL pTaskConfig AS CONST TASKDIALOGCONFIG PTR, BYVAL pnButton AS LONG PTR, BYVAL pnRadioButton AS LONG PTR, BYVAL pfVerificationFlagChecked AS BOOL PTR) AS HRESULT
+   DIM hLib AS HMODULE = LoadLibraryW("comctl32.dll")
+   IF hLib = NULL THEN RETURN HRESULT_FROM_WIN32(GetLastError)
+   DIM pfnTaskDialogIndirect AS FUNCTION (BYVAL pTaskConfig AS CONST TASKDIALOGCONFIG PTR, BYVAL pnButton AS LONG PTR, BYVAL pnRadioButton AS LONG PTR, BYVAL pfVerificationFlagChecked AS BOOL PTR) AS HRESULT
+   pfnTaskDialogIndirect = CAST(ANY PTR, GetProcAddress(hLib, "TaskDialogIndirect"))
+   DIM hr AS HRESULT
+   IF pfnTaskDialogIndirect THEN hr = pfnTaskDialogIndirect(pTaskConfig, pnButton, pnRadioButton, pfVerificationFlagChecked)
+   FreeLibrary hLib
+   RETURN hr
+END FUNCTION
+#endif
 ' ========================================================================================
 
 ' ========================================================================================
@@ -255,11 +295,73 @@ PRIVATE FUNCTION AfxWindowsVersion () AS LONG
    pfnRtlGetVersion = CAST(ANY PTR, GetProcAddress(hLib, "RtlGetVersion"))
    IF pfnRtlGetVersion = NULL THEN EXIT FUNCTION
    DIM osverinfo AS OSVERSIONINFOEXW
+   osverinfo.dwOSVersionInfoSize = SIZEOF(osverinfo)
    IF pfnRtlGetVersion(@osverinfo) = 0 THEN   ' STATUS_SUCCESS
       FUNCTION = (osverinfo.dwMajorVersion + osverinfo.dwMinorVersion / 100) * 100
    END IF
    FreeLibrary hLib
 END FUNCTION
+' ========================================================================================
+#define AfxGetWindowsVersion AfxWindowsVersion
+' ========================================================================================
+
+' ========================================================================================
+PRIVATE FUNCTION AfxWindowsMajorVersion () AS LONG
+   DIM hLib AS HMODULE = LoadLibraryW("NtDll.dll")
+   IF hLib = NULL THEN EXIT FUNCTION
+   DIM pfnRtlGetVersion AS FUNCTION (BYVAL lpVersionInformation AS OSVERSIONINFOEXW PTR) AS LONG
+   pfnRtlGetVersion = CAST(ANY PTR, GetProcAddress(hLib, "RtlGetVersion"))
+   IF pfnRtlGetVersion THEN
+      DIM osverinfo AS OSVERSIONINFOEXW
+      osverinfo.dwOSVersionInfoSize = SIZEOF(osverinfo)
+      IF pfnRtlGetVersion(@osverinfo) = 0 THEN   ' STATUS_SUCCESS
+         FUNCTION = osverinfo.dwMajorVersion
+      END IF
+   END IF
+   FreeLibrary hLib
+END FUNCTION
+' ========================================================================================
+#define AfxGetWindowsMajorVersion AfxWindowsMajorVersion
+' ========================================================================================
+
+' ========================================================================================
+PRIVATE FUNCTION AfxWindowsMinorVersion () AS LONG
+   DIM hLib AS HMODULE = LoadLibraryW("NtDll.dll")
+   IF hLib = NULL THEN EXIT FUNCTION
+   DIM pfnRtlGetVersion AS FUNCTION (BYVAL lpVersionInformation AS OSVERSIONINFOEXW PTR) AS LONG
+   pfnRtlGetVersion = CAST(ANY PTR, GetProcAddress(hLib, "RtlGetVersion"))
+   IF pfnRtlGetVersion THEN
+      DIM osverinfo AS OSVERSIONINFOEXW
+      osverinfo.dwOSVersionInfoSize = SIZEOF(osverinfo)
+      IF pfnRtlGetVersion(@osverinfo) = 0 THEN   ' STATUS_SUCCESS
+         FUNCTION = osverinfo.dwMinorVersion
+      END IF
+   END IF
+   FreeLibrary hLib
+END FUNCTION
+' ========================================================================================
+#define AfxGetWindowsMinorVersion AfxWindowsMinorVersion
+' ========================================================================================
+
+' ========================================================================================
+' Returns the full Windows version as a string.
+' ========================================================================================
+PRIVATE FUNCTION AfxWindowsVersionStr () AS DWSTRING
+   DIM hLib AS HMODULE = LoadLibraryW("NtDll.dll")
+   IF hLib = NULL THEN EXIT FUNCTION
+   DIM pfnRtlGetVersion AS FUNCTION (BYVAL lpVersionInformation AS OSVERSIONINFOEXW PTR) AS LONG
+   pfnRtlGetVersion = CAST(ANY PTR, GetProcAddress(hLib, "RtlGetVersion"))
+   IF pfnRtlGetVersion = NULL THEN EXIT FUNCTION
+   DIM dwsVer AS DWSTRING
+   DIM osverinfo AS OSVERSIONINFOEXW
+   osverinfo.dwOSVersionInfoSize = SIZEOF(osverinfo)
+   IF pfnRtlGetVersion(@osverinfo) = 0 THEN   ' STATUS_SUCCESS
+      FUNCTION = WSTR(osverinfo.dwMajorVersion) + "." + WSTR(osverinfo.dwMinorVersion) + "." + WSTR(osverinfo.dwBuildNumber)
+   END IF
+   FreeLibrary hLib
+END FUNCTION
+' ========================================================================================
+#define AfxGetWindowsVersionStr AfxWindowsVersionStr
 ' ========================================================================================
 
 ' ========================================================================================
@@ -274,11 +376,14 @@ PRIVATE FUNCTION AfxWindowsPlatform () AS LONG
    pfnRtlGetVersion = CAST(ANY PTR, GetProcAddress(hLib, "RtlGetVersion"))
    IF pfnRtlGetVersion = NULL THEN EXIT FUNCTION
    DIM osverinfo AS OSVERSIONINFOEXW
+   osverinfo.dwOSVersionInfoSize = SIZEOF(osverinfo)
    IF pfnRtlGetVersion(@osverinfo) = 0 THEN   ' STATUS_SUCCESS
       FUNCTION = osverinfo.dwPlatformId
    END IF
    FreeLibrary hLib
 END FUNCTION
+' ========================================================================================
+#define AfxGetWindowsPlatform AfxWindowsPlatform
 ' ========================================================================================
 
 ' ========================================================================================
@@ -291,11 +396,14 @@ PRIVATE FUNCTION AfxWindowsBuild () AS LONG
    pfnRtlGetVersion = CAST(ANY PTR, GetProcAddress(hLib, "RtlGetVersion"))
    IF pfnRtlGetVersion = NULL THEN EXIT FUNCTION
    DIM osverinfo AS OSVERSIONINFOEXW
+   osverinfo.dwOSVersionInfoSize = SIZEOF(osverinfo)
    IF pfnRtlGetVersion(@osverinfo) = 0 THEN   ' STATUS_SUCCESS
       FUNCTION = osverinfo.dwBuildNumber
    END IF
    FreeLibrary hLib
 END FUNCTION
+' ========================================================================================
+#define AfxGetWindowsBuild AfxWindowsBuild
 ' ========================================================================================
 
 ' ========================================================================================
@@ -337,31 +445,63 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetWinDir () AS DWSTRING
    DIM wszWinDir AS WSTRING * MAX_PATH
-   GetWindowsDirectoryW wszWinDir, SIZEOF(wszWinDir)
+   GetWindowsDirectoryW(wszWinDir, SIZEOF(wszWinDir) \ 2)
    RETURN wszWinDir
 END FUNCTION
 ' ========================================================================================
-
-' ========================================================================================
-' * Retrieves the name of the user associated with the current thread.
-' ========================================================================================
-PRIVATE FUNCTION AfxGetUserName () AS DWSTRING
-   DIM buffer AS WSTRING * 260
-   DIM dwBufLen AS DWORD = SIZEOF(buffer)
-   GetUserNameW(buffer, @dwBufLen)
-   RETURN buffer
-END FUNCTION
+#define AfxWindowsDirectory AfxGetWinDir
+#define AfxWinDir AfxGetWinDir
 ' ========================================================================================
 
 ' ========================================================================================
-' * Retrieves the computer name of the current system.
+' Retrieves the path of the directory designated for temporary files.
 ' ========================================================================================
-PRIVATE FUNCTION AfxGetComputerName () AS DWSTRING
-   DIM buffer AS WSTRING * MAX_COMPUTERNAME_LENGTH + 1
-   DIM dwBufLen AS DWORD = SIZEOF(buffer)
-   GetComputerNameW(buffer, @dwBufLen)
-   RETURN buffer
+PRIVATE FUNCTION AfxGetTempPath () AS DWSTRING
+   DIM path AS WSTRING * MAX_PATH
+   ..GetTempPathW(MAX_PATH, @path)
+   RETURN path
 END FUNCTION
+' ========================================================================================
+#define AfxTempPath AfxGetTempPath
+' ========================================================================================
+
+' ========================================================================================
+' Retrieves the path of the system directory used by WOW64.
+' This directory is not present on 32-bit Windows.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetSystemWow64Directory () AS DWSTRING
+   DIM cbLen AS UINT = GetSystemWow64DirectoryW(NULL, 0)
+   IF cbLen = 0 THEN RETURN ""
+   DIM dwsBuffer AS DWSTRING = WSPACE(cbLen)
+   cbLen = GetSystemWow64DirectoryW(*dwsBuffer, cbLen)
+   RETURN dwsBuffer
+END FUNCTION
+' ========================================================================================
+#define AfxSystemWow64Directory AfxGetSystemWow64Directory
+' ========================================================================================
+
+' ========================================================================================
+' Returns the system drive name, e.g. "C:".
+' ========================================================================================
+PRIVATE FUNCTION AfxSystemDrive () AS DWSTRING
+   DIM path AS WSTRING * MAX_PATH
+   GetWindowsDirectoryW(@path, MAX_PATH)
+   RETURN LEFT(path, 2)   ' "C:"
+END FUNCTION
+' ========================================================================================
+#define AfxGetSystemDrive AfxSystemDrive
+' ========================================================================================
+
+' ========================================================================================
+' Retrieves the path of the system directory.
+' ========================================================================================
+PRIVATE FUNCTION AfxSystemDirectory () AS DWSTRING
+   DIM path AS WSTRING * MAX_PATH
+   ..GetSystemDirectoryW(@path, MAX_PATH)
+   RETURN path
+END FUNCTION
+' ========================================================================================
+#define AfxGetSystemDirectory AfxSystemDirectory
 ' ========================================================================================
 
 ' ========================================================================================
@@ -371,7 +511,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetExePath () AS DWSTRING
    DIM buffer AS WSTRING * MAX_PATH, p AS LONG
-   GetModuleFileNameW NULL, buffer, SIZEOF(buffer)
+   GetModuleFileNameW(NULL, buffer, SIZEOF(buffer)\2)
    p = INSTRREV(buffer, ANY ":/\")
    IF p THEN
       buffer = LEFT(buffer, p)
@@ -380,6 +520,8 @@ PRIVATE FUNCTION AfxGetExePath () AS DWSTRING
    RETURN buffer
 END FUNCTION
 ' ========================================================================================
+#define AfxExePath AfxGetExePath
+' ========================================================================================
 
 ' ========================================================================================
 ' * Returns the path of the program which is currently executing.
@@ -387,10 +529,12 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetExePathName () AS DWSTRING
    DIM buffer AS WSTRING * MAX_PATH, p AS LONG
-   GetModuleFileNameW NULL, buffer, SIZEOF(buffer)
+   GetModuleFileNameW(NULL, buffer, SIZEOF(buffer)\2)
    p = INSTRREV(buffer, ANY ":/\")
    RETURN LEFT(buffer, p)
 END FUNCTION
+' ========================================================================================
+#define AfxExePathName AfxGetExePathName
 ' ========================================================================================
 
 ' ========================================================================================
@@ -398,7 +542,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetExeFileName () AS DWSTRING
    DIM buffer AS WSTRING * MAX_PATH, p AS LONG
-   GetModuleFileNameW NULL, buffer, SIZEOF(buffer)
+   GetModuleFileNameW(NULL, buffer, SIZEOF(buffer)\2)
    p = INSTRREV(buffer, ANY ":/\")
    IF p THEN buffer = MID(buffer, p + 1)
    p = INSTRREV(buffer, ".")
@@ -406,17 +550,21 @@ PRIVATE FUNCTION AfxGetExeFileName () AS DWSTRING
    RETURN buffer
 END FUNCTION
 ' ========================================================================================
+#define AfxExeFileName AfxGetExeFileName
+' ========================================================================================
 
 ' ========================================================================================
 ' * Returns the file name and extension of the program which is currently executing.
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetExeFileNameX () AS DWSTRING
    DIM buffer AS WSTRING * MAX_PATH, p AS LONG
-   GetModuleFileNameW NULL, buffer, SIZEOF(buffer)
+   GetModuleFileNameW(NULL, buffer, SIZEOF(buffer)\2)
    p = INSTRREV(buffer, ANY ":/\")
    IF p THEN buffer = MID(buffer, p + 1)
    RETURN buffer
 END FUNCTION
+' ========================================================================================
+#define AfxExeFileNameX AfxGetExeFileNameX
 ' ========================================================================================
 
 ' ========================================================================================
@@ -424,10 +572,12 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetExeFileExt () AS DWSTRING
    DIM buffer AS WSTRING * MAX_PATH, p AS LONG
-   GetModuleFileNameW NULL, buffer, SIZEOF(buffer)
+   GetModuleFileNameW(NULL, buffer, SIZEOF(buffer)\2)
    p = INSTRREV(buffer, ".")
    IF p THEN RETURN MID(buffer, p) ELSE RETURN buffer
 END FUNCTION
+' ========================================================================================
+#define AfxExeFileExt AfxGetExeFileExt
 ' ========================================================================================
 
 ' ========================================================================================
@@ -435,9 +585,11 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetExeFullPath () AS DWSTRING
    DIM buffer AS WSTRING * MAX_PATH, cb AS LONG
-   cb = GetModuleFileNameW(NULL, buffer, SIZEOF(buffer))
+   cb = GetModuleFileNameW(NULL, buffer, SIZEOF(buffer)\2)
    RETURN LEFT(buffer, cb)
 END FUNCTION
+' ========================================================================================
+#define AfxExeFullPath AfxGetExeFullPath
 ' ========================================================================================
 
 ' ========================================================================================
@@ -459,6 +611,8 @@ PRIVATE FUNCTION AfxGetFileName (BYREF wszPath AS WSTRING) AS DWSTRING
    RETURN dwsPath
 END FUNCTION
 ' ========================================================================================
+#define AfxFileName AfxGetFileName
+' ========================================================================================
 
 ' ========================================================================================
 ' * Parses a path/filename and returns the file name portion. That is the text to the right
@@ -470,6 +624,8 @@ PRIVATE FUNCTION AfxGetFileNameX (BYREF wszPath AS WSTRING) AS DWSTRING
    p = INSTRREV(dwsPath, ANY ":/\")
    IF p THEN RETURN MID(dwsPath, p + 1) ELSE RETURN dwsPath
 END FUNCTION
+' ========================================================================================
+#define AfxFileNameX AfxGetFileNameX
 ' ========================================================================================
 
 ' ========================================================================================
@@ -483,6 +639,8 @@ PRIVATE FUNCTION AfxGetFileExt (BYREF wszPath AS WSTRING) AS DWSTRING
    IF p THEN RETURN MID(dwsPath, p) ELSE RETURN dwsPath
 END FUNCTION
 ' ========================================================================================
+#define AfxFileExt AfxGetFileExt
+' ========================================================================================
 
 ' ========================================================================================
 ' * Retrieves the current directory for the current process.
@@ -493,19 +651,8 @@ PRIVATE FUNCTION AfxGetCurrentDirectory () AS DWSTRING
    RETURN wszCurDir
 END FUNCTION
 ' ========================================================================================
-' ========================================================================================
-PRIVATE FUNCTION AfxGetCurDir () AS DWSTRING
-   DIM wszCurDir AS WSTRING * MAX_PATH
-   GetCurrentDirectoryW(MAX_PATH, wszCurDir)
-   RETURN wszCurDir
-END FUNCTION
-' ========================================================================================
-' ========================================================================================
-PRIVATE FUNCTION AfxCurDir () AS DWSTRING
-   DIM wszCurDir AS WSTRING * MAX_PATH
-   GetCurrentDirectoryW(MAX_PATH, wszCurDir)
-   RETURN wszCurDir
-END FUNCTION
+#define AfxGetCurDir AfxGetCurrentDirectory
+#define AfxCurDir AfxGetCurrentDirectory
 ' ========================================================================================
 
 ' ========================================================================================
@@ -521,6 +668,8 @@ END FUNCTION
 PRIVATE FUNCTION AfxSetCurrentDirectory (BYVAL pwszPathName AS LPCWSTR) AS BOOLEAN
    RETURN SetCurrentDirectoryW(pwszPathName)
 END FUNCTION
+' ========================================================================================
+#define AfxSetCurDir AfxSetCurrentDirectory
 ' ========================================================================================
 
 ' ========================================================================================
@@ -538,9 +687,11 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetLongPathName (BYREF wszPath AS WSTRING) AS DWSTRING
    DIM wszLongPath AS WSTRING * MAX_PATH
-   GetLongPathNameW(wszPath, wszLongPath, SIZEOF(wszLongPath))
+   GetLongPathNameW(wszPath, wszLongPath, SIZEOF(wszLongPath)\2)
    RETURN wszLongPath
 END FUNCTION
+' ========================================================================================
+#define AfxLongPathName AfxGetLongPathName
 ' ========================================================================================
 
 ' ========================================================================================
@@ -548,9 +699,11 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetShortPathName (BYREF wszPath AS WSTRING) AS DWSTRING
    DIM wszShortPath AS WSTRING * MAX_PATH
-   GetShortPathNameW(wszPath, wszShortPath, SIZEOF(wszShortPath))
+   GetShortPathNameW(wszPath, wszShortPath, SIZEOF(wszShortPath)\2)
    RETURN wszShortPath
 END FUNCTION
+' ========================================================================================
+#define AfxShortPathName AfxGetShortPathName
 ' ========================================================================================
 
 ' ========================================================================================
@@ -564,6 +717,8 @@ PRIVATE FUNCTION AfxGetPathName (BYREF wszPath AS WSTRING) AS DWSTRING
    IF p THEN RETURN LEFT(dwsPath, p)
    RETURN ""
 END FUNCTION
+' ========================================================================================
+#define AfxPathName AfxGetPathName
 ' ========================================================================================
 
 ' ========================================================================================
@@ -582,6 +737,8 @@ PRIVATE FUNCTION AfxGetFolderName (BYREF wszPath AS WSTRING) AS DWSTRING
    RETURN dwsPath
 END FUNCTION
 ' ========================================================================================
+#define AfxFolderName AfxGetFolderName
+' ========================================================================================
 
 ' ========================================================================================
 ' * Retrieves the path of the specified system DLL.
@@ -590,11 +747,13 @@ PRIVATE FUNCTION AfxGetSystemDllPath (BYREF wszDllName AS WSTRING) AS DWSTRING
    DIM wszPath AS WSTRING * MAX_PATH
    DIM hLib AS HMODULE = LoadLibraryW(wszDllName)
    IF hLib THEN
-      GetModuleFileNameW(hLib, wszPath, SIZEOF(wszPath))
+      GetModuleFileNameW(hLib, wszPath, SIZEOF(wszPath)\2)
       FreeLibrary hLib
    END IF
    RETURN wszPath
 END FUNCTION
+' ========================================================================================
+#define AfxSystemDllPath AfxGetSystemDllPath
 ' ========================================================================================
 
 ' ========================================================================================
@@ -604,11 +763,13 @@ PRIVATE FUNCTION AfxGetPathFromProcessId (BYVAL dwProcessId AS DWORD) AS DWSTRIN
    DIM hProcess AS HANDLE, wszPath AS WSTRING * MAX_PATH
    hProcess = OpenProcess(PROCESS_QUERY_INFORMATION OR PROCESS_VM_READ, FALSE, dwProcessId)
    IF hProcess <> NULL THEN
-      GetModuleFileNameExW(hProcess, NULL, wszPath, SIZEOF(wszPath))
+      GetModuleFileNameExW(hProcess, NULL, wszPath, SIZEOF(wszPath)\2)
       CloseHandle(hProcess)
    END IF
    RETURN wszPath
 END FUNCTION
+' ========================================================================================
+#define AfxPathFromProcessId AfxGetPathFromProcessId
 ' ========================================================================================
 
 ' ========================================================================================
@@ -620,13 +781,15 @@ PRIVATE FUNCTION AfxGetPathFromWindowHandle (BYVAL hWin AS HWND) AS DWSTRING
    IF idProc THEN
       hProcess = OpenProcess(PROCESS_QUERY_INFORMATION OR PROCESS_VM_READ, FALSE, idProc)
       IF hProcess THEN
-         GetModuleFileNameExW(hProcess, NULL, wszPath, SIZEOF(wszPath))
+         GetModuleFileNameExW(hProcess, NULL, wszPath, SIZEOF(wszPath)\2)
          CloseHandle(hProcess)
          RETURN wszPath
       END IF
    END IF
    RETURN ""
 END FUNCTION
+' ========================================================================================
+#define AfxPathFromWindowHandle AfxGetPathFromWindowHandle
 ' ========================================================================================
 
 #if _WIN32_WINNT = &h0602
@@ -1002,7 +1165,7 @@ END FUNCTION
 ' Returns TRUE on success or FALSE on failure.
 ' ========================================================================================
 PRIVATE FUNCTION AfxShowSysInfo (BYVAL hWin AS HWND) AS BOOLEAN
-   DIM hk AS HKEY, wszPath AS WSTRING * MAX_PATH, cbData AS DWORD = SIZEOF(wszPath)
+   DIM hk AS HKEY, wszPath AS WSTRING * MAX_PATH, cbData AS DWORD = SIZEOF(wszPath)\2
    IF RegOpenKeyExW(HKEY_LOCAL_MACHINE, "Software\Microsoft\Shared Tools\MSInfo", 0, _
                     KEY_QUERY_VALUE, @hk) <> ERROR_SUCCESS THEN EXIT FUNCTION
    RegQueryValueExW hk, "Path", 0, 0, cast(LPBYTE, @wszPath), @cbData
@@ -1042,7 +1205,7 @@ END FUNCTION
 ' ========================================================================================
 ' * Retrieves the MAC address of a machine's Ethernet card.
 ' This function only supports one NIC card on your PC.
-' Remarks: I have need to call the UuidCreateSequential function dynamically because,
+' Remarks: I have needed to call the UuidCreateSequential function dynamically because,
 ' the time of writing, the library for the RPCRT4.DLL seems broken and the linker fails.
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetMACAddress () AS STRING
@@ -1064,6 +1227,177 @@ PRIVATE FUNCTION AfxGetMACAddress () AS STRING
    s = MID(s, 1, 2) & "-" & MID(s, 3, 2) & "-" & MID(s, 5, 2) & "-" & _
        MID(s, 7, 2) & "-" & MID(s, 9, 2) & "-" & MID(s, 11, 2)
    RETURN s
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Get the MAC address of the first valid physical adapter using GetAdaptersAddresses.
+' This is the modern and Microsoft-recommended method.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetMACAddressEx () AS STRING
+   DIM size AS ULONG
+   ' // First call: Get the needed size
+   GetAdaptersAddresses(AF_UNSPEC, _
+                        GAA_FLAG_SKIP_ANYCAST OR GAA_FLAG_SKIP_MULTICAST OR _
+                        GAA_FLAG_SKIP_DNS_SERVER OR GAA_FLAG_SKIP_FRIENDLY_NAME, _
+                        NULL, NULL, @size)
+   IF size = 0 THEN RETURN ""
+   ' // Allocate buffer
+   DIM pAddrs AS IP_ADAPTER_ADDRESSES PTR
+   pAddrs = CAST(IP_ADAPTER_ADDRESSES PTR, Allocate(size))
+   IF pAddrs = NULL THEN RETURN ""
+   ' // Second call: get real data
+   IF GetAdaptersAddresses(AF_UNSPEC, _
+                           GAA_FLAG_SKIP_ANYCAST OR GAA_FLAG_SKIP_MULTICAST OR _
+                           GAA_FLAG_SKIP_DNS_SERVER OR GAA_FLAG_SKIP_FRIENDLY_NAME, _
+                           NULL, pAddrs, @size) <> 0 THEN
+      Deallocate(pAddrs)
+      RETURN ""
+   END IF
+   ' // Enumerate adapters
+   DIM pCurr AS IP_ADAPTER_ADDRESSES PTR = pAddrs
+   WHILE pCurr <> NULL
+      ' // Ignore adapters with no MAC address or MAC addresses of length 0
+      IF pCurr->PhysicalAddressLength >= 6 THEN
+         ' Build the MAC address
+         DIM mac AS STRING = ""
+         FOR i AS LONG = 0 TO pCurr->PhysicalAddressLength - 1
+            mac &= HEX(pCurr->PhysicalAddress(i), 2)
+            IF i < pCurr->PhysicalAddressLength - 1 THEN mac &= "-"
+         NEXT
+         Deallocate(pAddrs)
+         RETURN mac
+      END IF
+      pCurr = pCurr->Next
+    WEND
+    Deallocate(pAddrs)
+    RETURN ""
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Populates a dynamic array of STRINGs with all the real MAC addresses of the system.
+' The array is passed by reference and resized internally.
+' Return value:
+'    The number of elements in the array or -1 on failure.
+' Usage example
+'    DIM macs(ANY) AS STRING
+'    DIM count AS LONG = AfxGetAllMACAddresses(macs())
+'    FOR i AS LONG = LBOUND(macs) TO UBOUND(macs)
+'      PRINT macs(i)
+'    NEXT
+' ========================================================================================
+PRIVATE FUNCTION AfxGetAllMACAddresses (macs() AS STRING) AS LONG
+   ERASE macs   ' In case it has previous contents
+   DIM size AS ULONG = 0
+   ' // First call: Get the needed size
+   GetAdaptersAddresses(AF_UNSPEC, _
+                        GAA_FLAG_SKIP_ANYCAST OR GAA_FLAG_SKIP_MULTICAST OR _
+                        GAA_FLAG_SKIP_DNS_SERVER OR GAA_FLAG_SKIP_FRIENDLY_NAME, _
+                        NULL, NULL, @size)
+   IF size = 0 THEN RETURN -1
+   ' // Allocate buffer
+   DIM pAddrs AS IP_ADAPTER_ADDRESSES PTR
+   pAddrs = CAST(IP_ADAPTER_ADDRESSES PTR, Allocate(size))
+   IF pAddrs = NULL THEN RETURN -1
+   ' // Second call: get real data
+   IF GetAdaptersAddresses(AF_UNSPEC, _
+                           GAA_FLAG_SKIP_ANYCAST OR GAA_FLAG_SKIP_MULTICAST OR _
+                           GAA_FLAG_SKIP_DNS_SERVER OR GAA_FLAG_SKIP_FRIENDLY_NAME, _
+                           NULL, pAddrs, @size) <> 0 THEN
+      Deallocate(pAddrs)
+      RETURN -1
+   END IF
+   DIM pCurr AS IP_ADAPTER_ADDRESSES PTR = pAddrs
+   DIM count AS LONG = -1
+   WHILE pCurr <> NULL
+      IF pCurr->PhysicalAddressLength >= 6 THEN
+         DIM s AS STRING = ""
+         FOR i AS INTEGER = 0 TO pCurr->PhysicalAddressLength - 1
+            s &= HEX(pCurr->PhysicalAddress(i), 2)
+            IF i < pCurr->PhysicalAddressLength - 1 THEN s &= "-"
+         NEXT
+         count += 1
+         REDIM PRESERVE macs(count)
+         macs(count) = s
+      END IF
+      pCurr = pCurr->Next
+    WEND
+    Deallocate(pAddrs)
+    RETURN count + 1
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Populates a dynamic array of STRINGs with all *real* MAC addresses (Ethernet/Wi-Fi).
+' Filters out virtual adapters, tunnels, Bluetooth, Hyper-V, loopback, etc.
+' Returns: Number of MACs found, or -1 on failure.
+' Usage example:
+'    DIM macs(ANY) AS STRING
+'    DIM count AS LONG = AfxGetAllPhysicalMACAddresses(macs())
+'    FOR i AS LONG = LBOUND(macs) TO UBOUND(macs)
+'       PRINT macs(i)
+'    NEXT
+' ========================================================================================
+PRIVATE FUNCTION AfxGetAllPhysicalMACAddresses (macs() AS STRING) AS LONG
+   ERASE macs   ' In case it has previous contents
+   DIM size AS ULONG
+   ' // First call: get required buffer size
+   GetAdaptersAddresses(AF_UNSPEC, _
+                        GAA_FLAG_SKIP_ANYCAST OR GAA_FLAG_SKIP_MULTICAST OR _
+                        GAA_FLAG_SKIP_DNS_SERVER OR GAA_FLAG_SKIP_FRIENDLY_NAME, _
+                        NULL, NULL, @size)
+   IF size = 0 THEN RETURN -1
+   ' // Allocate buffer
+   DIM pAddrs AS IP_ADAPTER_ADDRESSES PTR
+   pAddrs = CAST(IP_ADAPTER_ADDRESSES PTR, Allocate(size))
+   IF pAddrs = NULL THEN RETURN -1
+   ' Second call: get actual data
+   IF GetAdaptersAddresses(AF_UNSPEC, _
+                           GAA_FLAG_SKIP_ANYCAST OR GAA_FLAG_SKIP_MULTICAST OR _
+                           GAA_FLAG_SKIP_DNS_SERVER OR GAA_FLAG_SKIP_FRIENDLY_NAME, _
+                           NULL, pAddrs, @size) <> 0 THEN
+      Deallocate(pAddrs)
+      RETURN -1
+   END IF
+   DIM pCurr AS IP_ADAPTER_ADDRESSES PTR = pAddrs
+   DIM count AS LONG = -1
+   WHILE pCurr <> NULL
+      ' // Skip adapters without valid MAC
+      IF pCurr->PhysicalAddressLength < 6 THEN
+         pCurr = pCurr->Next
+         CONTINUE WHILE
+      END IF
+      ' // Skip adapters that are not UP
+      IF pCurr->OperStatus <> IfOperStatusUp THEN
+         pCurr = pCurr->Next
+         CONTINUE WHILE
+      END IF
+      ' // Skip virtual / tunnel / loopback / Bluetooth / Hyper-V
+      SELECT CASE pCurr->IfType
+         CASE IF_TYPE_SOFTWARE_LOOPBACK, _
+              IF_TYPE_TUNNEL, _
+              IF_TYPE_IEEE1394, _
+              IF_TYPE_PROP_VIRTUAL
+            pCurr = pCurr->Next
+            CONTINUE WHILE
+      END SELECT
+      ' // Accept only Ethernet or Wi-Fi
+      IF pCurr->IfType = IF_TYPE_ETHERNET_CSMACD OR _
+         pCurr->IfType = IF_TYPE_IEEE80211 THEN
+         DIM s AS STRING = ""
+         FOR i AS INTEGER = 0 TO pCurr->PhysicalAddressLength - 1
+            s &= HEX(pCurr->PhysicalAddress(i), 2)
+            IF i < pCurr->PhysicalAddressLength - 1 THEN s &= "-"
+         NEXT
+         count += 1
+         REDIM PRESERVE macs(count)
+         macs(count) = s
+      END IF
+      pCurr = pCurr->Next
+   WEND
+   Deallocate(pAddrs)
+   RETURN count + 1
 END FUNCTION
 ' ========================================================================================
 
@@ -1511,36 +1845,38 @@ END FUNCTION
 ' ========================================================================================
 ' Retrieves the window styles.
 ' ========================================================================================
-PRIVATE FUNCTION AfxGetWindowStyle (BYVAL hWin AS HWND) AS DWORD
-   FUNCTION = GetWindowLongPtrW(hWin, GWL_STYLE)
+PRIVATE FUNCTION AfxGetWindowStyle (BYVAL hWin AS HWND) AS LONG_PTR
+   RETURN GetWindowLongPtrW(hWin, GWL_STYLE)
 END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
 ' Retrieves the extended window styles.
 ' ========================================================================================
-PRIVATE FUNCTION AfxGetWindowExStyle (BYVAL hWin AS HWND) AS DWORD
-   FUNCTION = GetWindowLongPtrW(hWin, GWL_EXSTYLE)
+PRIVATE FUNCTION AfxGetWindowExStyle (BYVAL hWin AS HWND) AS LONG_PTR
+   RETURN GetWindowLongPtrW(hWin, GWL_EXSTYLE)
 END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
 ' Sets the window styles
 ' ========================================================================================
-PRIVATE FUNCTION AfxSetWindowStyle (BYVAL hWin AS HWND, BYVAL dwStyle AS DWORD) AS DWORD
-   DIM dwOldStyle AS DWORD = GetWindowLongPtrW(hWin, GWL_STYLE)
+PRIVATE FUNCTION AfxSetWindowStyle (BYVAL hWin AS HWND, BYVAL dwStyle AS LONG_PTR) AS LONG_PTR
+   DIM dwOldStyle AS LONG_PTR = GetWindowLongPtrW(hWin, GWL_STYLE)
    SetWindowLongPtrW(hWin, GWL_STYLE, dwStyle)
-   FUNCTION = dwOldStyle
+   SetWindowPos(hWin, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED OR SWP_NOMOVE OR SWP_NOSIZE OR SWP_NOZORDER)
+   RETURN dwOldStyle
 END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
 ' Sets the window extended styles
 ' ========================================================================================
-PRIVATE FUNCTION AfxSetWindowExStyle (BYVAL hWin AS HWND, BYVAL dwExStyle AS DWORD) AS DWORD
-   DIM dwOldExStyle AS DWORD = GetWindowLongPtrW(hWin, GWL_EXSTYLE)
+PRIVATE FUNCTION AfxSetWindowExStyle (BYVAL hWin AS HWND, BYVAL dwExStyle AS LONG_PTR) AS LONG_PTR
+   DIM dwOldExStyle AS LONG_PTR = GetWindowLongPtrW(hWin, GWL_EXSTYLE)
    SetWindowLongPtrW(hWin, GWL_EXSTYLE, dwExStyle)
-   FUNCTION = dwOldExStyle
+   SetWindowPos(hWin, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED OR SWP_NOMOVE OR SWP_NOSIZE OR SWP_NOZORDER)
+   RETURN dwOldExStyle
 END FUNCTION
 ' ========================================================================================
 
@@ -1551,10 +1887,11 @@ END FUNCTION
 ' Return value:
 '   The previous window styles
 ' ========================================================================================
-PRIVATE FUNCTION AfxAddWindowStyle (BYVAL hWin AS HWND, BYVAL dwStyle AS DWORD) AS DWORD
-   DIM dwOldStyle AS DWORD = GetWindowLongPtrW(hWin, GWL_STYLE)
+PRIVATE FUNCTION AfxAddWindowStyle (BYVAL hWin AS HWND, BYVAL dwStyle AS LONG_PTR) AS LONG_PTR
+   DIM dwOldStyle AS LONG_PTR = GetWindowLongPtrW(hWin, GWL_STYLE)
    SetWindowLongPtrW(hWin, GWL_STYLE, dwOldStyle OR dwStyle)
-   FUNCTION = dwOldStyle
+   SetWindowPos(hWin, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED OR SWP_NOMOVE OR SWP_NOSIZE OR SWP_NOZORDER)
+   RETURN dwOldStyle
 END FUNCTION
 ' ========================================================================================
 
@@ -1565,10 +1902,11 @@ END FUNCTION
 ' Return value:
 '   The previous extended window styles
 ' ========================================================================================
-PRIVATE FUNCTION AfxAddWindowExStyle (BYVAL hWin AS HWND, BYVAL dwExStyle AS DWORD) AS DWORD
-   DIM dwOldExStyle AS DWORD = GetWindowLongPtrW(hWin, GWL_EXSTYLE)
+PRIVATE FUNCTION AfxAddWindowExStyle (BYVAL hWin AS HWND, BYVAL dwExStyle AS LONG_PTR) AS LONG_PTR
+   DIM dwOldExStyle AS LONG_PTR = GetWindowLongPtrW(hWin, GWL_EXSTYLE)
    SetWindowLongPtrW(hWin, GWL_EXSTYLE, dwOldExStyle OR dwExStyle)
-   FUNCTION = dwOldExStyle
+   SetWindowPos(hWin, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED OR SWP_NOMOVE OR SWP_NOSIZE OR SWP_NOZORDER)
+   RETURN dwOldExStyle
 END FUNCTION
 ' ========================================================================================
 
@@ -1579,10 +1917,11 @@ END FUNCTION
 ' Return value:
 '   The previous window styles
 ' ========================================================================================
-PRIVATE FUNCTION AfxRemoveWindowStyle (BYVAL hWin AS HWND, BYVAL dwStyle AS DWORD) AS DWORD
-   DIM dwOldStyle AS DWORD = GetWindowLongPtrW(hWin, GWL_STYLE)
+PRIVATE FUNCTION AfxRemoveWindowStyle (BYVAL hWin AS HWND, BYVAL dwStyle AS LONG_PTR) AS LONG_PTR
+   DIM dwOldStyle AS LONG_PTR = GetWindowLongPtrW(hWin, GWL_STYLE)
    SetWindowLongPtrW(hWin, GWL_STYLE, dwOldStyle AND (NOT dwStyle))
-   FUNCTION = dwOldStyle
+   SetWindowPos(hWin, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED OR SWP_NOMOVE OR SWP_NOSIZE OR SWP_NOZORDER)
+   RETURN dwOldStyle
 END FUNCTION
 ' ========================================================================================
 
@@ -1593,10 +1932,11 @@ END FUNCTION
 ' Return value:
 '   The previous window styles
 ' ========================================================================================
-PRIVATE FUNCTION AfxRemoveWindowExStyle (BYVAL hWin AS HWND, BYVAL dwExStyle AS DWORD) AS DWORD
-   DIM dwOldExStyle AS DWORD = GetWindowLongPtrW(hWin, GWL_EXSTYLE)
-   SetWindowLongPtrW(hWin, GWL_EXSTYLE, dwOldExStyle AND (NOT dwEXStyle))
-   FUNCTION = dwOldEXStyle
+PRIVATE FUNCTION AfxRemoveWindowExStyle (BYVAL hWin AS HWND, BYVAL dwExStyle AS DWORD) AS LONG_PTR
+   DIM dwOldExStyle AS LONG_PTR = GetWindowLongPtrW(hWin, GWL_EXSTYLE)
+   SetWindowLongPtrW(hWin, GWL_EXSTYLE, dwOldExStyle AND (NOT dwExStyle))
+   SetWindowPos(hWin, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED OR SWP_NOMOVE OR SWP_NOSIZE OR SWP_NOZORDER)
+   RETURN dwOldExStyle
 END FUNCTION
 ' ========================================================================================
 
@@ -2528,6 +2868,32 @@ END FUNCTION
 ' ########################################################################################
 
 ' ========================================================================================
+' Retrieves the width of the screen, in pixels.
+' ScreenWidth is virtualized for DPI.
+' ========================================================================================
+PRIVATE FUNCTION AfxScreenWidth () AS LONG
+   DIM rc AS RECT
+   GetWindowRect(GetDesktopWindow, @rc)
+   RETURN rc.right - rc.left
+END FUNCTION
+' ========================================================================================
+#define AfxGetScreenWidth AfxScreenWidth
+' ========================================================================================
+
+' ========================================================================================
+' Retrieves the height of the screen, in pixels.
+' ScreenHeight is virtualized for DPI.
+' ========================================================================================
+PRIVATE FUNCTION AfxScreenHeight () AS LONG
+   DIM rc AS RECT
+   GetWindowRect(GetDesktopWindow, @rc)
+   RETURN rc.bottom - rc.top
+END FUNCTION
+' ========================================================================================
+#define AfxGetScreenHeight AfxScreenHeight
+' ========================================================================================
+
+' ========================================================================================
 ' Returns the width, in pixels, of the current display device on the computer on which the
 ' calling thread is running. Contrarily to GetSystemMetrics or GetDeviceCaps, it returns
 ' the real width even when it is called from an application that is not DPI aware, e.g. an
@@ -2542,6 +2908,9 @@ PRIVATE FUNCTION AfxGetDisplayPixelsWidth () AS DWORD
    FUNCTION = dm.dmPelsWidth
 END FUNCTION
 ' ========================================================================================
+#define AfxDisplayPixelsWidth AfxGetDisplayPixelsWidth
+' ========================================================================================
+
 ' ========================================================================================
 ' Returns the height, in pixels, of the current display device on the computer on which the
 ' calling thread is running.
@@ -2553,6 +2922,9 @@ PRIVATE FUNCTION AfxGetDisplayPixelsHeight () AS DWORD
    FUNCTION = dm.dmPelsHeight
 END FUNCTION
 ' ========================================================================================
+#define AfxDisplayPixelsHeight AfxGetDisplayPixelsHeight
+' ========================================================================================
+
 ' ========================================================================================
 ' Returns the color resolution, in bits per pixel, of the display device.
 ' ========================================================================================
@@ -2563,6 +2935,10 @@ PRIVATE FUNCTION AfxGetDisplayBitsPerPixel () AS DWORD
    FUNCTION = dm.dmBitsPerPel
 END FUNCTION
 ' ========================================================================================
+#define AfxScreenColors AfxGetDisplayBitsPerPixel
+#define AfxGetScreenColors AfxGetDisplayBitsPerPixel
+' ========================================================================================
+
 ' ========================================================================================
 ' Returns the frequency, in hertz (cycles per second), of the display device in a
 ' particular mode. This value is also known as the display device's vertical refresh rate.
@@ -2573,6 +2949,24 @@ PRIVATE FUNCTION AfxGetDisplayFrequency () AS DWORD
    EnumDisplaySettingsW(NULL, ENUM_CURRENT_SETTINGS, @dm)
    FUNCTION = dm.dmDisplayFrequency
 END FUNCTION
+' ========================================================================================
+#define AfxScreenRefreshRate AfxGetDisplayFrequency
+#define AfxGetScreenRefreshRate AfxGetDisplayFrequency
+' ========================================================================================
+
+' ========================================================================================
+' Retrieves the coordinates of the work area on the primary display monitor expressed in
+' virtual screen coordinates. The work area is the portion of the screen not obscured by
+' the system taskbar or by application desktop toolbars. To get the work area of a monitor
+' other than the primary display monitor, call the GetMonitorInfo function.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetWorkArea () AS RECT
+   DIM rcWrk AS RECT
+   SystemParametersInfo(SPI_GETWORKAREA, 0, @rcWrk, 0)
+   FUNCTION = rcWrk
+END FUNCTION
+' ========================================================================================
+#define AfxWorkArea AfxGetWorkArea
 ' ========================================================================================
 
 
@@ -4240,8 +4634,114 @@ END FUNCTION
 
 
 ' ########################################################################################
-'                                     *** SIDs ***
+'                              *** SYSTEM INFORMATION ***
 ' ########################################################################################
+
+' ========================================================================================
+' * Retrieves the name of the user associated with the current thread.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetUserName () AS DWSTRING
+   DIM buffer AS WSTRING * 260
+   DIM dwBufLen AS DWORD = SIZEOF(buffer)\2
+   GetUserNameW(buffer, @dwBufLen)
+   RETURN buffer
+END FUNCTION
+' ========================================================================================
+#define AfxUserName AfxGetUserName
+' ========================================================================================
+
+' ========================================================================================
+' * Retrieves the computer name of the current system.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetComputerName () AS DWSTRING
+   DIM buffer AS WSTRING * MAX_COMPUTERNAME_LENGTH + 1
+   DIM dwBufLen AS DWORD = SIZEOF(buffer)\2
+   GetComputerNameW(buffer, @dwBufLen)
+   RETURN buffer
+END FUNCTION
+' ========================================================================================
+#define AfxComputerName AfxGetComputerName
+' ========================================================================================
+
+' ========================================================================================
+' The DNS host name of the local computer. If the local computer is a node in a cluster,
+' dwsBuffer receives the DNS host name of the cluster virtual server.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetComputerNameDnsHostname () AS DWSTRING
+   DIM dwSize AS DWORD
+   ' // First call: obtain required size
+   GetComputerNameExW(ComputerNameDnsHostname, NULL, @dwSize)
+   ' // If dwSize <= 1, there is no configured DNS domain
+   IF dwSize <= 1 THEN RETURN ""
+   ' // Reserve buffer of the exact size
+   DIM dwsBuffer AS DWSTRING = WSPACE(dwSize)
+   ' // Second call: get the real name
+   IF GetComputerNameExW(ComputerNameDnsHostname, *dwsBuffer, @dwSize) = 0 THEN RETURN ""
+   RETURN dwsBuffer
+END FUNCTION
+' ========================================================================================
+#define AfxComputerNameDnsHostname AfxGetComputerNameDnsHostname
+' ========================================================================================
+
+' ========================================================================================
+' The NetBIOS name of the local computer. If the local computer is a node in a cluster,
+' dwsBuffer receives the NetBIOS name of the cluster virtual server.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetComputerNameNetBIOS () AS DWSTRING
+   DIM dwSize AS DWORD
+   ' // First call: obtain required size
+   GetComputerNameExW(ComputerNameNetBIOS, NULL, @dwSize)
+   ' // If dwSize <= 1, there is no configured DNS domain
+   IF dwSize <= 1 THEN RETURN ""
+   ' // Reserve buffer of the exact size
+   DIM dwsBuffer AS DWSTRING = WSPACE(dwSize)
+   ' // Second call: get the real name
+   IF GetComputerNameExW(ComputerNameNetBIOS, *dwsBuffer, @dwSize) = 0 THEN RETURN ""
+   RETURN dwsBuffer
+END FUNCTION
+' ========================================================================================
+#define AfxtComputerNameNetBIOS AfxGetComputerNameNetBIOS
+' ========================================================================================
+
+' ========================================================================================
+' The fully qualified DNS name that uniquely identifies the local computer. This name is a
+' combination of the DNS host name and the DNS domain name, using the form HostName.DomainName.
+' If the local computer is a node in a cluster, dwsBuffer receives the fully qualified DNS
+' name of the cluster virtual server.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetComputerNameDnsFullyQualified () AS DWSTRING
+   DIM dwSize AS DWORD
+   ' // First call: obtain required size
+   GetComputerNameExW(ComputerNameDnsFullyQualified, NULL, @dwSize)
+   ' // If dwSize <= 1, there is no configured DNS domain
+   IF dwSize <= 1 THEN RETURN ""
+   ' // Reserve buffer of the exact size
+   DIM dwsBuffer AS DWSTRING = WSPACE(dwSize)
+   ' // Second call: get the real name
+   IF GetComputerNameExW(ComputerNameDnsFullyQualified, *dwsBuffer, @dwSize) = 0 THEN RETURN ""
+   RETURN dwsBuffer
+END FUNCTION
+' ========================================================================================
+#define AfxComputerNameDnsFullyQualified AfxGetComputerNameDnsFullyQualified
+' ========================================================================================
+
+' ========================================================================================
+' Retrieves the name of the user associated with the current thread.
+' ========================================================================================
+' EXTENDED_NAME_FORMAT is an enumeration
+PRIVATE FUNCTION AfxGetUserDomain () AS DWSTRING
+   ' // Get the needed size for the buffer
+   DIM cbLen AS ULONG
+   ' NameSamCompatible = 2
+   __GetUserNameExW(2, NULL, @cbLen)
+   IF cbLen = 0 THEN RETURN ""
+   DIM dwsBuffer AS DWSTRING = WSPACE(cbLen)
+   IF __GetUserNameExW(2, *dwsBuffer, @cbLen) = 0 THEN RETURN ""
+   RETURN dwsBuffer
+END FUNCTION
+' ========================================================================================
+#define AfxUserDomain AfxGetUserDomain
+' ========================================================================================
 
 ' ========================================================================================
 ' Tests whether the current user is a member of the Administrator's group.
@@ -4266,11 +4766,6 @@ PRIVATE FUNCTION AfxIsUserAnAdmin () AS BOOLEAN
 END FUNCTION
 ' ========================================================================================
 
-
-' ########################################################################################
-'                              *** SYSTEM INFORMATION ***
-' ########################################################################################
-
 ' ========================================================================================
 ' * Returns the bitness of the operating system.
 ' On a 32-bit operating system, the value is 32 and on a 64-bit operating system it is 64.
@@ -4278,7 +4773,9 @@ END FUNCTION
 PRIVATE FUNCTION AfxWindowsBitness () AS LONG
    DIM SysInfo AS SYSTEM_INFO
    GetNativeSystemInfo(@SysInfo)
-   RETURN IIF(SysInfo.wProcessorArchitecture = PROCESSOR_ARCHITECTURE_AMD64, 64, 32)
+   ' PROCESSOR_ARCHITECTURE_ARM64 = 12
+   RETURN IIF(SysInfo.wProcessorArchitecture = PROCESSOR_ARCHITECTURE_AMD64 _
+      OR SysInfo.wProcessorArchitecture = 12, 64, 32)
 END FUNCTION
 ' ========================================================================================
 #define AfxGetProcessorAddressWidth AfxWindowsBitness
@@ -4303,9 +4800,344 @@ PRIVATE FUNCTION AfxGetSystemInfo (BYREF metricName AS STRING) AS LONG_PTR
          RETURN CAST(LONG_PTR, sysInfo.lpMinimumApplicationAddress)
       CASE "pagesize"
          RETURN sysInfo.dwPageSize
-      CASE ElsE
+      CASE ELSE
          RETURN -1 ' Invalid metric name
    END SELECT
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' * Returns the Windows feature update versión, e.g. 22H2.
+' ========================================================================================
+PRIVATE FUNCTION AfxWindowsFeatureUpdate () AS DWSTRING
+   DIM key AS HKEY = HKEY_LOCAL_MACHINE
+   DIM subKey AS WSTRING * 260 = "SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+   DIM valueName AS WSTRING * 260 = "DisplayVersion"
+   DIM buffer AS WSTRING * 256
+   DIM bufferSize AS DWORD = SIZEOF(buffer)
+   DIM result AS LONG = RegGetValueW(key, @subkey, @valueName, RRF_RT_REG_SZ, NULL, @buffer, @bufferSize)
+   IF result = ERROR_SUCCESS THEN RETURN buffer
+   RETURN ""
+END FUNCTION
+' ========================================================================================
+#define AfxGetWindowsFeatureUpdate AfxWindowsFeatureUpdate
+' ========================================================================================
+
+' ========================================================================================
+' * Returns the processor architecture of the operating system.
+' ========================================================================================
+PRIVATE FUNCTION AfxProcessorArchitecture () AS DWSTRING
+   DIM SysInfo AS SYSTEM_INFO
+   GetNativeSystemInfo(@SysInfo)
+   DIM dws AS DWSTRING
+   SELECT CASE SysInfo.wProcessorArchitecture
+      CASE 0 : dws = "x86"
+      CASE 5 : dws = "ARM"
+      CASE 6 : dws = "IA64"
+      CASE 9 : dws = "AMD64"
+      CASE 12 : dws = "ARM64"
+      CASE ELSE
+         dws = "UNKNOWN"
+   END SELECT
+   RETURN dws
+END FUNCTION
+' ========================================================================================
+#define AfxGetProcessorArchitecture AfxProcessorArchitecture
+' ========================================================================================
+
+' ========================================================================================
+' * Returns the number of processors.
+' ========================================================================================
+PRIVATE FUNCTION AfxProcessorsCount () AS LONG
+   DIM SysInfo AS SYSTEM_INFO
+   GetSystemInfo (@SysInfo)
+   RETURN SysInfo.dwNumberOfProcessors
+END FUNCTION
+' ========================================================================================
+#define AfxGetProcessorsCount AfxProcessorsCount
+' ========================================================================================
+
+' ========================================================================================
+' Checks if the process is running with real administrative privileges.
+' ========================================================================================
+PRIVATE FUNCTION AfxIsProcessElevated () AS BOOLEAN
+   DIM hToken AS HANDLE
+   IF OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, @hToken) = 0 THEN RETURN FALSE
+   DIM elevation AS TOKEN_ELEVATION
+   DIM dwSize AS DWORD = SIZEOF(elevation)
+   IF GetTokenInformation(hToken, TokenElevation, @elevation, SIZEOF(elevation), @dwSize) = 0 THEN
+      CloseHandle(hToken)
+      RETURN FALSE
+   END IF
+   CloseHandle(hToken)
+   RETURN (elevation.TokenIsElevated <> 0)
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Returns the amount of actual physical memory, in bytes.
+' ========================================================================================
+PRIVATE FUNCTION AfxMemoryLoad () AS DWORD
+   DIM mem AS MEMORYSTATUSEX
+   mem.dwLength = SIZEOF(MEMORYSTATUSEX)
+   SetLastError(GlobalMemoryStatusEx(@mem))
+   RETURN mem.dwMemoryLoad
+END FUNCTION
+' ========================================================================================
+#define AfxGetMemoryLoad AfxMemoryLoad
+' ========================================================================================
+
+' ========================================================================================
+' Returns the amount of actual physical memory, in bytes.
+' ========================================================================================
+PRIVATE FUNCTION AfxTotalPhysicalMemory () AS DWORDLONG
+   DIM mem AS MEMORYSTATUSEX
+   mem.dwLength = SIZEOF(MEMORYSTATUSEX)
+   SetLastError(GlobalMemoryStatusEx(@mem))
+   RETURN mem.ullTotalPhys
+END FUNCTION
+' ========================================================================================
+#define AfxGetTotalPhysicalMemory AfxTotalPhysicalMemory
+' ========================================================================================
+
+' ========================================================================================
+' Returns the amount of physical memory currently available, in bytes. This is the amount
+' of physical memory that can be immediately reused without having to write its contents
+' to disk first. It is the sum of the size of the standby, free, and zero lists.
+' ========================================================================================
+PRIVATE FUNCTION AfxAvailablePhysicalMemory () AS DWORDLONG
+   DIM mem AS MEMORYSTATUSEX
+   mem.dwLength = SIZEOF(MEMORYSTATUSEX)
+   SetLastError(GlobalMemoryStatusEx(@mem))
+   RETURN mem.ullAvailPhys
+END FUNCTION
+' ========================================================================================
+#define AfxGetAvailablePhysicalMemory AfxAvailablePhysicalMemory
+' ========================================================================================
+
+' ========================================================================================
+' Returns the current committed memory limit for the system or the current process, whichever
+' is smaller, in bytes.
+' ========================================================================================
+PRIVATE FUNCTION AfxTotalPageFile () AS DWORDLONG
+   DIM mem AS MEMORYSTATUSEX
+   mem.dwLength = SIZEOF(MEMORYSTATUSEX)
+   SetLastError(GlobalMemoryStatusEx(@mem))
+   RETURN mem.ullTotalPageFile
+END FUNCTION
+' ========================================================================================
+#define AfxGetTotalPageFile AfxTotalPageFile
+' ========================================================================================
+
+' ========================================================================================
+' Returns maximum amount of memory the current process can commit, in bytes. This value is
+' equal to or smaller than the system-wide available commit value.
+' ========================================================================================
+PRIVATE FUNCTION AfxAvailablePageFile () AS DWORDLONG
+   DIM mem AS MEMORYSTATUSEX
+   mem.dwLength = SIZEOF(MEMORYSTATUSEX)
+   SetLastError(GlobalMemoryStatusEx(@mem))
+   RETURN mem.ullAvailPageFile
+END FUNCTION
+' ========================================================================================
+#define AfxGetAvailablePageFile AfxAvailablePageFile
+' ========================================================================================
+
+' ========================================================================================
+' Returns size of the user-mode portion of the virtual address space of the calling process,
+' in bytes. This value depends on the type of process, the type of processor, and the
+' configuration of the operating system. For example, this value is approximately 2 GB for
+' most 32-bit processes on an x86 processor and approximately 3 GB for 32-bit processes
+' that are large address aware running on a system with 4-gigabyte tuning enabled.
+' ========================================================================================
+PRIVATE FUNCTION AfxTotalVirtualMemory () AS DWORDLONG
+   DIM mem AS MEMORYSTATUSEX
+   mem.dwLength = SIZEOF(MEMORYSTATUSEX)
+   SetLastError(GlobalMemoryStatusEx(@mem))
+   RETURN mem.ullTotalVirtual
+END FUNCTION
+' ========================================================================================
+#define AfxGetTotalVirtualMemory AfxTotalVirtualMemory
+' ========================================================================================
+
+' ========================================================================================
+' Returns amount of unreserved and uncommitted memory currently in the user-mode portion
+' of the virtual address space of the calling process, in bytes.
+' ========================================================================================
+PRIVATE FUNCTION AfxAvailableVirtualMemory () AS DWORDLONG
+   DIM mem AS MEMORYSTATUSEX
+   mem.dwLength = SIZEOF(MEMORYSTATUSEX)
+   SetLastError(GlobalMemoryStatusEx(@mem))
+   RETURN mem.ullAvailVirtual
+END FUNCTION
+' ========================================================================================
+#define AfxGetAvailableVirtualMemory AfxAvailableVirtualMemory
+' ========================================================================================
+
+#if _WIN32_WINNT >= &h0600
+' ========================================================================================
+' Retrieves the amount of RAM that is physically installed on the computer, in kilobytes.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetPhysicallyInstalledSystemMemory () AS ULONGLONG
+   DIM mem AS ULONGLONG
+   GetPhysicallyInstalledSystemMemory(@mem)
+   RETURN mem
+END FUNCTION
+' ========================================================================================
+#define AfxPhysicallyInstalledSystemMemory AfxGetPhysicallyInstalledSystemMemory
+' ========================================================================================
+
+' ========================================================================================
+' Retrieves the product type for the operating system on the local computer, and maps the
+' type to the product types supported by the specified operating system.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetProductInfo () AS DWORD
+   DIM dwReturnedProductType AS DWORD
+   DIM hLib AS HMODULE = LoadLibraryW("NtDll.dll")
+   IF hLib = NULL THEN EXIT FUNCTION
+   DIM pfnRtlGetVersion AS FUNCTION (BYVAL lpVersionInformation AS OSVERSIONINFOEXW PTR) AS LONG
+   pfnRtlGetVersion = CAST(ANY PTR, GetProcAddress(hLib, "RtlGetVersion"))
+   DIM osverinfo AS OSVERSIONINFOEXW
+   osverinfo.dwOSVersionInfoSize = SIZEOF(osverinfo)
+   IF pfnRtlGetVersion THEN pfnRtlGetVersion(@osverinfo)
+   FreeLibrary hLib
+   GetProductInfo(osverinfo.dwMajorVersion, osverinfo.dwMinorVersion, 0, 0, @dwReturnedProductType)
+   RETURN dwReturnedProductType
+END FUNCTION
+' ========================================================================================
+#endif
+
+' ========================================================================================
+' * Returns TRUE if Windows applications are using dark mode, or FALSE otherwise.
+' It affects Win32/UWP applications.
+' ========================================================================================
+PRIVATE FUNCTION AfxAppsUseDarkMode () AS BOOLEAN
+   DIM key AS HKEY = HKEY_CURRENT_USER
+   DIM subKey AS WSTRING * 260 = "SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+   DIM valueName AS WSTRING * 260 = "AppsUseLightTheme"
+   DIM dwValue AS DWORD
+   DIM dwSize AS DWORD = SIZEOF(dwValue)
+   DIM result AS LONG = RegGetValueW(key, @subkey, @valueName, RRF_RT_REG_DWORD, NULL, @dwValue, @dwSize)
+   IF result = ERROR_SUCCESS THEN RETURN (dwValue = 0)   ' // (0 = dark, 1 = light)
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' * Returns TRUE if Windows is using dark mode, or FALSE otherwise.
+' It affects the shell (taskbar, start menu, etc.).
+' ========================================================================================
+PRIVATE FUNCTION AfxSystemUsesDarkMode () AS BOOLEAN
+   DIM key AS HKEY = HKEY_CURRENT_USER
+   DIM subKey AS WSTRING * 260 = "SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+   DIM valueName AS WSTRING * 260 = "SystemUsesLightTheme"
+   DIM dwValue AS DWORD
+   DIM dwSize AS DWORD = SIZEOF(dwValue)
+   DIM result AS LONG = RegGetValueW(key, @subkey, @valueName, RRF_RT_REG_DWORD, NULL, @dwValue, @dwSize)
+   IF result = ERROR_SUCCESS THEN RETURN (dwValue = 0)
+ END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Returns the date in which Windows was installed, in Unix time.
+' Usage examples:
+' PRINT AfxUnixDateStr(AfxWindowsInstallDate, "dd-MM-yyyy")
+' PRINT AfxUnixTimeStr(AfxWindowsInstallDate, "hh':'mm':'ss")
+' ========================================================================================
+PRIVATE FUNCTION AfxWindowsInstallDate () AS DWORD
+   DIM key AS HKEY = HKEY_LOCAL_MACHINE
+   DIM subKey AS WSTRING * 260 = "SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+   DIM valueName AS WSTRING * 260 = "InstallDate"
+   DIM dwValue AS DWORD
+   DIM dwSize AS DWORD = SIZEOF(dwValue)
+   DIM result AS LONG = RegGetValueW(key, @subkey, @valueName, RRF_RT_REG_DWORD, NULL, @dwValue, @dwSize)
+   IF result = ERROR_SUCCESS THEN RETURN dwValue
+END FUNCTION
+' ========================================================================================
+
+
+' ########################################################################################
+'                                   *** POWER STATUS ***
+' ########################################################################################
+
+' ========================================================================================
+' Retrieves the AC power status. This member can be one of the following values:
+' Offline (0), Online(1), Unknown status (255)
+' ========================================================================================
+PRIVATE FUNCTION AfxACLineStatus () AS UBYTE
+   DIM sps AS SYSTEM_POWER_STATUS
+   GetSystemPowerStatus(@sps)
+   RETURN sps.ACLineStatus
+END FUNCTION
+' ========================================================================================
+
+
+' ========================================================================================
+' Retrieves the battery charge status. This member can be one of the following values:
+' 1 = High—the battery capacity is at more than 66 percent
+' 2 = Low—the battery capacity is at less than 33 percent
+' 4 = Critical—the battery capacity is at less than five percent
+' 8 = Charging
+' 128 = No system battery
+' 255 = Unknown status—unable to read the battery flag information
+' The value is zero if the battery is not being charged and the battery capacity is
+' between low and high.
+' ========================================================================================
+PRIVATE FUNCTION AfxBatteryChargeStatus () AS UBYTE
+   DIM sps AS SYSTEM_POWER_STATUS
+   GetSystemPowerStatus(@sps)
+   RETURN sps.BatteryFlag
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' The percentage of full battery charge remaining. This member can be a value in the range
+' 0 to 100, or 255 if status is unknown.
+' ========================================================================================
+PRIVATE FUNCTION AfxBatteryLifePercent () AS UBYTE
+   DIM sps AS SYSTEM_POWER_STATUS
+   GetSystemPowerStatus(@sps)
+   RETURN sps.BatteryLifePercent
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' The status of battery saver. To participate in energy conservation, avoid resource
+' intensive tasks when battery saver is on. To be notified when this value changes, call
+' the RegisterPowerSettingNotification function with the power setting GUID, GUID_POWER_SAVING_STATUS.
+' 0 = Battery saver is off.
+' 1 = Battery saver on. Save energy where possible.
+' Note: This flag and the GUID_POWER_SAVING_STATUS GUID were introduced in Windows 10.
+' This flag was previously reserved, named Reserved1, and had a value of 0.
+' ========================================================================================
+'PRIVATE FUNCTION AfxBatterySaverStatus () AS UBYTE
+'   DIM sps AS SYSTEM_POWER_STATUS
+'   GetSystemPowerStatus(@sps)
+'   RETURN sps.Reserved1   ' SystemStatusFlag
+'END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' The number of seconds of battery life remaining, or –1 if remaining seconds are unknown
+' or if the device is connected to AC power.
+' ========================================================================================
+PRIVATE FUNCTION AfxBatteryLifeTime () AS LONG
+   DIM sps AS SYSTEM_POWER_STATUS
+   GetSystemPowerStatus(@sps)
+   RETURN sps.BatteryLifeTime
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' The number of seconds of battery life when at full charge, or –1 if full battery lifetime
+' is unknown or if the device is connected to AC power.
+' The system is only capable of estimating BatteryFullLifeTime based on calculations on
+' BatteryLifeTime and BatteryLifePercent. Without smart battery subsystems, this value may
+' not be accurate enough to be useful.
+' ========================================================================================
+PRIVATE FUNCTION AfxBatteryFullLifeTime () AS LONG
+   DIM sps AS SYSTEM_POWER_STATUS
+   GetSystemPowerStatus(@sps)
+   RETURN sps.BatteryFullLifeTime
 END FUNCTION
 ' ========================================================================================
 
@@ -4315,13 +5147,90 @@ END FUNCTION
 ' ########################################################################################
 
 ' ========================================================================================
+' * Attempts to make a connection to the Internet.
+' IF AfxInternetAttemptConnect = ERROR_SUCCESS THEN ? "You can connect to the Internet"
+' ========================================================================================
+PRIVATE FUNCTION AfxInternetAttemptConnect () AS DWORD
+   RETURN InternetAttemptConnect(0)
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' * Checks if a connection to the Internet can be established.
+' Usage example:
+' IF AfxInternetCheckConnection("https://www.freebasic.net/forum/viewforum.php?f=1") THEN ? "Connection succeeded!"
+' ========================================================================================
+PRIVATE FUNCTION AfxInternetCheckConnection (BYVAL pwszUrl AS WSTRING PTR) AS BOOLEAN
+   RETURN InternetCheckConnectionW(pwszUrl, FLAG_ICC_FORCE_CONNECTION, 0)
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' * Canonicalizes a URL, which includes converting unsafe characters and spaces into escape sequences.
+' Usage example: PRINT AfxInternetCanonicalizeUrl("http://msdn2.microsoft.com/en-us/ library/")
+' ========================================================================================
+PRIVATE FUNCTION AfxInternetCanonicalizeUrl (BYVAL pwszUrl AS WSTRING PTR, BYVAL dwFlags AS DWORD = 0) AS DWSTRING
+   DIM wszUrl AS WSTRING * INTERNET_MAX_PATH_LENGTH
+   DIM dwUrlSize AS DWORD = SIZEOF(wszUrl)
+   IF InternetCanonicalizeUrlW(pwszUrl, @wszUrl, @dwUrlSize, dwFlags) = FALSE THEN RETURN ""
+   RETURN wszUrl
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' * Combines a base and relative URL into a single URL. The resultant URL is canonicalized.
+' Usage example: PRINT AfxInternetCombineUrl("https://www.planetsquires", "/protect/forum/index.php?board=1.0")
+' ========================================================================================
+PRIVATE FUNCTION AfxInternetCombineUrl (BYVAL pwszBaseUrl AS WSTRING PTR, BYVAL pwszRelativeUrl AS WSTRING PTR, BYVAL dwFlags AS DWORD = 0) AS DWSTRING
+   DIM wszUrl AS WSTRING * INTERNET_MAX_PATH_LENGTH
+   DIM dwUrlSize AS DWORD = SIZEOF(wszUrl)
+   IF InternetCombineUrlW(pwszBaseUrl, pwszRelativeUrl, @wszUrl, @dwUrlSize, dwFlags) = FALSE THEN RETURN ""
+   RETURN wszUrl
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' * Retrieves the connected state of the local system.
+' Returns TRUE or FALSE.
+' ========================================================================================
+PRIVATE FUNCTION AfxInternetGetConnectedState () AS BOOLEAN
+   DIM dwFlags AS DWORD
+   RETURN InternetGetConnectedState(@dwFlags, 0)
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' * Retrieves the connection description
+' ========================================================================================
+PRIVATE FUNCTION AfxInternetGetConnectionDescription () AS DWORD
+   DIM dwFlags AS DWORD
+   DIM wszConnectionName AS WSTRING * 260
+   InternetGetConnectedStateExW(@dwFlags, @wszConnectionName, SIZEOF(wszConnectionName), 0)
+   RETURN dwFlags
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' * Retrieves the connection name
+' ========================================================================================
+PRIVATE FUNCTION AfxInternetGetConnectionName () AS DWSTRING
+   DIM dwFlags AS DWORD
+   DIM wszConnectionName AS WSTRING * 260
+   IF InternetGetConnectedStateExW(@dwFlags, @wszConnectionName, SIZEOF(wszConnectionName), 0) = FALSE THEN RETURN ""
+   RETURN wszConnectionName
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
 ' * Retrieves the Internet Explorer version (major.minor).
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetInternetExplorerVersion () AS SINGLE
    DIM hk AS HKEY, wszData AS WSTRING * 1024, cbData AS DWORD = SIZEOF(wszData)
    IF RegOpenKeyExW(HKEY_LOCAL_MACHINE, "SOFTWARE\Microsoft\Internet Explorer", 0, _
                     KEY_QUERY_VALUE, @hk) <> ERROR_SUCCESS THEN EXIT FUNCTION
-   RegQueryValueExW hk, "Version", NULL, NULL, cast(BYTE PTR, @wszData), @cbData
+   IF RegQueryValueExW(hk, "Version", NULL, NULL, cast(BYTE PTR, @wszData), @cbData) <> ERROR_SUCCESS THEN
+      IF RegQueryValueExW(hk, "svcVersion", NULL, NULL, cast(BYTE PTR, @wszData), @cbData) <> ERROR_SUCCESS THEN wszData = ""
+   END IF
    RegCloseKey hk
    FUNCTION = VAL(wszData)
 END FUNCTION
@@ -4331,7 +5240,7 @@ END FUNCTION
 ' * Retrieves the path of the default browser.
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetDefaultBrowserPath () AS DWSTRING
-   DIM wszPath AS WSTRING * MAX_PATH, cchOut AS DWORD = SIZEOF(wszPath)
+   DIM wszPath AS WSTRING * MAX_PATH, cchOut AS DWORD = SIZEOF(wszPath)\2
    IF SUCCEEDED(AssocQueryStringW(0, ASSOCSTR_EXECUTABLE, "http", "open", wszPath, @cchOut)) THEN RETURN wszPath
    RETURN ""
 END FUNCTION
@@ -4341,7 +5250,7 @@ END FUNCTION
 ' * Retrieves the name of the default browser.
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetDefaultBrowserName () AS DWSTRING
-   DIM wszPath AS WSTRING * MAX_PATH, cchOut AS DWORD = SIZEOF(wszPath)
+   DIM wszPath AS WSTRING * MAX_PATH, cchOut AS DWORD = SIZEOF(wszPath)\2
    IF SUCCEEDED(AssocQueryStringW(0, ASSOCSTR_EXECUTABLE, "http", "open", wszPath, @cchOut)) THEN
       RETURN AfxGetFileName(wszPath)
    END IF
@@ -4350,62 +5259,61 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
+' Obsolete.
 ' Retrieves the handle of the top level window of the web browser.
 ' Parameter:
 '    pwszClassName: The browser class name.
 ' Return value:
 '    The handle of the top level window of the browser.
-' Thanks to Dominic Mitchell for the information provided in this thread:
-' https://forum.powerbasic.com/forum/user-to-user-discussions/powerbasic-for-windows/767812-handle-to-browser-window?p=767896#post767896
 ' Examples:
 ' DIM hwndBrowser AS HWND = AfxGetBrowserHandle("IEFrame")              ' // Internet Explorer
 ' DIM hwndBrowser AS HWND = AfxGetBrowserHandle("MozillaWindowClass")   ' // Firefox
 ' DIM hwndBrowser AS HWND = AfxGetBrowserHandle("Chrome_WidgetWin_1")   ' // Chrome
 ' ========================================================================================
-PRIVATE FUNCTION AfxEnumThreadWndProc (BYVAL hWin AS HWND, BYVAL lPrm AS LPARAM) AS WINBOOL
-   DIM dwStyle AS DWORD = GetWindowLongPtr(hWin, GWL_STYLE)
-   IF ((dwStyle AND (WS_POPUP OR WS_CHILD)) = 0) AND ((dwStyle AND WS_VISIBLE) <> 0) THEN
-      DIM phwndTop AS HWND PTR
-      CAST(LPARAM, phwndTop) = lPrm
-      *phwndTop = hWin
-      RETURN FALSE
-   END IF
-   RETURN CTRUE
-END FUNCTION
-' ========================================================================================
-' ========================================================================================
-PRIVATE FUNCTION AfxGetBrowserHandle (BYVAL pwszClassName AS WSTRING PTR) AS HWND
-  DIM hwndBrowser AS HWND = FindWindowW(pwszClassName, NULL)
-  IF hwndBrowser = NULL THEN RETURN NULL
-  DIM dwThread AS DWORD = GetWindowThreadProcessId(hwndBrowser, NULL)
-  IF dwThread = 0 THEN RETURN NULL
-  DIM hwndTop AS HWND
-  EnumThreadWindows(dwThread, @AfxEnumThreadWndProc, CAST(LPARAM, @hwndTop))
-  RETURN hwndTop
-END FUNCTION
-' ========================================================================================
-' ========================================================================================
-' Retrieves the top level window handle of Intenet Exploreror Google Chrome.
-' ========================================================================================
-PRIVATE FUNCTION AfxGetChromiumHandle () AS HWND
-   DIM hWin AS HWND = AfxGetBrowserHandle("Chrome_WidgetWin_1")
-   IF hWin = NULL THEN hWin = AfxGetBrowserHandle("Chrome_WidgetWin_2")
-   RETURN  hWin
-END FUNCTION
-' ========================================================================================
-' ========================================================================================
-' Retrieves the top level window handle of Firefox.
-' ========================================================================================
-PRIVATE FUNCTION AfxGetFireFoxHandle () AS HWND
-   RETURN AfxGetBrowserHandle("MozillaWindowClass")
-END FUNCTION
-' ========================================================================================
+'PRIVATE FUNCTION AfxEnumThreadWndProc (BYVAL hWin AS HWND, BYVAL lPrm AS LPARAM) AS WINBOOL
+'   DIM dwStyle AS DWORD = GetWindowLongPtr(hWin, GWL_STYLE)
+'   IF ((dwStyle AND (WS_POPUP OR WS_CHILD)) = 0) AND ((dwStyle AND WS_VISIBLE) <> 0) THEN
+'      DIM phwndTop AS HWND PTR
+'      CAST(LPARAM, phwndTop) = lPrm
+'      *phwndTop = hWin
+'      RETURN FALSE
+'   END IF
+'   RETURN CTRUE
+'END FUNCTION
+'' ========================================================================================
+'' ========================================================================================
+'PRIVATE FUNCTION AfxGetBrowserHandle (BYVAL pwszClassName AS WSTRING PTR) AS HWND
+'  DIM hwndBrowser AS HWND = FindWindowW(pwszClassName, NULL)
+'  IF hwndBrowser = NULL THEN RETURN NULL
+'  DIM dwThread AS DWORD = GetWindowThreadProcessId(hwndBrowser, NULL)
+'  IF dwThread = 0 THEN RETURN NULL
+'  DIM hwndTop AS HWND
+'  EnumThreadWindows(dwThread, @AfxEnumThreadWndProc, CAST(LPARAM, @hwndTop))
+'  RETURN hwndTop
+'END FUNCTION
+'' ========================================================================================
+'' ========================================================================================
+'' Retrieves the top level window handle of Intenet Exploreror Google Chrome.
+'' ========================================================================================
+'PRIVATE FUNCTION AfxGetChromiumHandle () AS HWND
+'   DIM hWin AS HWND = AfxGetBrowserHandle("Chrome_WidgetWin_1")
+'   IF hWin = NULL THEN hWin = AfxGetBrowserHandle("Chrome_WidgetWin_2")
+'   RETURN  hWin
+'END FUNCTION
+'' ========================================================================================
+'' ========================================================================================
+'' Retrieves the top level window handle of Firefox.
+'' ========================================================================================
+'PRIVATE FUNCTION AfxGetFireFoxHandle () AS HWND
+'   RETURN AfxGetBrowserHandle("MozillaWindowClass")
+'END FUNCTION
+'' ========================================================================================
 
 ' ========================================================================================
 ' * Retrieves the path of the default mail client application.
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetDefaultMailClientPath () AS DWSTRING
-   DIM wszPath AS WSTRING * MAX_PATH, cchOut AS DWORD = SIZEOF(wszPath)
+   DIM wszPath AS WSTRING * MAX_PATH, cchOut AS DWORD = SIZEOF(wszPath)\2
    IF SUCCEEDED(AssocQueryStringW(0, ASSOCSTR_EXECUTABLE, "mailto", "open", wszPath, @cchOut)) THEN RETURN wszPath
    RETURN ""
 END FUNCTION
@@ -4415,12 +5323,12 @@ END FUNCTION
 ' * Retrieves the name of the default mail client application.
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetDefaultMailClientName () AS DWSTRING
-   DIM wszPath AS WSTRING * MAX_PATH, cchOut AS DWORD = SIZEOF(wszPath)
+   DIM wszPath AS WSTRING * MAX_PATH, cchOut AS DWORD = SIZEOF(wszPath)\2
    IF SUCCEEDED(AssocQueryStringW(0, ASSOCSTR_EXECUTABLE, "mailto", "open", wszPath, @cchOut)) THEN
       RETURN AfxGetFileName(wszPath)
    END IF
    RETURN ""
 END FUNCTION
 ' ========================================================================================
- 
+
 END NAMESPACE

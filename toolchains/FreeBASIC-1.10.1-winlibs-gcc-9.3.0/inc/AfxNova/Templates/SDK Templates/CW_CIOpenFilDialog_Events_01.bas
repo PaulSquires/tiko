@@ -1,9 +1,9 @@
 ' ########################################################################################
 ' Microsoft Windows
-' File: CW_CIOpenFileDialog_events01.bas
+' File: CW_CIOpenFileDialog_Events_01.bas
 ' Contents: Open file dialog with events
 ' Compiler: FreeBasic 32 & 64 bit
-' Copyright (c) 2025 José Roca. Freeware. Use at your own risk.
+' Copyright (c) 2025 José© Roca. Freeware. Use at your own risk.
 ' THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
 ' EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
@@ -18,7 +18,8 @@
 #include once "AfxNova/CIFileDialogCustomize.inc"
 USING AfxNova
 
-CONST IDC_TEST = 1001
+CONST IDC_RICHEDIT = 1001
+CONST IDC_TEST = 1002
 
 DECLARE FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
                            BYVAL hPrevInstance AS HINSTANCE, _
@@ -43,7 +44,7 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    AfxEnableVisualStyles
 
    DIM pWindow AS CWindow
-   DIM hWin AS HWND = pWindow.Create(NULL, "DisplayIOpenFile", @WndProc)
+   DIM hWin AS HWND = pWindow.Create(NULL, "IOpenFileDialog - Events", @WndProc)
    pWindow.SetClientSize(800, 450)
    pWindow.Center
 
@@ -78,11 +79,8 @@ PRIVATE FUNCTION CIFileDialogEventsImpl.OnFolderChange (BYVAL pfd AS IFileDialog
    pfd->lpvtbl->QueryInterface(pfd, @IID_IOleWindow, @pOleWindow)
    ' // Get the window handle of the dialog
    DIM hOleWindow AS HWND
-   IF pOleWindow THEN
-      pOleWindow->lpvtbl->GetWindow(pOleWindow, @hOleWindow)
-      COSFD_DP ("hOleWindow: " & WSTR(hOleWindow))
-      pOleWindow->lpvtbl->Release(pOleWindow)
-   END IF
+   IF pOleWindow THEN pOleWindow->lpvtbl->GetWindow(pOleWindow, @hOleWindow)
+   COSFD_DP ("hOleWindow: " & WSTR(hOleWindow))
    IF hOleWindow THEN
       ' // Get he bounding rectangle of the parent window
       DIM AS RECT rcDlg, rcOwner

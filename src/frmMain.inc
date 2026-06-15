@@ -1473,7 +1473,7 @@ function frmMain_WndProc( _
 
         case MSG_USER_PROCESS_COMMANDLINE 
             ' process any command line arguments that may have been passed to the program.
-            frmMain_ProcessCommandLine(hwnd)
+            frmMain_ProcessCommandLine( hwnd )
 
         case MSG_USER_PROCESS_STARTUPUSERTOOLS
             ' process any User Tools that must display immediately after the main editor
@@ -1494,6 +1494,13 @@ function frmMain_WndProc( _
                     frmUserTools_ExecuteUserTool(y)
                 end if   
             next
+
+        case MSG_USER_PROCESS_CHECKFORUPDATE
+            ' Check for any Tiko updated version (use a separate thread in case check hangs)
+            if gConfig.CheckUpdates = false then exit function
+            dim as any ptr pThread = ThreadCreate( @DoCheckForUpdates )
+            ThreadWait( pThread )
+            frmMenuBar_PositionWindows()
 
         case MSG_USER_SHOWAUTOCOMPLETE
             return ShowAutocompleteList()
@@ -1600,6 +1607,9 @@ function frmMain_Show( byval hWndParent as HWND ) as LRESULT
 
     ' Post a message to process any User Tools that must start after the editor displays.
     PostMessage( pWindow->hWindow, MSG_USER_PROCESS_STARTUPUSERTOOLS, 0, 0 )
+
+    ' Post a message to check for any Tiko updated version.
+    PostMessage( pWindow->hWindow, MSG_USER_PROCESS_CHECKFORUPDATE, 0, 0 )
 
     ' Process windows events
     dim uMsg as MSG

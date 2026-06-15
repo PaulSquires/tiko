@@ -3,7 +3,7 @@
 ' File: Gdip_RedEyeCorrectionEffect.bas
 ' Contents: GDI+ Flat API - Gdip_RedEyeCorrectionEffect example
 ' Compiler: FreeBasic 32 & 64 bit
-' Copyright (c) 2025 José Roca. Freeware. Use at your own risk.
+' Copyright (c) 2026 José Roca. Freeware. Use at your own risk.
 ' THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
 ' EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
@@ -72,7 +72,7 @@ SUB Example_Gdip_RedEyeCorrectionEffect (BYVAL hdc AS HDC)
    GdipBitmapApplyEffect(bmp, effect, NULL, FALSE, NULL, NULL)
 
    ' // Draw the image
-   GdipDrawImage(graphics, bmp, 0, 0)
+   GdipDrawImage(graphics, bmp, 5, 5)
 
 END SUB
 ' ========================================================================================
@@ -100,24 +100,15 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
 
    ' // Add a graphic control
    DIM pGraphCtx AS CGraphCtx = CGraphCtx(@pWindow, IDC_GRCTX, "", 0, 0, pWindow.ClientWidth, pWindow.ClientHeight)
-   pGraphCtx.Clear RGB_WHITE
+   pGraphCtx.Clear RGB_FLORALWHITE
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_Gdip_RedEyeCorrectionEffect(hdc)
+   Example_Gdip_RedEyeCorrectionEffect(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

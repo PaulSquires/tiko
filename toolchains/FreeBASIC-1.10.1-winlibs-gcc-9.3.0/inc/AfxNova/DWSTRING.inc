@@ -276,7 +276,7 @@ END PROPERTY
 PRIVATE PROPERTY DWSTRING.Utf8 () AS STRING
    DWSTRING_DP("buffer: " & ..WSTR(m_pBuffer))
    DIM cbLen AS LONG = WideCharToMultiByte(CP_UTF8, 0, m_pBuffer, -1, NULL, 0, NULL, NULL)
-   DIM s AS STRING = SPACE(cbLen)
+   DIM s AS STRING = STRING(cbLen, 0)
    WideCharToMultiByte(CP_UTF8, 0, m_pBuffer, -1, STRPTR(s), cbLen, NULL, NULL)
    RETURN LEFT(s, cbLen - 1) ' Remove null terminator
 END PROPERTY
@@ -307,6 +307,61 @@ PRIVATE PROPERTY DWSTRING.OEM () AS STRING
    ELSE
       RETURN *m_pBuffer
    END IF
+END PROPERTY
+' ========================================================================================
+
+' ========================================================================================
+' JScript (PROPERTY)
+' ------------------
+' Converts the DWSTRING content into a safe JavaScript expression for use with
+' WebView2 ExecuteScript.
+'
+' WebView2 requires UTF-8 text when passing strings to JavaScript. This property
+' takes the internal UTF-8 byte sequence of the DWSTRING and generates a JS
+' expression of the form:
+'
+'     new TextDecoder('utf-8').decode(Uint8Array.from([b1,b2,b3,...]))
+'
+' This guarantees that any Unicode text (including accents, symbols and emojis)
+' is transmitted correctly to JavaScript without escaping issues, broken quotes,
+' or encoding mismatches.
+'
+' The user can therefore pass DWSTRING values directly to ExecuteScript without
+' worrying about UTF-8 handling or manual escaping.
+'
+' Usage example:
+' m_pWebView->ExecuteScript("console.log(" & myString.JScript & ");")
+'
+' Notes:
+' - The returned value is valid JavaScript code, not a literal string.
+' - Ideal for passing arbitrary text safely from FreeBasic to JavaScript.
+' ========================================================================================
+' ========================================================================================
+'PRIVATE PROPERTY DWSTRING.JScript () AS STRING
+'   DWSTRING_DP("")
+'   DIM utf8Text AS STRING = this.utf8
+'   DIM js AS STRING = "new TextDecoder('utf-8').decode(Uint8Array.from(["
+'   DIM L AS LONG = LEN(utf8Text)
+'   FOR i AS LONG = 1 TO L
+'      js += STR(ASC(MID(utf8Text, i, 1)))
+'      IF i < L THEN js += ","
+'   NEXT
+'   js += "]))"
+'   RETURN js
+'END PROPERTY
+' ========================================================================================
+PRIVATE PROPERTY DWSTRING.JScript () AS STRING
+   DWSTRING_DP("")
+   DIM utf8Text AS STRING = this.utf8
+   DIM p AS UBYTE PTR = STRPTR(utf8Text)
+   DIM js AS STRING = "new TextDecoder('utf-8').decode(Uint8Array.from(["
+   DIM L AS LONG = LEN(utf8Text)
+   FOR i AS LONG = 0 TO L - 1
+      js += STR(p[i])
+      IF i < L - 1 THEN js += ","
+   NEXT
+   js += "]))"
+   RETURN js
 END PROPERTY
 ' ========================================================================================
 
@@ -510,6 +565,20 @@ END SUB
 ' ========================================================================================
 
 ' ========================================================================================
+' Detect if the codification is valid utf-8
+' ========================================================================================
+FUNCTION DWSTRING.IsUtf8 (BYREF s AS STRING) AS BOOLEAN
+   IF LEN(s) = 0 THEN RETURN FALSE
+   ' // Detect if it has a UTF-8 BOM
+   IF LEN(s) >= 3 THEN
+      IF ASC(s,1) = &hEF AND ASC(s,2) = &hBB AND ASC(s,3) = &hBF THEN RETURN TRUE
+   END IF
+   DIM wLen AS LONG = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, STRPTR(s), LEN(s), NULL, 0)
+   RETURN (wLen <> 0)
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
 ' The string parameter is appended to the string held in the class. If the internal string
 ' buffer overflows, the class will automatically extend it to an appropriate size.
 ' ========================================================================================
@@ -518,6 +587,7 @@ PRIVATE FUNCTION DWSTRING.Add (BYVAL pwszStr AS WSTRING PTR) AS BOOLEAN
    RETURN this.AppendBuffer(pwszStr, .LEN(*pwszStr))
 END FUNCTION
 ' ========================================================================================
+
 ' ========================================================================================
 PRIVATE FUNCTION DWSTRING.Add (BYREF ansiStr AS STRING, BYVAL nCodePage AS UINT = 0) AS BOOLEAN
    DWSTRING_DP("STRING - buffer: " & ..WSTR(m_pBuffer) & " - codepage: " & ..WSTR(nCodePage))
@@ -525,18 +595,19 @@ PRIVATE FUNCTION DWSTRING.Add (BYREF ansiStr AS STRING, BYVAL nCodePage AS UINT 
    ' // Create the wide string from the incoming ansi string
    DIM dwLen AS UINT, pbuffer AS ANY PTR
    DIM bRes AS BOOLEAN = TRUE   ' // assume success for now
+   IF nCodePage = CP_UTF8 THEN   ' // check if it is really valid utf-8
+      IF this.IsUtf8(ansiStr) = FALSE THEN nCodePage = CP_ACP
+   END IF
    IF nCodePage = CP_UTF8 THEN
       dwLen = MultiByteToWideChar(CP_UTF8, 0, STRPTR(ansiStr), .LEN(ansiStr), NULL, 0)
       IF dwLen = 0 THEN RETURN FALSE
-      dwLen *= 2
-      pbuffer = Allocate(dwLen)
+      pbuffer = Allocate(dwLen * 2)
       dwLen = MultiByteToWideChar(CP_UTF8, 0, STRPTR(ansiStr), .LEN(ansiStr), pbuffer, dwLen)
       IF dwLen = 0 THEN bRes = FALSE
    ELSE
-      dwLen = MultiByteToWideChar(nCodePage, MB_PRECOMPOSED, STRPTR(ansiStr), .LEN(ansiStr), pbuffer, dwLen)
+      dwLen = MultiByteToWideChar(nCodePage, MB_PRECOMPOSED, STRPTR(ansiStr), .LEN(ansiStr), NULL, 0)
       IF dwLen = 0 THEN RETURN FALSE
-      dwLen *= 2
-      pbuffer = Allocate(dwLen)
+      pbuffer = Allocate(dwLen * 2)
       dwLen = MultiByteToWideChar(nCodePage, MB_PRECOMPOSED, STRPTR(ansiStr), .LEN(ansiStr), pbuffer, dwLen)
       IF dwLen = 0 THEN bRes = FALSE
    END IF
@@ -554,6 +625,7 @@ PRIVATE FUNCTION DWSTRING.Add (BYREF ansiStr AS STRING, BYVAL nCodePage AS UINT 
    RETURN bRes
 END FUNCTION
 ' ========================================================================================
+
 ' ========================================================================================
 PRIVATE FUNCTION DWSTRING.Add (BYREF dws AS DWSTRING) AS BOOLEAN
    DWSTRING_DP("DWSTRING")

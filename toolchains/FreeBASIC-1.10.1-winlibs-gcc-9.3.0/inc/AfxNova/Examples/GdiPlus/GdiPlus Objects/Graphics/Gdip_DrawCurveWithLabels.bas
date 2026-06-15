@@ -68,10 +68,10 @@ SUB Example_DrawCurveWithLabels (BYVAL hdc AS HDC)
    GdipFillEllipse(*graphics, *redBrush, 395, 25, 10, 10)
    GdipFillEllipse(*graphics, *redBrush, 495, 95, 10, 10)
 
-   ' // Create a font family and font
+   ' // Create a font
+   DIM font AS GdiPlusFont = GdiPlusFont("Arial", 12, TRUE)
 
-   DIM fontFamily AS GdiPlusFontFamily = "Arial"
-   DIM font AS GdiPlusFont = GdiPlusFont(*fontFamily, AfxGdipPointsToPixels(12, TRUE), FontStyleRegular, UnitPixel)
+   ' // Create a brush
    DIM labelBrush AS GdiPlusSolidBrush = ARGB_BLACK
 
    ' // Label each point
@@ -119,17 +119,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Get the memory device context of the graphic control
    DIM hdc AS HDC = pGraphCtx.GetMemDc
 
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_DrawCurveWithLabels(hdc)
+   Example_DrawCurveWithLabels(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

@@ -1,5 +1,7 @@
 # CWebView2 Class
 
+The Microsoft Edge WebView2 control enables you to host web content in your application using Chromium-based Microsoft Edge as the rendering engine. [WebView2 API Reference](https://learn.microsoft.com/en-us/microsoft-edge/webview2/webview2-api-reference?tabs=dotnetcsharp).
+
 The `CWebView2` class provides a FreeBasic-friendly wrapper around the Microsoft Edge WebView2 control, enabling developers to embed modern web content (HTML, CSS, JavaScript) directly into native Windows applications. It abstracts the complexity of COM interop by exposing a simplified interface that integrates seamlessly with FreeBasic code, while still giving access to the full power of the underlying WebView2 API.
 
 This class is designed to:
@@ -37,6 +39,27 @@ Default runtime: Relies on the installed Edge runtime and default profile storag
 
 Custom folder: Calls **CreateCoreWebView2EnvironmentWithOptions**, allowing you to isolate cookies, cache, and storage in a separate profile. This is ideal for multi-tab or multi-user scenarios, though startup may be slightly slower.
 
+We can also use a subfolder in te Windows temporary folder for this purpose:
+
+```
+' // Use always the same folder for the WebView2 files
+' // Here we are using a subfolder in the temporary folder
+DIM wszTemp AS WSTRING * 260
+GetTempPathW(260, @wszTemp)
+DIM wszUserData AS WSTRING * 260
+wszUserData = wszTemp & "AfxNovaWebView2"
+
+' // Create an instance of WebView
+DIM pWebView2 AS CWebView2 = CWebView2(hWin, @wszUserData)
+```
+
+Usando DWSTRING:
+
+DIM dwsUserDataFolder AS DWSTRING = AfxGetTempPath & "AfxNovaWebView2"
+DIM pWebView2 AS CWebView2 = CWebView2(hWin, dwsUserDataFolder)
+```
+```
+
 **Key Takeaway**
 
 WebView2 creation is not immediate. You send a request, and the control becomes ready only after the asynchronous callbacks complete. The `CWebView2` class encapsulates this pattern, so developers simply construct the object and then call **IsReady** before using it — no need to manually wire up completion handlers.
@@ -54,7 +77,7 @@ WebView2 creation is not immediate. You send a request, and the control becomes 
 
 ---
 
-## Functions
+### Functions
 
 | Name       | Description |
 | ---------- | ----------- |
@@ -65,7 +88,8 @@ WebView2 creation is not immediate. You send a request, and the control becomes 
 | [GetAvailableCoreWebView2BrowserVersionString](#getavailablecorewebview2browserversionstring) | Get the browser version info including channel name if it is not the WebView2 Runtime. |
 
 ---
-## Helper functions
+
+### Helper functions
 
 | Name       | Description |
 | ---------- | ----------- |
@@ -74,7 +98,7 @@ WebView2 creation is not immediate. You send a request, and the control becomes 
 
 ---
 
-## Error and result codes
+### Error and result codes
 
 | Name       | Description |
 | ---------- | ----------- |
@@ -84,7 +108,7 @@ WebView2 creation is not immediate. You send a request, and the control becomes 
 
 ---
 
-## Creation Callbacks
+### Creation Callbacks
 
 Two objects are essential to the lifecycle of a `WebView2` control: the environment and the controller. Unlike normal events that use add_ and remove_ methods, these objects are created asynchronously by the `WebView2` runtime and delivered through completion handlers.
 
@@ -115,10 +139,13 @@ Once the controller is available, the associated **ICoreWebView2** object can be
 
 ---
 
-## CWebView2 methods
+### CWebView2 methods
 
 | Name       | Description |
 | ---------- | ----------- |
+| [AddHostObjectToScript](#hostobjecttoscript) | Add the provided host object to script running in the WebView with the specified name. |
+| [AddScriptToExecuteOnDocumentCreated](#scripttoexecuteondocumentcreated) | Add the provided JavaScript to a list of scripts that should be run after the global object has been created, but before the HTML document has been parsed and before any other script included by the HTML document is run. |
+| [AddWebResourceRequestedFilter](#webresourcerequestedfilter) | This method is deprecated and does not behave as expected for iframes. |
 | [CallDevToolsProtocolMethod](#callDevToolsProtocolMethod) | Runs an asynchronous **DevToolsProtocol** method. |
 | [CanGoBack](#cangoback) | TRUE if the WebView is able to navigate to the previous page in the navigation history. |
 | [CanGoForward](#cangoforward) | TRUE if the WebView is able to navigate to a next page in the navigation history. |
@@ -143,6 +170,9 @@ Once the controller is available, the associated **ICoreWebView2** object can be
 | [PostWebMessageAsJson](#postwebmessageasjson) | Post the specified webMessage to the top level document in this WebView. |
 | [PostWebMessageAsString](#postwebmessageasstring) | Posts a message that is a simple string rather than a JSON string representation of a JavaScript object. |
 | [Reload](#reload) | Reload the current page. |
+| [RemoveHostObjectToScript](#hostobjecttoscript) | Remove the host object specified by the name so that it is no longer accessible from JavaScript code in the WebView. |
+| [RemoveScriptToExecuteOnDocumentCreated](#scripttoexecuteondocumentcreated) | Remove the corresponding JavaScript added using AddScriptToExecuteOnDocumentCreated with the specified script ID. |
+| [RemoveWebResourceRequestedFilter](#webresourcerequestedfilter) | Remove an event handler previously added with AddWebResourceRequestedFilter. |
 | [SetBounds](#setbounds) | Sets the **Bounds** property. |
 | [SetIsVisible](#setisvisible) | Sets the IsVisible property. |
 | [SetParentWindow](#setparentwindow) | Sets the parent window for the WebView. |
@@ -151,7 +181,7 @@ Once the controller is available, the associated **ICoreWebView2** object can be
 
 ---
 
-## Settings properties
+### Settings properties
 
 | Name       | Description |
 | ---------- | ----------- |
@@ -168,18 +198,69 @@ Once the controller is available, the associated **ICoreWebView2** object can be
 
 ---
 
-## Constructor
+### Events
+
+| Name       | Description |
+| ---------- | ----------- |
+| [AddAcceleratorKeyPressed](#acceleratorkeypressed) | Adds an event handler for the AcceleratorKeyPressed event. |
+| [RemoveAcceleratorKeyPressed](#acceleratorkeypressed) | Removes an event handler previously added with AddAcceleratorKeyPressed. |
+| [AddContainsFullScreenElementChanged](#containsfullscreenelementchanged) | Adds an event handler for the AcceleratorKeyPressed event. |
+| [RemoveContainsFullScreenElementChanged](#containsfullscreenelementchanged) | Remove an event handler previously added with AddContainsFullScreenElementChanged. |
+| [AddContentLoading](#contentloading) | Add an event handler for the ContentLoading event. |
+| [RemoveContentLoading](#contentloading) | Remove an event handler previously added with AddContentLoading. |
+| [AddDocumentTitleChanged](#documenttitlechanged) | Add an event handler for the DocumentTitleChanged event. |
+| [RemoveDocumentTitleChanged](#documenttitlechanged) | Remove an event handler previously added with AddDocumentTitleChanged. |
+| [AddFrameNavigationCompleted](#framenavigationcompleted) | Add an event handler for the FrameNavigationCompleted event. |
+| [RemoveFrameNavigationCompleted](#framenavigationcompleted) | Remove an event handler previously added with AddFrameNavigationCompleted. |
+| [AddFrameNavigationStarting](#framenavigationstarting) | Add an event handler for the FrameNavigationStarting event. |
+| [RemoveFrameNavigationStarting](#framenavigationstarting) | Remove an event handler previously added with AddFrameNavigationStarting. |
+| [AddGotFocus](#gotfocus) | Adds an event handler for the GotFocus event. |
+| [RemoveGotFocus](#gotfocus) | Removes an event handler previously added with AddGotFocus. |
+| [AddLostFocus](#lostfocus) | Adds an event handler for the LostFocus event. |
+| [RemoveLostFocus](#lostfocus) | Removes an event handler previously added with AddLostFocus. |
+| [AddHistoryChanged](#historychanged) | Add an event handler for the HistoryChanged event. |
+| [RemoveHistoryChanged](#historychanged) | Remove an event handler previously added with AddHistoryChanged. |
+| [AddMoveFocusRequested](#movefocusrequested) | Adds an event handler for the MoveFocusRequested event. |
+| [RemoveMoveFocusRequested](#focusrequested) | Removes an event handler previously added with AddMoveFocusRequested. |
+| [AddNavigationCompleted](#navigationcompleted) | Add an event handler for the NavigationCompleted event. |
+| [RemoveNavigationCompleted](#navigationcompleted) | Remove an event handler previously added with AddNavigationCompleted. |
+| [AddNavigationStarting](#navigationstarting) | Add an event handler for the NavigationStarting event. |
+| [RemoveNavigationStarting](#navigationstarting) | Remove an event handler previously added with AddNavigationStarting. |
+| [AddNewWindowRequested](#newwindowrequested) | Add an event handler for the NewWindowRequested event. |
+| [RemoveNewWindowRequested](#newwindowrequested) | Remove an event handler previously added with AddNewWindowRequested. |
+| [AddPermissionRequested](#permissionrequested) | Add an event handler for the PermissionRequested event. |
+| [RemovePermissionRequested](#permissionrequested) | Remove an event handler previously added with AddPermissionRequested. |
+| [AddProcessFailed](#processfailed) | Add an event handler for the ProcessFailed event. |
+| [RemoveProcessFailed](#processfailed) | Remove an event handler previously added with AddProcessFailed. |
+| [AddScriptDialogOpening](#scriptdialogopening) | Add an event handler for the ScriptDialogOpening event. |
+| [RemoveScriptDialogOpening](#scriptdialogopening) | Remove an event handler previously added with AddScriptDialogOpening. |
+| [AddSourceChanged](#sourcechanged) | Add an event handler for the SourceChanged event. |
+| [RemoveSourceChanged](#sourcechanged) | Remove an event handler previously added with AddSourceChanged. |
+| [AddWebMessageReceived](#webmessagereceived) | Add an event handler for the WebMessageReceived event. |
+| [RemoveWebMessageReceived](#webmessagereceived) | Remove an event handler previously added with AddWebMessageReceived. |
+| [AddWebResourceRequested](#webresourcerequested) | Add an event handler for the WebResourceRequested event. |
+| [RemoveWebResourceRequested](#webresourcerequested) | Remove an event handler previously added with AddWebResourceRequested. |
+| [AddWindowCloseRequested](#windowcloserequested) | Add an event handler for the WindowCloseRequested event. |
+| [RemoveWindowCloseRequested](#windowcloserequested) | Remove an event handler previously added with AddWindowCloseRequested. |
+| [AddZoomFactorChanged](#zoomfactorchanged) | Adds an event handler for the ZoomFactorChanged event. |
+| [RemoveZoomFactorChanged](#zoomfactorchanged) | Remove an event handler previously added with AddZoomFactorChanged. |
+
+---
+
+### Constructor
 
 Creates an instance of the `CWebView2`class.
 
 ```
 CONSTRUCTOR CWebView2 (BYVAL hWin AS HWND, BYVAL pUserDataFolder AS WSTRING PTR = NULL)
+CONSTRUCTOR CWebView2 (BYVAL hWin AS HWND, BYREF wszUserDataFolder AS WSTRING)
 ```
 
 | Parameter  | Description |
 | ---------- | ----------- |
 | *hWin* | [in] Handle of the window that will host the WebView control. |
-| *pUserDataFolder* | [in] Path of the folder where WebView will create the profile files. Use null to create WebView using Edge installed on the machine|
+| *pUserDataFolder* | [in] Path of the folder where WebView2 will create the profile files. If You don't specify a folder, WebView2 will create one with the name of the application and the WebView2 suffix, e.g. MyApp.exe.WebView2. |
+| *wszUserDataFolder* | [in] Path of the folder where WebView2 will create the profile files.|
 
 #### Flow diagram
 
@@ -368,7 +449,7 @@ END FUNCTION
 ```
 ---
 
-## CWebView2CreateCoreWebView2EnvironmentCompletedHandler
+### CWebView2CreateCoreWebView2EnvironmentCompletedHandler
 
 Implementation of the **ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler** interface.
 
@@ -600,7 +681,7 @@ END FUNCTION
 ```
 ---
 
-## CWebView2CreateCoreWebView2ControllerCompletedHandler
+### CWebView2CreateCoreWebView2ControllerCompletedHandler
 
 Implementation of the **ICoreWebView2CreateCoreWebView2ControllerCompletedHandler** callback interface.
 
@@ -813,7 +894,7 @@ END FUNCTION
 ```
 ---
 
-## GetControllerPtr
+### GetControllerPtr
 
 Returns a raw pointer to the **Afx_ICoreWebView2Controller** interface.
 
@@ -822,7 +903,7 @@ FUNCTION GetControllerPtr () AS Afx_ICoreWebView2Controller PTR
 ```
 ---
 
-## GetEnvironmentPtr
+### GetEnvironmentPtr
 
 Returns a raw pointer to the **Afx_ICoreWebView2Environment** interface.
 
@@ -831,7 +912,7 @@ FUNCTION GetEnvironmentPtr () AS Afx_ICoreWebView2Environment PTR
 ```
 ---
 
-## GetWebViewPtr
+### GetWebViewPtr
 
 Returns a raw pointer to the **Afx_ICoreWebView2** interface.
 
@@ -840,7 +921,7 @@ FUNCTION GetWebViewPtr () AS Afx_ICoreWebView2 PTR
 ```
 ---
 
-## GetCoreWebView
+### GetCoreWebView
 
 Gets an AddRef'ed pointer of the **Afx_ICoreWebView2** interface
 
@@ -849,7 +930,7 @@ FUNCTION GetCoreWebView2 () AS Afx_ICoreWebView2 PTR
 ```
 ---
 
-## IsReady
+### IsReady
 
 Checks if WebView2 is ready to be used.
 
@@ -867,7 +948,7 @@ Returns TRUE or FALSE.
 
 ---
 
-## AfxCWebView2Ptr
+### AfxCWebView2Ptr
 
 Returns a raw pointer to the **CWebView** class given the handle of the window that hosts it.
 
@@ -885,7 +966,7 @@ The returned pointer is a raw pointer. Therefore you don't have to release it.
 
 ---
 
-## AfxSaveTempHtmlFile
+### AfxSaveTempHtmlFile
 
 Saves the contents of an html script to a temporary file and returns the name of the file. The file is saved with a .html extension and using UTF-8 encoding.
 
@@ -903,7 +984,7 @@ Used to save and html script to be used with the **Navigate** method.
 
 ---
 
-## GetLastResult
+### GetLastResult
 
 Returns the last result code.
 
@@ -912,7 +993,7 @@ FUNCTION GetLastResult () AS HRESULT
 ```
 ---
 
-## SetResult
+### SetResult
 
 Sets the result code.
 ```
@@ -924,7 +1005,7 @@ FUNCTION SetResult (BYVAL Result AS HRESULT) AS HRESULT
 
 ---
 
-## GetErrorInfo
+### GetErrorInfo
 
 Returns a description of the last result code.
 
@@ -938,7 +1019,7 @@ DWSTRING. A description of the last result code.
 
 ---
 
-## CallDevToolsProtocolMethod
+### CallDevToolsProtocolMethod
 
 Runs an asynchronous DevToolsProtocol method.
 
@@ -958,7 +1039,7 @@ For more information about available methods, navigate to [DevTools Protocol Vie
 
 ---
 
-## CanGoBack
+### CanGoBack
 
 TRUE if the WebView is able to navigate to a previous page in the navigation history.
 
@@ -967,7 +1048,7 @@ FUNCTION CanGoBack () AS BOOLEAN
 ```
 ---
 
-## CanGoForward
+### CanGoForward
 
 TRUE if the WebView is able to navigate to a previous page in the navigation history.
 
@@ -976,7 +1057,7 @@ FUNCTION CanGoForward () AS BOOLEAN
 ```
 ---
 
-## CapturePreview
+### CapturePreview
 
 Capture an image of what WebView is displaying.
 ```
@@ -994,7 +1075,7 @@ Specify the format of the image with the *imageFormat* parameter. The resulting 
 
 ---
 
-## Close
+### Close
 
 Closes the WebView and cleans up the underlying browser instance.
 
@@ -1010,7 +1091,7 @@ After running **Close**, most methods will fail and event handlers stop running.
 
 ---
 
-## ExecuteScript
+### ExecuteScript
 
 Run JavaScript code from the javascript parameter in the current top-level document rendered in the WebView.
 
@@ -1026,7 +1107,7 @@ FUNCTION ExecuteScript (BYVAL javaScript AS LPCWSTR, _
 
 The result of evaluating the provided JavaScript is used in this parameter. The result value is a JSON encoded string. If the result is undefined, contains a reference cycle, or otherwise is not able to be encoded into JSON, then the result is considered to be null, which is encoded in JSON as the string "null".
 
-## GetBounds
+### GetBounds
 
 Gets the WebView bounds.
 
@@ -1044,7 +1125,7 @@ The values of **Bounds** are limited by the coordinate space of the host.
 
 ---
 
-## GetBrowserProcessId
+### GetBrowserProcessId
 
 Gets process ID of the browser process that hosts the WebView.
 
@@ -1053,7 +1134,7 @@ FUNCTION GetBrowserProcessId () AS UINT32
 ```
 ---
 
-## GetContainsFullScreenElement
+### GetContainsFullScreenElement
 
 Indicates if the WebView contains a fullscreen HTML element.
 
@@ -1062,7 +1143,7 @@ FUNCTION GetContainsFullScreenElement () AS LONG
 ```
 ---
 
-## GetIsVisible
+### GetIsVisible
 
 TRUE if the WebView is visible; FALSE otherwise.
 
@@ -1071,7 +1152,7 @@ FUNCTION GetIsVisible () AS BOOLEAN
 ```
 ---
 
-## GetParentWindow
+### GetParentWindow
 
 Gets the handle of the parent window provided by the app that this WebView is using to render content.
 
@@ -1080,7 +1161,7 @@ FUNCTION GetParentWindow () AS HWND
 ```
 ---
 
-## GetSource
+### GetSource
 
 Gets the URI of the current top level document.
 
@@ -1092,7 +1173,7 @@ This value potentially changes as a part of the **SourceChanged** event that run
 
 ---
 
-## GetZoomFactor
+### GetZoomFactor
 
 Gets the zoom factor for the WebView.
 
@@ -1106,7 +1187,7 @@ Changing zoom factor may cause **window.innerWidth**, **window.innerHeight**, bo
 
 ---
 
-## GoBack
+### GoBack
 
 Navigates the WebView to the previous page in the navigation history.
 
@@ -1115,7 +1196,7 @@ FUNCTION GoBack () AS HRESULT
 ```
 ---
 
-## GoForward
+### GoForward
 
 Navigates the WebView to the next page in the navigation history.
 
@@ -1124,7 +1205,7 @@ FUNCTION GoForward () AS HRESULT
 ```
 ---
 
-## MoveFocus
+### MoveFocus
 
 Moves focus into WebView.
 
@@ -1140,7 +1221,7 @@ WebView gets focus and focus is set to correspondent element in the page hosted 
 
 ---
 
-## Navigate
+### Navigate
 
 Cause a navigation of the top-level document to run to the specified URI.
 
@@ -1154,7 +1235,7 @@ FUNCTION Navigate (BYVAL uri AS LPCWSTR) AS HRESULT
 
 ---
 
-## NavigateToString
+### NavigateToString
 
 Initiates a navigation to htmlContent as source HTML of a new document.
 
@@ -1172,7 +1253,7 @@ The *htmlContent* parameter may not be larger than 2 MB (2 * 1024 * 1024 bytes) 
 
 ---
 
-## NotifyParentWindowPositionChangd
+### NotifyParentWindowPositionChangd
 
 This is a notification separate from **SetBounds** that tells WebView its parent (or any ancestor) HWND moved.
 
@@ -1186,7 +1267,7 @@ This is needed for accessibility and certain dialogs in WebView to work correctl
 
 ---
 
-## OpenDevToolsWindow
+### OpenDevToolsWindow
 
 Opens the DevTools window for the current document in the WebView.
 
@@ -1200,7 +1281,7 @@ Does nothing if run when the DevTools window is already open.
 
 ---
 
-## PostWebMessageAsJson
+# ## PostWebMessageAsJson
 
 Post the specified webMessage to the top level document in this WebView.
 
@@ -1214,7 +1295,7 @@ FUNCTION PostWebMessageAsJson (BYVAL webMessageAsJson AS LPCWSTR) AS HRESULT
 
 ---
 
-## PostWebMessageAsString
+### PostWebMessageAsString
 
 Posts a message that is a simple string rather than a JSON string representation of a JavaScript object.
 
@@ -1228,7 +1309,7 @@ FUNCTION PostWebMessageAsString (BYVAL webMessageAsString AS LPCWSTR) AS HRESULT
 
 ---
 
-## Reload
+### Reload
 
 Reload the current page.
 
@@ -1240,7 +1321,7 @@ This is similar to navigating to the URI of current top level document including
 
 ---
 
-## SetBounds
+### SetBounds
 
 Sets the **Bounds** propety.
 
@@ -1254,7 +1335,7 @@ FUNCTION SetBounds (BYVAL bounds AS RECT) AS HRESULT
 
 ---
 
-## SetIsVisible
+### SetIsVisible
 
 Set the **IsVisible** property.
 
@@ -1268,7 +1349,7 @@ FUNCTION SetIsVisible (BYVAL IsVisible AS BOOLEAN) AS HRESULT
 
 ---
 
-## SetParentWindow
+### SetParentWindow
 
 Set the parent window for the WebView.
 
@@ -1286,7 +1367,7 @@ This will cause the WebView to reparent its window to the newly provided window.
 
 ---
 
-## SetZoomFactor
+### SetZoomFactor
 
 Set the **ZoomFactor** property.
 
@@ -1300,7 +1381,7 @@ FUNCTION SetZoomFactor (BYVAL zoomFactor AS DOUBLE) AS HRESULT
 
 ---
 
-## Stop
+### Stop
 
 Stop all navigations and pending resource fetches. Does not stop scripts.
 
@@ -1309,7 +1390,7 @@ FUNCTION Stop () AS HRESULT
 ```
 ---
 
-## CompareBrowserVersions
+### CompareBrowserVersions
 
 Compares two instances of browser versions correctly and returns an integer that indicates whether the first instance is older, the same as, or newer than the second instance.
   
@@ -1333,7 +1414,7 @@ It can be used to determine whether to use webview2 or certain feature base on v
 
 ---
 
-## CreateCoreWebView2Environment
+### CreateCoreWebView2Environment
 
 Creates an evergreen WebView2 Environment using the installed Edge version. This is equivalent to calling CreateCoreWebView2EnvironmentWithOptions with nullptr for browserExecutableFolder, userDataFolder, additionalBrowserArguments.
 
@@ -1348,7 +1429,7 @@ FUNCTION CreateCoreWebView2Environment (BYVAL environment_created_handler AS _
 
 ---
 
-## CreateCoreWebView2EnvironmentWithOptions
+### CreateCoreWebView2EnvironmentWithOptions
 
 Creates a  WebView2 environment with a custom version of Edge, user data directory and/or additional options.
 
@@ -1434,7 +1515,7 @@ First we check with Root as HKLM and then HKCU. AppId is first set to the Applic
 
 ---
 
-## GetAvailableCoreWebView2BrowserVersionString
+### GetAvailableCoreWebView2BrowserVersionString
 
 Get the browser version info including channel name if it is not the stable channel or the Embedded Edge.
 
@@ -1453,7 +1534,7 @@ Channel names are beta, dev, and canary. If an override exists for the *browserE
 
 ---
 
-## GetAvailableCoreWebView2BrowserVersionString
+### GetAvailableCoreWebView2BrowserVersionString
 
 Get the browser version info including channel name if it is not the stable channel or the Embedded Edge.
 
@@ -1469,7 +1550,7 @@ FUNCTION GetAvailableCoreWebView2BrowserVersionString (BYVAL browserExecutableFo
 
 ---
 
-## GetSettings
+### GetSettings
 
 Gets a pointer to the **Afx_ICoreWebView2Settings** interface, that allows to modify various modifiable settings for the running WebView.
 
@@ -1478,7 +1559,7 @@ FUNCTION GetSettings () AS Afx_ICoreWebView2Settings PTR
 ```
 ---
 
-## AreDefaultContextMenusEnabled
+### AreDefaultContextMenusEnabled
 
 Determines whether the default context menus are shown to the user in WebView.
 
@@ -1488,7 +1569,7 @@ PROPERTY AreDefaultContextMenusEnabled (BYVAL enabled AS BOOLEAN) AS HRESULT
 ```
 ---
 
-## AreDefaultScriptDialogsEnabled
+### AreDefaultScriptDialogsEnabled
 
 Used when loading a new HTML document.
 
@@ -1503,7 +1584,7 @@ If set to FALSE, WebView2 does not render the default JavaScript dialog box (spe
 
 ---
 
-## AreDevToolsEnabled
+### AreDevToolsEnabled
 
 Determines whether the user is able to use the context menu or keyboard shortcuts to open the DevTools window.
 
@@ -1513,7 +1594,7 @@ PROPERTY AreDevToolsEnabled (BYVAL enabled AS BOOLEAN) AS HRESULT
 ```
 ---
 
-## AreHostObjectsAllowed
+### AreHostObjectsAllowed
 
 Determines whether host objects are accessible from the page in WebView.
 
@@ -1523,7 +1604,7 @@ PROPERTY AreHostObjectsAllowed (BYVAL enabled AS BOOLEAN) AS HRESULT
 ```
 ---
 
-## IsBuiltInErrorPageEnabled
+### IsBuiltInErrorPageEnabled
 
 Determines whether to disable built in error page for navigation failure and render process failure.
 
@@ -1533,7 +1614,7 @@ PROPERTY IsBuiltInErrorPageEnabled (BYVAL enabled AS BOOLEAN) AS HRESULT
 ```
 ---
 
-## IsScriptEnabled
+### IsScriptEnabled
 
 Controls if running JavaScript is enabled in all future navigations in the WebView. This only affects scripts in the document. Scripts injected with ExecuteScript runs even if script is disabled. The default value is TRUE.
 
@@ -1548,7 +1629,7 @@ Changes to settings will apply at the next navigation, which includes the naviga
 
 ---
 
-## IsStatusBarEnabled
+### IsStatusBarEnabled
 
 Controls whether the status bar is displayed.
 
@@ -1563,7 +1644,7 @@ The status bar is usually displayed in the lower left of the WebView and shows t
 
 ---
 
-## IsWebMessageEnabled
+### IsWebMessageEnabled
 
 Used when loading a new HTML document.
 
@@ -1578,7 +1659,7 @@ PROPERTY IsWebMessageEnabled (BYVAL enabled AS BOOLEAN) AS HRESULT
 
 ---
 
-## IsZoomControlEnabled
+### IsZoomControlEnabled
 
 Determines whether the user is able to impact the zoom of the WebView.
 
@@ -1592,3 +1673,478 @@ PROPERTY IsZoomControlEnabled (BYVAL enabled AS BOOLEAN) AS HRESULT
 When disabled, the user is not able to zoom using Ctrl++, Ctrl+-, or Ctrl+mouse wheel, but the zoom is set using **ZoomFactor** API. The default value is TRUE.
 
 ---
+
+### AcceleratorKeyPressed
+
+Adds/removes an event handler for the **AcceleratorKeyPressed** event.
+
+```
+FUNCTION AddAcceleratorKeyPressed ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2NavigationStartingEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveAcceleratorKeyPressed (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2NavigationStartingEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### ContainsFullScreenElementChanged
+
+Adds/removes an event handler for the **ContainsFullScreenElementChanged** event.
+
+```
+FUNCTION AddContainsFullScreenElementChanged ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2ContainsFullScreenElementChangedEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveContainsFullScreenElementChanged (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2ContainsFullScreenElementChangedEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### ContentLoading
+
+Adds/removes an event handler for the **ContentLoading** event.
+
+```
+FUNCTION AddContentLoading ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2ContentLoadingEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveContentLoading (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2ContentLoadingEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### DocumentTitleChanged
+
+Adds/removes an event handler for the **DocumentTitleChanged** event.
+
+```
+FUNCTION AddDocumentTitleChanged ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2DocumentTitleChangedEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveDocumentTitleChanged (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2DocumentTitleChangedEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### FrameNavigationStarting
+
+Adds/removes an event handler for the **FrameNavigationStarting** event.
+
+```
+FUNCTION AddFrameNavigationStarting ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2NavigationStartingEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveFrameNavigationStarting (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2NavigationStartingEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### GotFocus
+
+Adds/removes an event handler for the **GotFocus** event.
+
+```
+FUNCTION AddGotFocus ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2FocusChangedEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveGotFocus (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2FocusChangedEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### LostFocus
+
+Adds/removes an event handler for the **LostFocus** event.
+
+```
+FUNCTION AddLostFocus ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2FocusChangedEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveLostFocus (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2FocusChangedEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### HistoryChanged
+
+Adds/removes an event handler for the **HistoryChanged** event.
+
+```
+FUNCTION AddHistoryChanged ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2SourceChangedEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveHistoryChanged (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2SourceChangedEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### MoveFocusRequested
+
+Adds/removes an event handler for the **MoveFocusRequested** event.
+
+```
+FUNCTION AddMoveFocusRequested ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2MoveFocusRequestedEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveMoveFocusRequested (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2MoveFocusRequestedEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### NavigationCompleted
+
+Adds/removes an event handler for the **NavigationCompleted** event.
+
+```
+FUNCTION AddNavigationCompleted ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2NavigationCompletedEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveNavigationCompleted (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2MoveFocusRequestedEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### NavigationStarting
+
+Adds/removes an event handler for the **NavigationStarting** event.
+
+```
+FUNCTION AddNavigationStarting ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2NavigationStartingEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveNavigationStarting (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2NavigationStartingEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### NewWindowRequested
+
+Adds/removes an event handler for the **NewWindowRequested** event.
+
+```
+FUNCTION AddNavigationStarting ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2NewWindowRequestedEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveNewWindowRequested (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2NewWindowRequestedEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### PermissionRequested
+
+Adds/removes an event handler for the **PermissionRequested** event.
+
+```
+FUNCTION AddPermissionRequested ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2PermissionRequestedEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemovePermissionRequested (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2PermissionRequestedEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### ProcessFailed
+
+Adds/removes an event handler for the **ProcessFailed** event.
+
+```
+FUNCTION AddProcessFailed ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2ProcessFailedEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveProcessFailed (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2ProcessFailedEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### ScriptDialogOpening
+
+Adds/removes an event handler for the **ScriptDialogOpening** event.
+
+```
+FUNCTION AddScriptDialogOpening ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2ScriptDialogOpeningEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveProcessFailed (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2ScriptDialogOpeningEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### ScriptDialogOpening
+
+Adds/removes an event handler for the **ScriptDialogOpening** event.
+
+```
+FUNCTION AddScriptDialogOpening ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2ScriptDialogOpeningEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveProcessFailed (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2ScriptDialogOpeningEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### SourceChanged
+
+Adds/removes an event handler for the **SourceChanged** event.
+
+```
+FUNCTION AddSourceChanged ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2SourceChangedEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveSourceChanged (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2SourceChangedEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### WebMessageReceived
+
+Adds/removes an event handler for the **WebMessageReceived** event.
+
+```
+FUNCTION AddWebMessageReceived ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2WebMessageReceivedEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveWebMessageReceived (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2WebMessageReceivedEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### WebResourceRequested
+
+Adds/removes an event handler for the **WebResourceRequested** event.
+
+```
+FUNCTION AddWebResourceRequested ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2WebResourceRequestedEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveWebResourceRequested (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2WebResourceRequestedEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### WindowCloseRequested
+
+Adds/removes an event handler for the **WindowCloseRequested** event.
+
+```
+FUNCTION AddWindowCloseRequested ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2WindowCloseRequestedEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveWindowCloseRequested (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2WindowCloseRequestedEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### ZoomFactorChanged
+
+Adds/removes an event handler for the **ZoomFactorChanged** event.
+
+```
+FUNCTION AddZoomFactorChanged ( _
+   BYVAL eventHandler AS Afx_ICoreWebView2ZoomFactorChangedEventHandler PTR, _
+   BYVAL token AS EventRegistrationToken PTR) AS HRESULT
+FUNCTION RemoveZoomFactorChanged (BYVAL token AS EventRegistrationToken) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventHandler* | Pointer to an ICoreWebView2ZoomFactorChangedEventHandler. |
+| *token* | Token that uniquely identifies the subscription. |
+
+---
+
+### HostObjectToScript
+
+Adds/removes the provided host object to script running in the WebView with the specified name.
+
+```
+FUNCTION AddHostObjectToScript (BYVAL _name AS LPCWSTR, BYVAL _object AS VARIANT PTR) AS HRESULT
+FUNCTION RemoveHostObjectFromScript (BYVAL _name AS LPCWSTR) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *_name* | The name of the host object. |
+| *_object* | The host object to be added to script. |
+
+#### Remarks
+
+Host objects are exposed as host object proxies using window.chrome.webview.hostObjects.{name}. Host object proxies are promises and resolves to an object representing the host object. The promise is rejected if the app has not added an object with the name. When JavaScript code access a property or method of the object, a promise is return, which resolves to the value returned from the host for the property or method, or rejected in case of error, for example, no property or method on the object or parameters are not valid.
+
+**Note**: While simple types, IDispatch and array are supported, and IUnknown objects that also implement IDispatch are treated as IDispatch, generic IUnknown, VT_DECIMAL, or VT_RECORD variant is not supported. Remote JavaScript objects like callback functions are represented as an VT_DISPATCH``VARIANT with the object implementing IDispatch. The JavaScript callback method may be invoked using DISPID_VALUE for the DISPID. Such callback method invocations will return immediately and will not wait for the JavaScript function to run and so will not provide the return value of the JavaScript function. Nested arrays are supported up to a depth of 3. Arrays of by reference types are not supported. VT_EMPTY and VT_NULL are mapped into JavaScript as null. In JavaScript, null and undefined are mapped to VT_EMPTY.
+
+---
+
+### ScriptToExecuteOnDocumentCreated
+
+Adds/removes the provided JavaScript to a list of scripts that should be run after the global object has been created, but before the HTML document has been parsed and before any other script included by the HTML document is run.
+
+```
+FUNCTION AddScriptToExecuteOnDocumentCreated (BYVAL javaScript AS LPCWSTR, _
+   BYVAL handler AS Afx_ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler PTR) AS HRESULT
+FUNCTION RemoveScriptToExecuteOnDocumentCreated (BYVAL id AS LPCWSTR)
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *javaScript* | A javascript script. |
+| *handler* | Pointer to an ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler. |
+
+#### Remarks
+
+This method injects a script that runs on all top-level document and child frame page navigations. This method runs asynchronously, and you must wait for the completion handler to finish before the injected script is ready to run. When this method completes, the Invoke method of the handler is run with the id of the injected script. id is a string. To remove the injected script, use ^^RemoveScriptToExecuteOnDocumentCreated**.
+
+If the method is run in **AddNewWindowRequested** handler it should be called before the new window is set. If called after setting the **NewWindow** property, the initial script may or may not apply to the initial navigation and may only apply to the subsequent navigation.
+
+**Note**: If an HTML document is running in a sandbox of some kind using sandbox properties or the Content-Security-Policy HTTP header affects the script that runs. For example, if the allow-modals keyword is not set then requests to run the alert function are ignored.
+
+---
+
+### WebResourceRequestedFilter
+
+**Warning**: This method is deprecated and does not behave as expected for iframes.
+
+It will cause the **WebResourceRequested** event to fire only for the main frame and its same-origin iframes. Please use **AddWebResourceRequestedFilterWithRequestSourceKinds** instead, which will let the event to fire for all iframes on the document.
+
+Adds a URI and resource context filter for the **WebResourceRequested** event. A web resource request with a resource context that matches this filter's resource context and a URI that matches this filter's URI wildcard string will be raised via the **WebResourceRequested** event.
+
+```
+FUNCTION AddWebResourceRequestedFilter (BYVAL uri AS LPCWSTR, BYVAL _
+   ResourceContext AS COREWEBVIEW2_WEB_RESOURCE_CONTEXT) AS HRESULT
+FUNCTION RemoveWebResourceRequestedFilter (BYVAL uri AS LPCWSTR, _
+   BYVAL ResourceContext AS COREWEBVIEW2_WEB_RESOURCE_CONTEXT) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *uri* | The URI to add. |
+| *ResourceContext* | The resource context filter. |
+
+#### Remarks
+
+
+The uri parameter value is a wildcard string matched against the URI of the web resource request. This is a glob style wildcard string in which a * matches zero or more characters and a ? matches exactly one character. These wildcard characters can be escaped using a backslash just before the wildcard character in order to represent the literal * or ?.
+
+The matching occurs over the URI as a whole string and not limiting wildcard matches to particular parts of the URI. The wildcard filter is compared to the URI after the URI has been normalized, any URI fragment has been removed, and non-ASCII hostnames have been converted to punycode.
+
+Specifying a NULL for the uri is equivalent to an empty string which matches no URIs.
+
+---
+
+### GetDevToolsProtocolEventReceiver
+
+Get a DevTools Protocol event receiver that allows you to subscribe to a DevTools Protocol event.
+
+```
+FUNCTION GetDevToolsProtocolEventReceiver (BYVAL eventName AS LPCWSTR, _
+   BYVAL receiver AS Afx_ICoreWebView2DevToolsProtocolEventReceiver PTR PTR) AS HRESULT
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *eventName* | The full name of the event. |
+| *receiver* | A pointer that receives a pointer to ICoreWebView2DevToolsProtocolEventReceiver. |
+
+The eventName parameter is the full name of the event in the format {domain}.{event}. For more information about DevTools Protocol events description and event args, navigate to [DevTools Protocol Viewer](https://chromedevtools.github.io/devtools-protocol/tot/).
+
+---
+

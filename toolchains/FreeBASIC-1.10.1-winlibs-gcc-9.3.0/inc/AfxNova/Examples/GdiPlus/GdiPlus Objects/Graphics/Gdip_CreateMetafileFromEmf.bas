@@ -44,9 +44,9 @@ SUB Example_CreateMetafileFromEmf (BYVAL hdc AS HDC)
    ' // Create a GDI+ Metafile object from the EMF handle
    DIM metafile AS GpMetafile PTR
    GdipCreateMetafileFromEmf(hEmf, FALSE, @metafile)
-   
+
    ' // Draw the metafile at a specified location
-   GdipDrawImage(graphics, metafile, 40 * graphics.dpiRatiox, 30 * graphics.dpiRatioY)
+   GdipDrawImage(graphics, metafile, 40 * graphics.dpiRatioX, 30 * graphics.dpiRatioY)
 
    ' // Cleanup
    IF metafile THEN GdipDisposeImage(metafile)
@@ -81,21 +81,12 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    pGraphCtx.Clear RGB_WHITE
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
-   
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
 
    ' // Draw the graphics
-   Example_CreateMetafileFromEmf(hdc)
+   Example_CreateMetafileFromEmf(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

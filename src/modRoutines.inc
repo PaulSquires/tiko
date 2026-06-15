@@ -585,84 +585,109 @@ end function
 ' ========================================================================================
 ' Maps UTF-8 string to Ansi string.
 ' ========================================================================================
-function Utf8ToAnsi(byref strUtf8 as string) as string
+function Utf8ToAnsi( byref sUtf8 as string ) as string
+    dim dws as DWSTRING = DWSTRING(sUtf8, CP_UTF8)
+    dim ansiStr as string = dws
+    return ansiStr
 
-   dim i as long                ' // Loop counter
-   dim strAscii as string       ' // Ascii string
-   dim idx as long              ' // Position in the string
-   dim c as long                ' // ASCII code
-   dim b2 as long               ' // Second byte
-   dim fSkipChar as boolean     ' // Flag
+'    dim as long wlen, alen
+'    dim as string sUnicode, sAnsi
 
-   if len(strUtf8) = 0 then exit function
-   
-   ' // The maximum length of the translated string will be
-   ' // the same as the length of the original string.
-   ' // We are pre-allocating the buffer for faster operation
-   ' // than concatenating each character one by one.
-   strAscii = space(len(strUtf8))
+'    if len(sUtf8) = 0 then return ""
 
-   ' // Intialize index position in the string buffer
-   ' // used to store the converted Ascii string
-   idx = 1
-   
-   ' // Examine the contents of each character in the UTF-8 encoded string
-   for i = 1 to len(strUtf8)
-      ' // If fSkipChar is set we have to skip this character
-      if fSkipChar then
-         fSkipChar = 0
-         continue for
-      end if
-      ' // Get the Ascii code of the character
-      c = asc(mid(strUtf8, i, 1))
-      ' // If it is betwen 0 and 127...
-      if c < 128 then 
-         ' // ...we simply copy it to the string buffer...
-         mid(strAscii, idx, 1) = mid(strUtf8, idx, 1)
-         ' // ...and increase the position by 1.
-         idx = idx + 1
-      elseif c < 224 then
-         ' // We need to join this byte and the next byte.
-         b2 = asc(mid(strUtf8, i + 1, 1))
-         if b2 > 127 then
-            c = (c - 192) * 64 + (b2 - 128)
-            mid(strAscii, idx, 1) = chr(c)
-            ' // Set the flag to skip the next character
-            fSkipChar = true
-            ' // Increase the position by 1.
-            idx = idx + 1
-         end if
-      end if
-   next
+'    '-----------------------------------------
+'    ' Step 1: UTF-8 ? UTF-16 (size query)
+'    '-----------------------------------------
+'    wlen = MultiByteToWideChar( _
+'                CP_UTF8, _
+'                0, _
+'                strptr(sUtf8), _
+'                len(sUtf8), _
+'                NULL, _
+'                0)
 
-   ' // Return the string
-   function = left(strAscii, idx - 1)
+'    if wlen = 0 then return ""
 
+'    sUnicode = string(wlen * 2, 0)
+
+'    MultiByteToWideChar( _
+'        CP_UTF8, _
+'        0, _
+'        strptr(sUtf8), _
+'        len(sUtf8), _
+'        cast(LPWSTR, strptr(sUnicode)), _
+'        wlen)
+
+'    '-----------------------------------------
+'    ' Step 2: UTF-16 ? ANSI (size query)
+'    '-----------------------------------------
+'    alen = WideCharToMultiByte( _
+'                CP_ACP, _
+'                0, _
+'                cast(LPDWSTRING, strptr(sUnicode)), _
+'                wlen, _
+'                NULL, _
+'                0, _
+'                NULL, _
+'                NULL)
+
+'    if alen = 0 then return ""
+
+'    sAnsi = string(alen, 0)
+
+'    WideCharToMultiByte( _
+'        CP_ACP, _
+'        0, _
+'        cast(LPDWSTRING, strptr(sUnicode)), _
+'        wlen, _
+'        strptr(sAnsi), _
+'        alen, _
+'        NULL, _
+'        NULL)
+
+'    return sAnsi
 end function
 
 
 ' ========================================================================================
 ' Maps Unicode character string to a UTF-8 string.
 ' ========================================================================================
-function UnicodeToUtf8( byval wzUnicode as DWSTRING ) as string
-    dim sUtf8 as string
-
-    ' Maps Unicode character string to a UTF-8 string.
-    sUtf8 = string(len(wzUnicode) * 2, 0)
+function UnicodeToUtf8( byref wzUnicode as DWSTRING ) as string
+    dim strUtf8 as string = wzUnicode.utf8
+    return strUtf8 
     
-    dim as long bytesWritten = _
-        WideCharToMultiByte ( _
-        CP_UTF8, _                        'Set to UTF-8
-        0, _                              'Conversion type
-        cast(LPCWSTR, wzUnicode.vptr), _  'Unicode string to convert
-        len(wzUnicode), _                 'Length of Unicode string
-        cast(LPSTR, strptr(sUtf8)), _     'UTF-8 string
-        len(sUtf8), _                     'Length of UTF-8 buffer
-        byval 0, _                        'Invalid character replacement
-        byval 0)                          'Replacement was used flag
+'    dim as long u8len
+'    dim as string sUtf8
 
-    function = left(sUtf8, bytesWritten)
+'    ' Step 1: get required UTF-8 size (including null terminator)
+'    u8len = WideCharToMultiByte( _
+'                CP_UTF8, _
+'                0, _
+'                cast(LPDWSTRING, *wzUnicode), _
+'                -1, _
+'                NULL, _
+'                0, _
+'                NULL, _
+'                NULL)
 
+'    if u8len = 0 then return ""
+
+'    ' Step 2: allocate buffer
+'    sUtf8 = string(u8len, 0)
+
+'    ' Step 3: convert
+'    WideCharToMultiByte( _
+'        CP_UTF8, _
+'        0, _
+'        cast(LPDWSTRING, *wzUnicode), _
+'        -1, _
+'        strptr(sUtf8), _
+'        u8len, _
+'        NULL, _
+'        NULL)
+
+'    ' Remove null terminator
+'    return left(sUtf8, u8len - 1)
 end function
 
 
@@ -670,84 +695,108 @@ end function
 ' Maps Ansi character string to a UTF-8 string.
 ' ========================================================================================
 function AnsiToUtf8( byref sAnsi as string ) as string
-    dim sUnicode as string
-    dim sUtf8    as string
+    dim dws as DWSTRING = sAnsi
+    dim strUtf8 as string = dws.utf8
+    return strUtf8
 
-    'Maps Ansi character string to a UTF-8 string.
+'    dim as integer wlen, u8len
+'    dim as string sUnicode, sUtf8
 
-    'Step one, convert to UNICODE
-    sUnicode = string(len(sAnsi) * 2, 0)
-    MultiByteToWideChar(CP_ACP, _                  'System default Windows ANSI code page
-                     MB_PRECOMPOSED, _          'Conversion type
-                     cast(LPCSTR, strptr(sAnsi)), _     'ANSI string to convert
-                     len(sAnsi), _              'Lenght of ANSI string
-                     cast(LPWSTR, strptr(sUnicode)), _  'Unicode string
-                     len(sUnicode))             'Lenght of Unicode buffer
+'    if len(sAnsi) = 0 then return ""
 
-    'Step two, convert to UTF-8
-    sUtf8 = string(len(sAnsi), 0)
-    WideCharToMultiByte(CP_UTF8, _                 'Set to UTF-8
-                     0, _                       'Conversion type
-                     cast(LPCWSTR, strptr(sUnicode)), _  'Unicode string to convert
-                     len(sUnicode) / 2, _       'Lenght of Unicode string
-                     cast(LPSTR, strptr(sUtf8)), _     'UTF-8 string
-                     len(sUtf8), _              'Length of UTF-8 buffer
-                     byval 0, _                 'Invalid character replacement
-                     byval 0)                   'Replacement was used flag
-    function = sUtf8
+'    ' Step 1: ANSI ? UTF-16 (size query)
+'    wlen = MultiByteToWideChar(CP_ACP, 0, strptr(sAnsi), len(sAnsi), NULL, 0)
+'    if wlen = 0 then return ""
 
+'    sUnicode = string(wlen * 2, 0)
+
+'    if MultiByteToWideChar(CP_ACP, 0, strptr(sAnsi), len(sAnsi), cast(LPWSTR, strptr(sUnicode)), wlen) = 0 then
+'        return ""
+'    end if
+
+'    ' Step 2: UTF-16 ? UTF-8 (size query)
+'    u8len = WideCharToMultiByte(CP_UTF8, 0, cast(LPDWSTRING, strptr(sUnicode)), wlen, NULL, 0, NULL, NULL)
+'    if u8len = 0 then return ""
+
+'    sUtf8 = string(u8len, 0)
+
+'    if WideCharToMultiByte(CP_UTF8, 0, cast(LPDWSTRING, strptr(sUnicode)), wlen, strptr(sUtf8), u8len, NULL, NULL) = 0 then
+'        return ""
+'    end if
+
+'    return sUtf8
 end function
 
 
 ' ========================================================================================
 ' Determine if a string is likely UTF-8 encoded
 ' ========================================================================================
-function isUTF8encoded(byref text as string) as boolean
-    dim as ubyte ptr p = strptr(text)
-    dim as integer nlen = len(text)
-    dim as integer i = 0
-    dim as boolean hasUTF8Sequences = false
+function isUTF8encoded( byref s as string ) as boolean
+    if len(s) = 0 then return false
 
-    while i < nlen
-        dim as ubyte c = p[i]
+    ' Optional: Detect UTF-8 BOM
+    if len(s) >= 3 then
+        if asc(s,1)=&hEF and asc(s,2)=&hBB and asc(s,3)=&hBF then return true
+    end if
 
-        if c < &h80 then
-            ' ASCII character
-            i += 1
+    dim as long wlen = MultiByteToWideChar( _
+        CP_UTF8, _
+        MB_ERR_INVALID_CHARS, _   ' strict validation
+        strptr(s), _
+        len(s), _
+        NULL, _
+        0)
 
-        elseif (c and &hE0) = &hC0 then
-            ' 2-byte UTF-8 sequence
-            if i + 1 >= nlen then return false
-            if (p[i + 1] and &hC0) <> &h80 then return false
-            if c < &hC2 then return false
-            hasUTF8Sequences = true
-            i += 2
-
-        elseif (c and &hF0) = &hE0 then
-            ' 3-byte UTF-8 sequence
-            if i + 2 >= nlen then return false
-            if (p[i + 1] and &hC0) <> &h80 then return false
-            if (p[i + 2] and &hC0) <> &h80 then return false
-            hasUTF8Sequences = true
-            i += 3
-
-        elseif (c and &hF8) = &hF0 then
-            ' 4-byte UTF-8 sequence
-            if i + 3 >= nlen then return false
-            if (p[i + 1] and &hC0) <> &h80 then return false
-            if (p[i + 2] and &hC0) <> &h80 then return false
-            if (p[i + 3] and &hC0) <> &h80 then return false
-            hasUTF8Sequences = true
-            i += 4
-
-        else
-            ' Invalid byte for UTF-8
-            return false
-        end if
-    wend
-
-    return hasUTF8Sequences
+    return (wlen <> 0)
 end function
+
+
+'function isUTF8encoded(byref text as string) as boolean
+'    dim as ubyte ptr p = strptr(text)
+'    dim as integer nlen = len(text)
+'    dim as integer i = 0
+'    dim as boolean hasUTF8Sequences = false
+
+'    while i < nlen
+'        dim as ubyte c = p[i]
+
+'        if c < &h80 then
+'            ' ASCII character
+'            i += 1
+
+'        elseif (c and &hE0) = &hC0 then
+'            ' 2-byte UTF-8 sequence
+'            if i + 1 >= nlen then return false
+'            if (p[i + 1] and &hC0) <> &h80 then return false
+'            if c < &hC2 then return false
+'            hasUTF8Sequences = true
+'            i += 2
+
+'        elseif (c and &hF0) = &hE0 then
+'            ' 3-byte UTF-8 sequence
+'            if i + 2 >= nlen then return false
+'            if (p[i + 1] and &hC0) <> &h80 then return false
+'            if (p[i + 2] and &hC0) <> &h80 then return false
+'            hasUTF8Sequences = true
+'            i += 3
+
+'        elseif (c and &hF8) = &hF0 then
+'            ' 4-byte UTF-8 sequence
+'            if i + 3 >= nlen then return false
+'            if (p[i + 1] and &hC0) <> &h80 then return false
+'            if (p[i + 2] and &hC0) <> &h80 then return false
+'            if (p[i + 3] and &hC0) <> &h80 then return false
+'            hasUTF8Sequences = true
+'            i += 4
+
+'        else
+'            ' Invalid byte for UTF-8
+'            return false
+'        end if
+'    wend
+
+'    return hasUTF8Sequences
+'end function
 
 
 ' ========================================================================================
@@ -1777,3 +1826,97 @@ function GetListBoxEmptyClientArea( byval hListBox as HWND ) as RECT
     
     return rc
 end function
+
+
+' ========================================================================================
+' Convert Tiko version to whole number for comparison to file versions being loaded.
+' ========================================================================================
+function ConvertTikoVersion( byref wszVersion as wstring ) as long
+   dim as DWSTRING wszPart1, wszPart2, wszPart3
+   
+   wszPart1 = AfxStrLSet( AfxStrParse(wszVersion, 1, "."), 3, "0" )
+   wszPart2 = AfxStrLSet( AfxStrParse(wszVersion, 2, "."), 3, "0" )
+   wszPart3 = AfxStrRSet( AfxStrParse(wszVersion, 3, "."), 3, "0" )
+   
+   function = val(wszPart1 + wszPart2 + wszPart3) 
+end function
+
+
+' ========================================================================================
+' Check PlanetSquires server for latest Tiko version.
+' ========================================================================================
+sub DoCheckForUpdates( byval param as any ptr ) 
+   
+    ''  Contact the PlanetSquires server and download the text file containing
+    ''  the latest Tiko version number. 
+
+    dim as DWSTRING wszServerFile = "tiko_version.txt"
+    dim as DWSTRING wszFilename
+    dim as DWSTRING wszLatestVersion
+    dim as DWSTRING wszMsg
+    dim as string st
+    dim as boolean bFailedCheck = false
+
+    if AfxWinHttpCheckPlatform() = false then
+        ' This platform does not support the Windows HTTP Services (WinHTTP)
+        ' print "Windows HTTP Services (WinHTTP) not supported on this platform"
+        exit sub
+    end if
+   
+    dim pWHttp as CWinHttpRequest
+   
+    wszFilename = AfxGetExePathName & wszServerFile
+
+    ' Open an HTTP connection to an HTTP resource (synchronous mode)
+    if pWHttp.Open( "GET", "https://www.planetsquires.com/" & wszServerFile ) <> S_OK then
+        exit sub
+    end if
+
+    ' Send HTTP request and wait 5 seconds for response 
+    pWHttp.Send
+
+    if pWHttp.WaitForResponse(5) = 0 then
+        exit sub
+    end if
+
+    ' Open a file stream and save the downloaded file
+    st = pWHttp.GetResponseBody
+    dim pFileStream as CFileStream
+    if pFileStream.Open(wszFilename, STGM_CREATE or STGM_WRITE) = S_OK then
+        pFileStream.WriteTextA(st)
+        pFileStream.Close
+    end if
+
+    ' Open the downloaded file and check for the version number. It is possible that the socket
+    ' will open but fail and send request but security parameters of the system will prevent data
+    ' from being received resulting in a zero byte file. 
+    dim pStream as CTextStream 
+    if pStream.Open(wszFilename, IOMODE_FORREADING) = S_OK then 
+        do until pStream.EOS
+            st = pStream.ReadLine
+            if left( st, 15 ) = "latest_version=" then
+                wszLatestVersion = trim(mid( st, 16 ))
+                exit do
+           end if
+        loop
+        pStream.Close
+    end if
+    
+    AfxDeleteFile( wszFilename )
+      
+    if len(wszLatestVersion) = 0 then exit sub
+    
+    ' Check the installed vs. available version numbers   
+    dim as long latestVersion = ConvertTikoVersion(wszLatestVersion)
+    dim as long installedVersion = ConvertTikoVersion(APPVERSION)
+
+'print "wszLatestVersion = "; wszLatestVersion
+'print "latestVersion: "; latestVersion, "installedVersion: "; installedVersion
+
+    AfxDeleteFile( wszFilename ) 
+
+    if installedVersion < latestVersion then
+        gApp.IsUpdateAvailable = true
+    end if
+   
+end sub

@@ -1269,7 +1269,7 @@ USING AfxNova
 PRIVATE FUNCTION AfxCAxHostWindow (BYVAL hwnd AS HWND, BYVAL cID AS WORD) AS HWND
    DIM wszClassName AS WSTRING * 260
    DIM hwndChild AS .HWND = AfxGetControlHandle(hwnd, cID)
-   GetClassNameW hwndChild, wszClassName, SIZEOF(wszClassName)
+   GetClassNameW hwndChild, wszClassName, SIZEOF(wszClassName)\2
    IF wszClassName <> CAXHOST_CLASSNAME THEN RETURN NULL
    RETURN hwndChild
 END FUNCTION
@@ -1280,7 +1280,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION AfxCAxHostPtr OVERLOAD (BYVAL hwnd AS HWND) AS CAxHost PTR
    DIM wszClassName AS WSTRING * 260
-   GetClassNameW hwnd, wszClassName, SIZEOF(wszClassName)
+   GetClassNameW hwnd, wszClassName, SIZEOF(wszClassName)\2
    IF wszClassName <> CAXHOST_CLASSNAME THEN RETURN NULL
    RETURN CAST(CAxHost PTR, .GetWindowLongPtrW(hwnd, 0))
 END FUNCTION
@@ -1297,7 +1297,7 @@ END FUNCTION
 PRIVATE FUNCTION AfxCAxHostPtr OVERLOAD (BYVAL hwnd AS HWND, BYVAL cID AS WORD) AS CAxHost PTR
    DIM wszClassName AS WSTRING * 260
    DIM hwndChild AS .HWND = AfxGetControlHandle(hwnd, cID)
-   GetClassNameW hwndChild, wszClassName, SIZEOF(wszClassName)
+   GetClassNameW hwndChild, wszClassName, SIZEOF(wszClassName)\2
    IF wszClassName <> CAXHOST_CLASSNAME THEN RETURN NULL
    RETURN CAST(CAxHost PTR, .GetWindowLongPtrW(hwndChild, 0))
 END FUNCTION
@@ -1309,7 +1309,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION AfxCAxHostDispPtr (BYVAL hwnd AS HWND) AS IDispatch PTR
    DIM wszClassName AS WSTRING * 260
-   GetClassNameW hwnd, wszClassName, SIZEOF(wszClassName)
+   GetClassNameW hwnd, wszClassName, SIZEOF(wszClassName)\2
    IF wszClassName <> CAXHOST_CLASSNAME THEN RETURN NULL
    DIM pAxHost AS CAxHost PTR = CAST(CAxHost PTR, .GetWindowLongPtrW(hwnd, 0))
    IF pAxHost THEN RETURN pAxHost->m_pOcx
@@ -1321,7 +1321,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION AfxCAxHostDispObj (BYVAL hwnd AS HWND) AS IDispatch PTR
    DIM wszClassName AS WSTRING * 260
-   GetClassNameW hwnd, wszClassName, SIZEOF(wszClassName)
+   GetClassNameW hwnd, wszClassName, SIZEOF(wszClassName)\2
    IF wszClassName <> CAXHOST_CLASSNAME THEN RETURN NULL
    DIM pAxHost AS CAxHost PTR = CAST(CAxHost PTR, .GetWindowLongPtrW(hwnd, 0))
    IF pAxHost THEN
@@ -1364,7 +1364,7 @@ PRIVATE FUNCTION AfxCAxHostForwardMessage (BYVAL hctl AS HWND, BYVAL pMsg AS tag
          hWndTmp = GetParent(hWndParent)
          IF hWndTmp = NULL THEN EXIT DO
          hWndParent = hWndTmp
-         GetClassNameW hWndParent, wszClassName, SIZEOF(wszClassName)
+         GetClassNameW hWndParent, wszClassName, SIZEOF(wszClassName)\2
          IF wszClassName = CAXHOST_CLASSNAME THEN EXIT DO
       LOOP
       IF wszClassName <> CAXHOST_CLASSNAME THEN RETURN FALSE

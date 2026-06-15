@@ -65,7 +65,7 @@ SUB Example_CreateBitmapFromScan0 (BYVAL hdc AS HDC)
    DIM bmp AS GdiplusBitmap = GdiplusBitmap(nWidth, nHeight, stride, PixelFormat32bppARGB, @buffer(0))
 
    ' // Draw the bitmap
-   GdipDrawImage(graphics, bmp, 0, 0)
+   GdipDrawImage(graphics, bmp, 10, 10)
 
 END SUB
 ' ========================================================================================
@@ -97,20 +97,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_CreateBitmapFromScan0(hdc)
+   Example_CreateBitmapFromScan0(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

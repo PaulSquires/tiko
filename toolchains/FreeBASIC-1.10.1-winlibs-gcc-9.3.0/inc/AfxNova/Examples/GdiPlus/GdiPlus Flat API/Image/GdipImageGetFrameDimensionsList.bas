@@ -9,7 +9,7 @@
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-'#CONSOLE ON
+#cmdline "-s console"
 #define _WIN32_WINNT &h0602
 #INCLUDE ONCE "AfxNova/AfxGdiPlus.inc"
 #INCLUDE ONCE "AfxNova/AfxCOM.inc"
@@ -26,7 +26,7 @@ DIM token AS ULONG_PTR = AfxGdipInit
 
 ' // Load the original image from file
 DIM image AS GpImage PTR
-hStatus = GdipLoadImageFromFile("MultiFrame.tif", @image)
+hStatus = GdipLoadImageFromFile("MultiFrame.tiff", @image)
 
 ' // How many frame dimensions does the Image object have?
 DIM nCount AS UINT

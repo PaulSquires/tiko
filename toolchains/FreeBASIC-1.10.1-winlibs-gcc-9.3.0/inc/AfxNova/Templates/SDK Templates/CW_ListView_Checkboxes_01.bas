@@ -9,7 +9,7 @@
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-#define UNICODE
+#define UNICODE   ' The ListView macros need the unicode flag
 #define _WIN32_WINNT &h0602
 #INCLUDE ONCE "AfxNova/CWindow.inc"
 USING AfxNova
@@ -120,9 +120,10 @@ FUNCTION WndProc (BYVAL hwnd AS HWND, BYVAL uMsg AS UINT, BYVAL wParam AS WPARAM
       CASE WM_NOTIFY
          ' // Listview Tooltips
          DIM wszText AS WSTRING * 80
-         DIM infoTip AS NMLVGetInfoTip
+         DIM infoTip AS NMLVGETINFOTIPW
+         infotip.cchTextMax = 80
          CBNMTypeset(infoTip, wParam, lParam)
-         IF infoTip.hdr.code = LVN_GETINFOTIP AND infoTip.hdr.idFrom = IDC_LISTVIEW THEN
+         IF infoTip.hdr.code = LVN_GETINFOTIPW AND infoTip.hdr.idFrom = IDC_LISTVIEW THEN
             SELECT CASE infoTip.iItem
                CASE  0 : wszText = "Add Buttons"
                CASE  1 : wszText = "Add Checkbox Controls"

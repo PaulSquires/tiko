@@ -9,7 +9,7 @@
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-'#CONSOLE ON
+#cmdline "-s console"
 #define _WIN32_WINNT &h0602
 #INCLUDE ONCE "AfxNova/AfxGdiPlus.inc"
 
@@ -46,6 +46,7 @@ ELSE
 END IF
 
 ' // Cleanup
+IF buffer THEN Deallocate buffer
 IF image THEN GdipDisposeImage(image)
 
 ' // Shutdown GDI+

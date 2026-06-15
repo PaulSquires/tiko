@@ -24,6 +24,7 @@ type clsApp
         bDragTabActive             as boolean           ' a tab in the top tabcontrol is being dragged
         ptDragTabPrev              as POINT             ' used for comparing delta movement of sursor during tab dragging
         bDragActive                as boolean           ' splitter drag is currently active 
+        bHorizDragActive           as boolean           ' editor horizontal scrollbar is currently active 
         idTimerOutputPanel         as long = 110        ' used for handling single/double click of Output window splitter bar
         doubleClickReceived        as boolean           ' used for handling single/double click of Output window splitter bar
         hWndPanel                  as HWND              ' the panel being split left/right or up/down
@@ -44,6 +45,8 @@ type clsApp
         bShowSpinner               as boolean           ' Display the loading/compiling spinner
         SpinnerCurrentFrame        as long = 0          ' The index of the icon to use when timer fires.
         SpinnerTimerID             as long = 101       
+        
+        IsUpdateAvailable          as boolean = false   ' Set in DoCheckForUpdates() for server check for updated version available
         
         IsDebuggerActive           as boolean
         DebugTimerID               as long = 102

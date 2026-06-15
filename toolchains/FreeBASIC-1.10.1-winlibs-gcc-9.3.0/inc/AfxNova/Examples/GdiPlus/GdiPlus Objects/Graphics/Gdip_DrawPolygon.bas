@@ -44,7 +44,7 @@ SUB Example_DrawPolygon (BYVAL hdc AS HDC)
    DIM points(4) AS GpPointF
    points(0).x = 100.0 : points(0).y = 100.0
    points(1).x = 200.0 : points(1).y = 130.0
-   points(2).x = 150.0 : points(3).y = 200.0
+   points(2).x = 150.0 : points(2).y = 200.0
    points(3).x = 50.0  : points(3).y = 200.0
    points(4).x = 0.0   : points(4).y = 130.0
 
@@ -81,20 +81,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_DrawPolygon(hdc)
+   Example_DrawPolygon(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

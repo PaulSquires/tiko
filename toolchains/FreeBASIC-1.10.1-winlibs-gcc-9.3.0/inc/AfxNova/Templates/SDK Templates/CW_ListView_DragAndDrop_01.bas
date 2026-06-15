@@ -165,7 +165,7 @@ FUNCTION WndProc (BYVAL hwnd AS HWND, BYVAL uMsg AS UINT, BYVAL wParam AS WPARAM
             ' Delete and re-insert item to complete the operation...
             lvi.iItem = nPos
             lvi.pszText = @wszText
-            lvi.cchTextMax = SIZEOF(wszText)
+            lvi.cchTextMax = SIZEOF(wszText)\2
             lvi.mask = LVIF_STATE OR LVIF_IMAGE OR LVIF_INDENT OR LVIF_PARAM OR LVIF_TEXT
             SendMessageW hListView, LVM_GETITEM, 0, cast(LPARAM, @lvi)
             lvi.iItem = lvhit.iItem

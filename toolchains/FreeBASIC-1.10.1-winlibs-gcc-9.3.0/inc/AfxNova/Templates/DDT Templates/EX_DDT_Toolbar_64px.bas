@@ -1,5 +1,5 @@
 '#TEMPLATE DDT Dialog with a Toolbar
-'#RESOURCE "EX_DDT_Toolbar_64px.rc"
+#cmdline "EX_DDT_Toolbar_64px.rc"
 #define _WIN32_WINNT &h0602
 #include once "AfxNova/AfxGdiPlus.inc"
 #include once "AfxNova/DDT.inc"

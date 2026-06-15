@@ -326,11 +326,16 @@ function ShowAutoCompletePopup( _
     SciExec(hEdit, SCI_AUTOCSETMAXHEIGHT, 9, 0)
     SciExec(hEdit, SCI_AUTOCSHOW, 0, strptr(sList))
     SciExec(hEdit, SCI_AUTOCSETOPTIONS, SC_AUTOCOMPLETE_FIXED_SIZE, 0)
+
+    ' Ensure that the edit window has focus because an Output window such as Compiler Output
+    ' or Notes may have had edit focus. When a popup code completion activates then that 
+    ' other edit window could possibly receive the keyboard input
+    SetFocus( hEdit )
                             
     function = 0
 end function
 
-        
+
 ' ========================================================================================
 ' Don't add duplicates in the Autocomplete list    
 ' ========================================================================================

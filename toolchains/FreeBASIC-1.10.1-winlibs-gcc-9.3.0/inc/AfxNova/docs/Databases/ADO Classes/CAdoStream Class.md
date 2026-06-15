@@ -85,7 +85,7 @@ CONSTRUCTOR CAdoStream (BYVAL pStream AS Afx_ADOStream PTR, BYVAL fAddRef AS BOO
 
 ---
 
-## Attach
+### Attach
 
 Attaches a reference to an ADO `Stream` object to the class, allowing to call the methods and properties of its interface.
 
@@ -100,7 +100,7 @@ SUB Attach (BYVAL pStream AS Afx_ADOStream PTR, BYVAL fAddRef AS BOOLEAN = FALSE
 
 ---
 
-## Cancel
+### Cancel
 
 Cancels execution of a pending, asynchronous method call.
 
@@ -120,7 +120,7 @@ For a `Stream` object, the last asynchronous call to the **Open** method is term
 
 ---
 
-## Charset
+### Charset
 
 Indicates the character set into which the contents of a text `Stream` should be translated for storage in the `Stream` object's internal buffer.
 
@@ -147,7 +147,7 @@ For an open `Stream`, the current **Position** must be at the beginning of the `
 
 ---
 
-## Close
+### Close
 
 Closes a `Stream` object and any dependent objects.
 
@@ -161,7 +161,7 @@ S_OK (0) or an HRESULT code.
 
 ---
 
-## CopyTo
+### CopyTo
 
 Copies the specified number of characters or bytes (depending on **Type_**) in the `Stream` to another `Stream` object.
 
@@ -184,7 +184,7 @@ If there are existing characters or bytes in the destination stream, all content
 
 ---
 
-## EOS
+### EOS
 
 Indicates whether the current position is at the end of the stream.
 
@@ -200,7 +200,7 @@ To set the end of stream position, use the **SetEOS** method. To determine the c
 
 ---
 
-## Flush
+### Flush
 
 Forces the contents of the `Stream` remaining in the ADO buffer to the underlying object with which the `Stream` is associated.
 
@@ -220,7 +220,7 @@ Closing a `Stream` with the **Close** method flushes the contents of a `Stream` 
 
 ---
 
-## LineSeparator
+### LineSeparator
 
 Indicates the binary character to be used as the line separator in text `Stream` objects.
 
@@ -251,7 +251,7 @@ LONG. A **LineSeparatorEnum** value.
 
 ---
 
-## LoadFromFile
+### LoadFromFile
 
 Loads the contents of an existing file into a `Stream`.
 
@@ -311,7 +311,7 @@ pStream.Close
 ```
 ---
 
-## Mode
+### Mode
 
 Indicates the available permissions for modifying data in a `Stream` object.
 
@@ -342,7 +342,7 @@ When used on a client-side **Connection** object, the **Mode** property can only
 
 ---
 
-## Open
+### Open
 
 Opens a connection to a data source.
 
@@ -405,7 +405,7 @@ pStream.Close
 ```
 ---
 
-## Position
+### Position
 
 Indicates the current position within a `Stream` object.
 
@@ -434,7 +434,7 @@ For read-only `Stream` objects, ADO will not return an error if **Position** is 
 
 ---
 
-## Read
+### Read
 
 Reads a specified number of bytes from a binary `Stream` object.
 
@@ -460,7 +460,7 @@ If *NumBytes* is more than the number of bytes left in the `Stream`, only the by
 
 ---
 
-## ReadText
+### ReadText
 
 Reads a specified number of characters, an entire line, or the entire stream from a `Stream` object and returns the resulting string.
 
@@ -484,7 +484,7 @@ If *NumChars* is more than the number of characters left in the stream, only the
 
 ---
 
-## SaveToFile
+### SaveToFile
 
 Saves the binary contents of a `Stream` to a file.
 
@@ -511,7 +511,7 @@ After a **SaveToFile** operation, the current position (**Position**) in the str
 
 ---
 
-## SetEOS
+### SetEOS
 
 Sets the position that is the end of the stream.
 
@@ -533,7 +533,7 @@ Since **Write**, **WriteText**, and **CopyTo** do not truncate any extra values 
 
 ---
 
-## Size
+### Size
 
 Indicates the size of the stream in number of bytes.
 
@@ -547,7 +547,7 @@ LONG. The size of the stream in number of bytes.
 
 ---
 
-## SkipLine
+### SkipLine
 
 Skips one entire line when reading a text stream.
 
@@ -567,7 +567,7 @@ The **SkipLine** method is used with text streams (**Type_** is **adTypeText**).
 
 ---
 
-## State
+### State
 
 Indicates for whether the state of the `Stream` object is open or closed.
 
@@ -581,7 +581,7 @@ LONG. The current `Stream` state.
 
 ---
 
-## Type_
+### Type_
 
 Indicates the type of data contained in the `Stream` (binary or text).
 
@@ -606,7 +606,7 @@ The **Type_** property determines which methods should be used for reading and w
 
 ---
 
-## Write
+### Write
 
 Writes binary data to a `Stream` object.
 
@@ -634,7 +634,7 @@ To fill the variant with binary data use the **AfxVariantFromBuffer** function.
 
 ---
 
-## WriteText
+### WriteText
 
 Writes a string to a `Stream` object.
 

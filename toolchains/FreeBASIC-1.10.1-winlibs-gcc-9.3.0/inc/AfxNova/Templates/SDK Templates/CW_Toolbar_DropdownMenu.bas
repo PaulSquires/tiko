@@ -9,7 +9,7 @@
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-'#RESOURCE "CW_Toolbar_HDPI.rc"
+#cmdline "CW_Toolbar_HDPI.rc"
 #define UNICODE
 #INCLUDE ONCE "windows.bi"
 #INCLUDE ONCE "AfxNova/CWindow.inc"
@@ -65,10 +65,10 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    DIM hNormalImageList AS HIMAGELIST
    hNormalImageList = ImageList_Create(cx, cx, ILC_COLOR32 OR ILC_MASK, 4, 0)
    IF hNormalImageList THEN
-      ImageList_ReplaceIcon(hNormalImageList, -1, AfxGdipImageFromRes(hInstance, "IDI_ARROW_LEFT"))
-      ImageList_ReplaceIcon(hNormalImageList, -1, AfxGdipImageFromRes(hInstance, "IDI_ARROW_RIGHT"))
-      ImageList_ReplaceIcon(hNormalImageList, -1, AfxGdipImageFromRes(hInstance, "IDI_HOME"))
-      ImageList_ReplaceIcon(hNormalImageList, -1, AfxGdipImageFromRes(hInstance, "IDI_SAVE"))
+      AfxGdipAddIconFromRes(hNormalImageList, hInstance, "IDI_ARROW_LEFT")
+      AfxGdipAddIconFromRes(hNormalImageList, hInstance, "IDI_ARROW_RIGHT")
+      AfxGdipAddIconFromRes(hNormalImageList, hInstance, "IDI_HOME")
+      AfxGdipAddIconFromRes(hNormalImageList, hInstance, "IDI_SAVE")
       ' // Set the normal image list
       Toolbar_SetImageList hToolBar, hNormalImageList
       ' // Set the hot image list with the same images than the normal one
@@ -79,10 +79,10 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    DIM hDisabledImageList AS HIMAGELIST
    hDisabledImageList = ImageList_Create(cx, cx, ILC_COLOR32 OR ILC_MASK, 4, 0)
    IF hDisabledImageList THEN
-      ImageList_ReplaceIcon(hDisabledImageList, -1, AfxGdipImageFromRes(hInstance, "IDI_ARROW_LEFT", 60, TRUE))
-      ImageList_ReplaceIcon(hDisabledImageList, -1, AfxGdipImageFromRes(hInstance, "IDI_ARROW_RIGHT", 60, TRUE))
-      ImageList_ReplaceIcon(hDisabledImageList, -1, AfxGdipImageFromRes(hInstance, "IDI_HOME", 60, TRUE))
-      ImageList_ReplaceIcon(hDisabledImageList, -1, AfxGdipImageFromRes(hInstance, "IDI_SAVE", 60, TRUE))
+      AfxGdipAddIconFromRes(hDisabledImageList, hInstance, "IDI_ARROW_LEFT", 60, TRUE)
+      AfxGdipAddIconFromRes(hDisabledImageList, hInstance, "IDI_ARROW_RIGHT", 60, TRUE)
+      AfxGdipAddIconFromRes(hDisabledImageList, hInstance, "IDI_HOME", 60, TRUE)
+      AfxGdipAddIconFromRes(hDisabledImageList, hInstance, "IDI_SAVE", 60, TRUE)
       ' // Set the disabled image list
       Toolbar_SetDisabledImageList hToolBar, hDisabledImageList
    END IF

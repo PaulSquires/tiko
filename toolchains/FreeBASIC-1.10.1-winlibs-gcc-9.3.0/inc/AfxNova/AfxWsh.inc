@@ -30,6 +30,8 @@
 #INCLUDE ONCE "AfxNova/DVARIANT.inc"
 USING AfxNova
 
+NAMESPACE AfxNova
+
 ' ========================================================================================
 ' Returns the value of a key or value-name from the registry.
 ' Usage examples:
@@ -452,3 +454,5 @@ PRIVATE SUB CWhsExec.Terminate
    m_pWshExec->Terminate
 END SUB
 ' ========================================================================================
+
+END NAMESPACE

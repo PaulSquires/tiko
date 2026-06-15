@@ -26,7 +26,6 @@
 
 #pragma once
 #include once "AfxNova/CDialog.inc"
-#include once "AfxNova/AfxWin.inc"
 #include once "AfxNova/AfxCtl.inc"
 #include once "AfxNova/DWSTRProcs.inc"
 #include once "AfxNova/AfxMenu.inc"

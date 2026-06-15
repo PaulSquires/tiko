@@ -42,8 +42,7 @@ SUB Example_GetStringFormatAlign (BYVAL hdc AS HDC)
    graphics.ScaleTransform
 
    ' // Create the font
-   DIM fontFamily AS GdiPlusFontFamily = "Times New Roman"
-   DIM font AS GdiPlusFont = GdiPlusFont(*fontFamily, AfxGdipPointsToPixels(18, TRUE), FontStyleRegular, UnitPixel)
+   DIM font AS GdiPlusFont = GdiPlusFont("Times New Roman", 18, TRUE)
 
    ' // Create a StringFormat object
    DIM format AS GdiPlusStringFormat = GdiPlusStringFormat(0, LANG_NEUTRAL)
@@ -61,14 +60,12 @@ SUB Example_GetStringFormatAlign (BYVAL hdc AS HDC)
    DIM solidBrush AS GdiPlusSolidBrush = ARGB_RED
 
    ' // Draw the string
-   DIM wszText AS WSTRING * 64 = "This text was formatted by a second StringFormat object."
-   DIM rcf AS GpRectF = (30, 30, 150, 200)
-   GdipDrawString(graphics, wszText, LEN(wszText), font, @rcf, format2, solidBrush)
+   graphics.DrawString("This text was formatted by a second StringFormat object.", font, solidBrush, 30, 30, 150, 200)
 
    ' // Draw the rectangle that encloses the text
    DIM pen AS GdiPlusPen = GdiPlusPen(ARGB_RED, 1, UnitPixel)
    GdipScalePenTransform(pen, graphics.dpiRatioX, graphics.dpiRatioY, MatrixOrderPrepend)
-   GdipDrawRectangle(graphics, *pen, rcf.x, rcf.y, rcf.width, rcf.height)
+   GdipDrawRectangle(graphics, pen, 30, 30, 150, 200)
 
 END SUB
 ' ========================================================================================
@@ -103,17 +100,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Get the memory device context of the graphic control
    DIM hdc AS HDC = pGraphCtx.GetMemDc
 
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_GetStringFormatAlign(hdc)
+   Example_GetStringFormatAlign(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

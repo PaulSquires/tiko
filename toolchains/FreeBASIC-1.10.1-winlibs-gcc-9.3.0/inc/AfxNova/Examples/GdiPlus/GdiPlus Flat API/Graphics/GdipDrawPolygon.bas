@@ -56,7 +56,7 @@ SUB Example_DrawPolygon (BYVAL hdc AS HDC)
    DIM points(4) AS GpPointF
    points(0).x = 100.0 : points(0).y = 100.0
    points(1).x = 200.0 : points(1).y = 130.0
-   points(2).x = 150.0 : points(3).y = 200.0
+   points(2).x = 150.0 : points(2).y = 200.0
    points(3).x = 50.0  : points(3).y = 200.0
    points(4).x = 0.0   : points(4).y = 130.0
 

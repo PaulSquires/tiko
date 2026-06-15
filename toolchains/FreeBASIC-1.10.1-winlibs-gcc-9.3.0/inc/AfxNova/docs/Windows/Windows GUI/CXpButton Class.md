@@ -268,7 +268,7 @@ Returns the handle of the requested image.
 
 ---
 
-## <hWindow
+## hWindow
 
 Returns the handle of the button.
 

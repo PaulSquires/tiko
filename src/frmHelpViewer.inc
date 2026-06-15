@@ -180,6 +180,9 @@ function frmHelpViewer_LoadHelpFile( byval nIndex as long ) as long
         dim as DWSTRING wszPath = AfxStrPathname("PATH", gConfig.HelpTableOfContents)
         RichEdit_LoadRtfFromFile( HWND_FRMHELPVIEWER_RIGHTPANEL, wszPath & gHelpViewer.Filenames(nIndex) )
         RichEdit_SetZoom( HWND_FRMHELPVIEWER_RIGHTPANEL, 100, 100 )
+        ' Ensure that the focus is set to the top of the file
+        RichEdit_SetSel( HWND_FRMHELPVIEWER_RIGHTPANEL, 0, 0 )
+        RichEdit_ScrollCaret( HWND_FRMHELPVIEWER_RIGHTPANEL )
     end if
     function = 0
 end function
@@ -684,6 +687,7 @@ function frmHelpViewer_Show( byval hWndParent as HWND ) as LRESULT
         if IsIconic(HWND_FRMHELPVIEWER) then 
             ShowWindow( HWND_FRMHELPVIEWER, SW_NORMAL )
         end if
+        AllowSetForegroundWindow(ASFW_ANY)
         SetForegroundWindow( HWND_FRMHELPVIEWER )
         exit function
     end if

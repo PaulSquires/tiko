@@ -41,8 +41,7 @@ SUB Example_GetStringFormatDigitSubstitution (BYVAL hdc AS HDC)
    graphics.ScaleTransform
 
    ' // Create the font
-   DIM fontFamily AS GdiPlusFontFamily = "Tahoma"
-   DIM font AS GdiPlusFont = GdiPlusFont(*fontFamily, AfxGdipPointsToPixels(20, TRUE), FontStyleRegular, UnitPixel)
+   DIM font AS GdiPlusFont = GdiPlusFont("Tahoma", 20, TRUE)
 
    ' // Create StringFormat and set digit substitution
    DIM format AS GdiPlusStringFormat = GdiPlusStringFormat(0, LANG_ARABIC)
@@ -57,9 +56,7 @@ SUB Example_GetStringFormatDigitSubstitution (BYVAL hdc AS HDC)
    DIM solidBrush AS GdiPlusSOlidBrush = ARGB_RED
 
    ' Draw string with digits
-   DIM rcf AS GpRectF = (30, 30, 300, 50)
-   DIM wszText AS WSTRING * 64 = "Year: 2025"
-   GdipDrawString(graphics, wszText, LEN(wszText), font, @rcf, format, solidBrush)
+   graphics.DrawString("Year: 2025", font, solidBrush, 30, 30, 300, 50)
 
 END SUB
 ' ========================================================================================
@@ -91,20 +88,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_GetStringFormatDigitSubstitution(hdc)
+   Example_GetStringFormatDigitSubstitution(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

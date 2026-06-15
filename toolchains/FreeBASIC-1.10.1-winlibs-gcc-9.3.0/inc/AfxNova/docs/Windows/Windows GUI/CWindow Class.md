@@ -63,12 +63,20 @@ DIM pWindow AS CWindow = "MyClassName"
 | [ClassStyle](#classstyle) | Gets/sets the style of the class. |
 | [ClientHeight](#clientheight) | Returns the unscaled client height of the main window. |
 | [ClientWidth](#clientwidth) | Returns the unscaled client width of the window. |
+| [ControlAddExStyle](#controladdexstyle) | Adds a new extended style to the specified control..|
+| [ControlAddStyle](#controladdstyle) | Adds a new style to the specified control.|
 | [ControlClientHeight](#controlclientheight) | Returns the unscaled client height of the specified window. |
 | [ControlClientWidth](#controlclientwidth) | Returns the unscaled client width of the specified window. |
-| [ControlGetUser](#controlgetuser) | Gets the control's user data |
+| [ControlGetExStyle](#controlgetexstyle) | Retrieves the extended window styles of the specified control. |
+| [ControlGetStyle](#controlgetstyle) | Retrieves the window styles of the specified control. |
+| [ControlGetUser](#controlgetuser) | Gets the control's user data. |
 | [ControlHandle](#controlhandle) | Retrieves a handle to the child control specified by its identifier. |
 | [ControlHeight](#controlheight) | Returns the unscaled height of the specified window. |
-| [ControlSetUser](#controlsetuser) | Sets the control's user data |
+| [ControlRemoveExStyle](#controlremoveexstyle) | Removes an extended style from the specified control. |
+| [ControlRemoveStyle](#controlremovestyle) | Removes an style from the specified control. |
+| [ControlSetExStyle](#controlsetexstyle) | Sets the window extended styles of the specified control. |
+| [ControlSetStyle](#controlsetstyle) | Sets the window styles of the specified control. |
+| [ControlSetUser](#controlsetuser) | Sets the control's user data. |
 | [ControlWidth](#controlwidth) | Returns the unscaled width of the specified window. |
 | [Create](#create) | Creates a new window. |
 | [CreateAcceleratorTable](#createacceleratortable) | Creates the accelerator table. |
@@ -115,6 +123,7 @@ DIM pWindow AS CWindow = "MyClassName"
 | [Width](#width) | Returns the unscaled width of the main window. |
 | [WindowExStyle](#windowexstyle) | Gets/sets the window extended styles. |
 | [WindowStyle](#windowstyle) | Gets/sets the window styles. |
+| [WindowStyleEx](#windowexstyle) | Gets/sets the window extended styles. |
 
 ### Procedures
 
@@ -562,7 +571,7 @@ and remove `PostQuitMessage(0)` in **WM_DESTROY**.
 
 **AfxGdiplus.inc** provides functions that allow to use alpha-blended PNG icons in toolbars.
 
-**AfxGdipIconFromFile** loads the images from disk and **AfxGdipIconFromRes** from a resource file embedded in the application.
+**AfxGdipAddIconFromFile** loads the images from disk and **AfxGdipAddIconFromRes** from a resource file embedded in the application.
 
 We need to create an image list for the toolbar of the appropriate size. To calculate the size, I'm using the following formula: 16 * pWindow.DPI \ 96. Where 16 is the size of a normal icon (for toolbars it may be preferible to use 20 to make them a bit bigger), pWindow.DPI the DPI being used by the computer and 96 the DPI used by applications that are not DPI aware.
 
@@ -582,7 +591,7 @@ SendMessageW hToolBar, TB_SETIMAGELIST, 0, CAST(LPARAM, hImageList)
 
 We are using 48 bit icons in this example, that usually resize well to adapt to different DPI settings. This way, we can use only a set of icons instead of several sets of icons of different sizes. However, for best quality, it is advisable to use the appropriate icon size.
 
-**AfxGdipIconFromFile** and **AfxGdipIconFromRes** also provide two optional parameters, *dimPercent* and *bGrayScale*. With *dimPercent* you can indicate a percentage of dimming, and *bGrayScale* is a boolean value (TRUE or FALSE) that tells these functions to convert the icon colors to shades of gray. This allows to create an image list for disabled items with the same icon set. The following code creates a disabled image using the same color PNG icons, but dimming them a 60% and converting them to gray:
+**AfxGdipAddIconFromFile** and **AfxGdipAddIconFromRes** also provide two optional parameters, *dimPercent* and *bGrayScale*. With *dimPercent* you can indicate a percentage of dimming, and *bGrayScale* is a boolean value (TRUE or FALSE) that tells these functions to convert the icon colors to shades of gray. This allows to create an image list for disabled items with the same icon set. The following code creates a disabled image using the same color PNG icons, but dimming them a 60% and converting them to gray:
 
 ```
 ' // Create a disabled image list for the toolbar
@@ -769,10 +778,10 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    DIM cx AS LONG = 16 * pWindow.DPI \ 96
    hImageList = ImageList_Create(cx, cx, ILC_COLOR32 OR ILC_MASK, 4, 0)
    IF hImageList THEN
-      ImageList_ReplaceIcon(hImageList, -1, AfxGdipIconFromRes(hInst, "IDI_ARROW_LEFT_48"))
-      ImageList_ReplaceIcon(hImageList, -1, AfxGdipIconFromRes(hInst, "IDI_ARROW_RIGHT_48"))
-      ImageList_ReplaceIcon(hImageList, -1, AfxGdipIconFromRes(hInst, "IDI_HOME_48"))
-      ImageList_ReplaceIcon(hImageList, -1, AfxGdipIconFromRes(hInst, "IDI_SAVE_48"))
+      AfxGdipAddIconFromRes(hImageList, hInst, "IDI_ARROW_LEFT_48")
+      AfxGdipAddIconFromRes(hImageList, hInst, "IDI_ARROW_RIGHT_48")
+      AfxGdipAddIconFromRes(hImageList, hInst, "IDI_HOME_48")
+      AfxGdipAddIconFromRes(hImageList, hInst, "IDI_SAVE_48")
    END IF
    SendMessageW hToolBar, TB_SETIMAGELIST, 0, CAST(LPARAM, hImageList)
 
@@ -825,7 +834,7 @@ IF hIcon THEN AfxAddIconToMenuItem(hSubMenu, 0, TRUE, hIcon)
 PNG icons can be used by converting them first to an icon with **AfxGdipImageFromFile**:
 
 ```
-hIcon = AfxGdipImageFromFileEx("MyIcon.png")
+hIcon = AfxGdipImageFromFile("MyIcon.png")
 IF hIcon THEN AfxAddIconToMenuItem(hSubMenu, 0, TRUE, hIcon)
 ```
 
@@ -835,6 +844,16 @@ But, in general, we are more interested in loading the icons from a resource fil
 DIM hSubMenu AS HMENU = GetSubMenu(hMenu, 0)
 AfxAddIconToMenuItem(hSubMenu, 0, TRUE, AfxGdipIconFromRes(hInst, "IDI_ARROW_LEFT_48"))
 ```
+
+#### Remarks
+
+Unlike toolbars, which use image lists, menus do not copy the icons but store their handles directly. Therefore, the icons must remain valid for as long as the menu exists.
+
+The difference between **AfxGdipIconFromFile** / **AfxGdipIconFromRes** (used with menus) and **AfxAddGdipIconFromFile** / **AfxAddGdipIconFromRes** (used with image lists) is that the latter functions destroy the original icon after copying it into the image list.
+
+Since menu icons are not copied, they must be destroyed manually when the menu is no longer needed. To do this, call the **AfxDestroyMenuBitmaps** function before destroying the menu.
+
+#### Example
 
 The following code uses the same resource file that the one for the "Using PNG icons in toolbars example" to demonstrate that we can use just one set of icons for both toolbars and menus.
 
@@ -915,8 +934,13 @@ FUNCTION WndProc (BYVAL hWnd AS HWND, BYVAL uMsg AS UINT, BYVAL wParam AS WPARAM
          END SELECT
 
       CASE WM_DESTROY
+         ' // Destroy the menu and the bitmaps
+         DIM hMenu AS HMENU = GetMenu(hwnd)
+         AfxDestroyMenuBitmaps(hMenu)
+         DestroyMenu(hMenu)              
+         ' // End the application by sending an WM_QUIT message
          PostQuitMessage(0)
-         EXIT FUNCTION
+         RETURN 0
 
    END SELECT
 
@@ -1213,7 +1237,7 @@ This method typically fails for one of the following reasons:
 
 | Class name | Styles      |
 | ---------- | ----------- |
-| **"BUTTON"** | **Default**: WS_CHILD, WS_VISIBLE OR WS_TABSTOP OR BS_PUSHBUTTON OR BS_CENTER OR BS_VCENTER.<br>**BS_FLAT**: WS_CHILD, WS_VISIBLE OR WS_TABSTOP OR BS_PUSHBUTTON OR BS_CENTER OR BS_VCENTER OR BS_FLAT.<br>**BS_DEFPUSHBUTTON**: WS_CHILD, WS_VISIBLE OR WS_TABSTOP OR BS_CENTER OR BS_VCENTER OR BS_DEFPUSHBUTTON.<br>**BS_OWNERDRAW**: WS_CHILD, WS_VISIBLE OR WS_TABSTOP OR BS_OWNERDRAW.<br>**BS_SPLITBUTTON**: WS_CHILD, WS_VISIBLE OR WS_TABSTOP OR BS_CENTER OR BS_VCENTER OR BS_SPLITBUTTON>.<br>**BS_DEFSPLITBUTTON**: WS_CHILD, WS_VISIBLE OR WS_TABSTOP OR BS_CENTER OR BS_VCENTER OR BS_DEFSPLITBUTTON. |
+| **"BUTTON"** | **Default**: WS_CHILD, WS_VISIBLE OR WS_TABSTOP OR BS_PUSHBUTTON OR BS_CENTER OR BS_VCENTER.<br>**BS_FLAT**: WS_CHILD, WS_VISIBLE OR WS_TABSTOP OR BS_PUSHBUTTON OR BS_CENTER OR BS_VCENTER OR BS_FLAT.<br>**BS_DEFPUSHBUTTON**: WS_CHILD, WS_VISIBLE OR WS_TABSTOP OR BS_CENTER OR BS_VCENTER OR BS_DEFPUSHBUTTON.<br>**BS_ICON**: WS_CHILD OR WS_VISIBLE OR WS_TABSTOP OR BS_PUSHBUTTON OR BS_ICON.<br>**BS_BITMAP**: WS_CHILD OR WS_VISIBLE OR WS_TABSTOP OR BS_PUSHBUTTON OR BS_BITMAP.<br>**BS_OWNERDRAW**: WS_CHILD, WS_VISIBLE OR WS_TABSTOP OR BS_OWNERDRAW.<br>**BS_SPLITBUTTON**: WS_CHILD, WS_VISIBLE OR WS_TABSTOP OR BS_CENTER OR BS_VCENTER OR BS_SPLITBUTTON>.<br>**BS_DEFSPLITBUTTON**: WS_CHILD, WS_VISIBLE OR WS_TABSTOP OR BS_CENTER OR BS_VCENTER OR BS_DEFSPLITBUTTON.<br>**BS_COMMANDLINK**: WS_CHILD OR WS_VISIBLE OR WS_TABSTOP OR BS_COMMANDLINK.<br>**BS_DEFCOMMANDLINK**: WS_CHILD OR WS_VISIBLE OR WS_TABSTOP OR BS_DEFCOMMANDLINK. |
 | **"CUSTOMBUTTON"**, **"OWNERDRAWBUTTON"** | **Default**: WS_CHILD, WS_VISIBLE OR WS_TABSTOP OR BS_OWNERDRAW. |
 | **"RADIOBUTTON"**, **"OPTION"** | **Default**: Default: WS_CHILD, WS_VISIBLE OR WS_TABSTOP OR BS_AUTORADIOBUTTON OR BS_LEFT OR BS_VCENTER-<br>**WS_GROUP**: WS_VISIBLE OR WS_TABSTOP OR BS_AUTORADIOBUTTON OR BS_LEFT OR BS_VCENTER OR WS_GROUP. |
 | **"CHECKBOX"** | **Default**: WS_CHILD, WS_VISIBLE OR WS_TABSTOP OR BS_AUTOCHECKBOX OR BS_LEFT OR BS_VCENTER. |
@@ -1414,18 +1438,18 @@ PROPERTY ClassStyle (BYVAL dwStyle AS ULONG_PTR)
 
 | Constant   | Description |
 | ---------- | ----------- |
-| CS_BYTEALIGNCLIENT | Aligns the window's client area on a byte boundary (in the x direction). This style affects the width of the window and its horizontal placement on the display. |
-| CS_BYTEALIGNWINDOW | Aligns the window on a byte boundary (in the x direction). This style affects the width of the window and its horizontal placement on the display. |
-| CS_CLASSDC | Allocates one device context to be shared by all windows in the class. Because window classes are process specific, it is possible for multiple threads of an application to create a window of the same class. It is also possible for the threads to attempt to use the device context simultaneously. When this happens, the system allows only one thread to successfully finish its drawing operation. |
-| CS_DBLCLKS | Sends a double-click message to the window procedure when the user double-clicks the mouse while the cursor is within a window belonging to the class. |
-| CS_DROPSHADOW | Enables the drop shadow effect on a window. The effect is turned on and off through SPI_SETDROPSHADOW. Typically, this is enabled for small, short-lived windows such as menus to emphasize their Z order relationship to other windows. |
-| CS_GLOBALCLASS | Indicates that the window class is an application global class. |
-| CS_HREDRAW | Redraws the entire window if a movement or size adjustment changes the width of the client area. |
-| CS_NOCLOSE | Disables Close on the window menu. |
-| CS_OWNDC | Allocates a unique device context for each window in the class. |
-| CS_PARENTDC | Sets the clipping rectangle of the child window to that of the parent window so that the child can draw on the parent. A window with the CS_PARENTDC style bit receives a regular device context from the system's cache of device contexts. It does not give the child the parent's device context or device context settings. Specifying CS_PARENTDC enhances an application's performance. |
-| CS_SAVEBITS | Saves, as a bitmap, the portion of the screen image obscured by a window of this class. When the window is removed, the system uses the saved bitmap to restore the screen image, including other windows that were obscured. Therefore, the system does not send WM_PAINT messages to windows that were obscured if the memory used by the bitmap has not been discarded and if other screen actions have not invalidated the stored image.<br>This style is useful for small windows (for example, menus or dialog boxes) that are displayed briefly and then removed before other screen activity takes place. This style increases the time required to display the window, because the system must first allocate memory to store the bitmap. |
-| CS_VREDRAW | Redraws the entire window if a movement or size adjustment changes the height of the client area. |
+| **CS_BYTEALIGNCLIENT** | Aligns the window's client area on a byte boundary (in the x direction). This style affects the width of the window and its horizontal placement on the display. |
+| **CS_BYTEALIGNWINDOW** | Aligns the window on a byte boundary (in the x direction). This style affects the width of the window and its horizontal placement on the display. |
+| **CS_CLASSDC** | Allocates one device context to be shared by all windows in the class. Because window classes are process specific, it is possible for multiple threads of an application to create a window of the same class. It is also possible for the threads to attempt to use the device context simultaneously. When this happens, the system allows only one thread to successfully finish its drawing operation. |
+| **CS_DBLCLKS** | Sends a double-click message to the window procedure when the user double-clicks the mouse while the cursor is within a window belonging to the class. |
+| **CS_DROPSHADOW** | Enables the drop shadow effect on a window. The effect is turned on and off through **SPI_SETDROPSHADOW**. Typically, this is enabled for small, short-lived windows such as menus to emphasize their Z order relationship to other windows. |
+| **CS_GLOBALCLASS** | Indicates that the window class is an application global class. |
+| **CS_HREDRAW** | Redraws the entire window if a movement or size adjustment changes the width of the client area. |
+| **CS_NOCLOSE** | Disables **Close** on the window menu. |
+| **CS_OWNDC** | Allocates a unique device context for each window in the class. |
+| **CS_PARENTDC** | Sets the clipping rectangle of the child window to that of the parent window so that the child can draw on the parent. A window with the **CS_PARENTDC** style bit receives a regular device context from the system's cache of device contexts. It does not give the child the parent's device context or device context settings. Specifying **CS_PARENTDC** enhances an application's performance. |
+| **CS_SAVEBITS** | Saves, as a bitmap, the portion of the screen image obscured by a window of this class. When the window is removed, the system uses the saved bitmap to restore the screen image, including other windows that were obscured. Therefore, the system does not send **WM_PAINT** messages to windows that were obscured if the memory used by the bitmap has not been discarded and if other screen actions have not invalidated the stored image.<br>This style is useful for small windows (for example, menus or dialog boxes) that are displayed briefly and then removed before other screen activity takes place. This style increases the time required to display the window, because the system must first allocate memory to store the bitmap. |
+| **CS_VREDRAW** | Redraws the entire window if a movement or size adjustment changes the height of the client area. |
 
 #### Example
 
@@ -1570,6 +1594,118 @@ FUNCTION ControlHandle (BYVAL cID AS LONG) AS HWND
 ```
 DIM hCtl AS HWND = pWindow.ControlHandle(cID)
 ```
+---
+
+## ControlAddExStyle
+
+Adds a new extended style to the specified control.
+
+```
+FUNCTION ControlAddExStyle (BYVAL hWnd AS HWND, BYVAL dwExStyle AS LONG_PTR) AS LONG_PTR
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *hwnd* | The handle of the control. |
+
+---
+
+## ControlAddStyle
+
+Adds a new style to the specified control.
+
+```
+FUNCTION ControlAddStyle (BYVAL hWnd AS HWND, BYVAL dwStyle AS LONG_PTR) AS LONG_PTR
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *hwnd* | The handle of the control. |
+
+---
+
+## ControlGetExStyle
+
+Retrieves the extended window styles of the specified control
+
+```
+FUNCTION ControlGetExStyle (BYVAL hWnd AS HWND) AS LONG_PTR
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *hwnd* | The handle of the control. |
+
+---
+
+## ControlGetStyle
+
+Retrieves the window styles of the specified control
+
+```
+FUNCTION ControlGetStyle (BYVAL hWnd AS HWND) AS LONG_PTR
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *hwnd* | The handle of the control. |
+
+---
+
+## ControlSetExStyle
+
+Sets the window extended styles of the specified control
+
+```
+FUNCTION ControlSetExStyle (BYVAL hWnd AS HWND, BYVAL dwExStyle AS LONG_PTR) AS LONG_PTR
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *hwnd* | The handle of the control. |
+
+---
+
+## ControlRemoveExStyle
+
+Removes an extended style from the specified control.
+
+```
+FUNCTION ControlRemoveExStyle (BYVAL hWnd AS HWND, BYVAL dwExStyle AS DWORD) AS LONG_PTR
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *hwnd* | The handle of the control. |
+
+---
+
+## ControlRemoveStyle
+
+Removes an style from the specified control.
+
+```
+FUNCTION ControlRemoveStyle (BYVAL hWnd AS HWND, BYVAL dwStyle AS LONG_PTR) AS LONG_PTR
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *hwnd* | The handle of the control. |
+
+---
+
+## ControlSetStyle
+
+Sets the window styles of the specified control
+
+```
+FUNCTION ControlSetEtyle (BYVAL hWnd AS HWND) AS LONG_PTR
+```
+
+| Parameter  | Description |
+| ---------- | ----------- |
+| *hwnd* | The handle of the control. |
+
 ---
 
 ## ControlHeight
@@ -1910,6 +2046,8 @@ DIM hFont AS HFONT = pWindow.Font
 ```
 pWindow.Font = hFont
 ```
+The Set property can only be used before calling the **Create** method. If the windows has already been created, calling this property is ignored.
+
 ---
 
 ## GetClientRect
@@ -2689,11 +2827,11 @@ DIM value AS LONG_PTR = pWindow.UserData(1)
 
 ## WindowExStyle
 
-Gets/sets the window extended styles.
+Gets/sets the window extended styles. Alias: **WindowStyleEx**.
 
 ```
-PROPERTY WindowExStyle () AS ULONG_PTR
-PROPERTY WindowExStyle (BYVAL dwExStyle AS ULONG_PTR)
+PROPERTY WindowExStyle () AS LONG_PTR
+PROPERTY WindowExStyle (BYVAL dwExStyle AS LONG_PTR)
 ```
 
 | Parameter  | Description |
@@ -2719,8 +2857,8 @@ pWindow.WindowExStyle = WS_EX_CLIENTEDGE
 Gets/sets the window styles.
 
 ```
-PROPERTY WindowStyle () AS ULONG_PTR
-PROPERTY WindowStyle (BYVAL dwStyle AS ULONG_PTR)
+PROPERTY WindowStyle () AS LONG_PTR
+PROPERTY WindowStyle (BYVAL dwStyle AS LONG_PTR)
 ```
 
 | Parameter  | Description |
@@ -2734,7 +2872,7 @@ The style(s) used by the window.
 #### Usage examples
 
 ```
-DIM dwStyle AS ULONG_PTR = pWindow.WindowStyle
+DIM dwStyle AS LONG_PTR = pWindow.WindowStyle
 ```
 ```
 pWindow.WindowStyle = WS_POPUPWINDOW OR WS_CAPTION   ' // Creates a popup window

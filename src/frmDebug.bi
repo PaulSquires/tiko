@@ -114,8 +114,8 @@ const as long DEBUG_BUTTON_IMAGE_WIDTH = 18
 
 declare function gdb_dequeue_message() as string
 declare function gdb_isMessageQueueEmpty() as boolean
-declare function gdb_init( byval executable as DWSTRING = "" ) as boolean
+declare function gdb_init( byval executable as string = "", byval cmdparams as string = "" ) as boolean
 declare sub      gdb_threadListener( byval userdata as any ptr )
 declare sub      gdb_close()
 declare function gdb_send( byref cmd as string ) as boolean
-declare function frmDebug_Show( byval hWndParent as HWND, byval executable as string ) as LRESULT
+declare function frmDebug_Show( byval hWndParent as HWND, byval executable as string, byval cmdparams as string ) as LRESULT

@@ -124,7 +124,7 @@ The `Parameter` object is not safe for scripting.
 
 ---
 
-## <a name="activeconnection"></a>ActiveConnection (CADOCommand)
+### <a name="activeconnection"></a>ActiveConnection (CADOCommand)
 
 Determines the `Connection` object over which the specified `Command` object will execute.
 
@@ -170,7 +170,7 @@ pCommand.ActiveConnection = pConnection
 ```
 ---
 
-## <a name="Cancel"></a>Cancel (CADOCommand)
+### <a name="cancel"></a>Cancel (CADOCommand)
 
 Cancels execution of a pending, asynchronous method call.
 
@@ -190,7 +190,7 @@ For a `Command` object, the last asynchronous call to the **Execute** method is 
 
 ---
 
-## <a name="commandstream"></a>CommandStream (CADOCommand)
+### <a name="commandstream"></a>CommandStream (CADOCommand)
 
 Sets or returns the stream used as the input for a `Command` object. The format for this stream is provider-specific, see your provider's documentation for details. This property is similar to the **CommandText** property, used to specify a string for the input of a `Command`.
 
@@ -219,7 +219,7 @@ When using a command stream (as specified by **CommandStream**), the only valid 
 
 ---
 
-## <a name="commandtext"></a>CommandText (CADOCommand)
+### <a name="commandtext"></a>CommandText (CADOCommand)
 
 Sets or returns a string value that contains a provider command, such as an SQL statement, a table name, a relative URL, or a stored procedure call. Default is "" (zero-length string).
 
@@ -264,7 +264,7 @@ pCommand.CommandText = "SELECT TOP 20 * FROM Authors ORDER BY Author"
 ```
 ---
 
-# <a name="commandtimeout"></a>CommandTimeout (CADOCommand)
+### <a name="commandtimeout"></a>CommandTimeout (CADOCommand)
 
 Sets or returns a Long value that indicates, in seconds, how long to wait for a command to execute. Default is 30.
 
@@ -291,7 +291,7 @@ On a `Connection` object, the **CommandTimeout** property remains read/write aft
 
 ---
 
-# <a name="commandtype"></a>CommandType (CADOCommand)
+### <a name="commandtype"></a>CommandType (CADOCommand)
 
 Sets or returns one or more **CommandTypeEnum** values.
 
@@ -330,7 +330,7 @@ If the **CommandType** property value equals **adCmdUnknown** (the default value
 
 ---
 
-## <a name="createparameter"></a>CreateParameter (CADOCommand)
+### <a name="createparameter"></a>CreateParameter (CADOCommand)
 
 Creates a new `Parameter` object with the specified properties.
 
@@ -370,7 +370,7 @@ Specifies the data type of a `Field`, `Parameter`, or `Property`. The correspond
 
 | Constant   | Description |
 | ---------- | ----------- |
-| **AdArray** | A flag value, always combined with another data type constant, that indicates an array of that other data type. (Does not apply to ADOX.) |
+| **adArray** | A flag value, always combined with another data type constant, that indicates an array of that other data type. (Does not apply to ADOX.) |
 | **adBigInt** | Indicates an eight-byte signed integer (DBTYPE_I8). |
 | **adBinary** | Indicates a binary value (DBTYPE_BYTES). |
 | **adBoolean** | Indicates a boolean value (DBTYPE_BOOL). |
@@ -422,7 +422,7 @@ If you specify a numeric data type (**adNumeric** or **adDecimal**) in the *nTyp
 
 ---
 
-## <a name="dialect"></a>Dialect (CADOCommand)
+### <a name="dialect"></a>Dialect (CADOCommand)
 
 Indicates the dialect of the **CommandText** or **CommandStream** properties. The dialect defines the syntax and general rules that the provider uses to parse the string or stream.
 
@@ -449,7 +449,7 @@ When the user sets the **Dialect** property, ADO validates the GUID and raises a
 
 ---
 
-## <a name="execute"></a>Execute (CADOCommand)
+### <a name="execute"></a>Execute (CADOCommand)
 
 Executes the query, SQL statement, or stored procedure specified in the **CommandText** or **CommandStream** property.
 
@@ -554,7 +554,7 @@ pConnection.Close
 ```
 ---
 
-## <a name="GetErrorInfo"></a>GetErrorInfo (CADOCommand)
+### <a name="geterrorinfo"></a>GetErrorInfo (CADOCommand)
 
 Returns information about ADO errors.
 
@@ -572,7 +572,7 @@ A description of the error(s).
 
 ---
 
-## <a name="Name"></a>Name (CADOCommand)
+### <a name="name"></a>Name (CADOCommand)
 
 Sets or returns a string value that indicates the name of a  Command` object. 
 
@@ -591,7 +591,7 @@ The name of the `Command` object.
 
 ---
 
-## <a name="namedparameters"></a>NamedParameters (CADOCommand)
+### <a name="namedparameters"></a>NamedParameters (CADOCommand)
 
 Indicates whether parameter names should be passed to the provider.
 
@@ -614,7 +614,7 @@ When this property is true, ADO passes the value of the **Name** property of eac
 
 ---
 
-## <a name="parameters"></a>Parameters (CADOCommand)
+### <a name="parameters"></a>Parameters (CADOCommand)
 
 Returns a reference to the `Parameters` collection.
 
@@ -628,7 +628,7 @@ A reference to the `Parameters` collection.
 
 ---
 
-## <a name="prepared"></a>Prepared (CADOCommand)
+### <a name="prepared"></a>Prepared (CADOCommand)
 
 Sets or returns a Boolean value that, if set to True, indicates that the command should be prepared.
 
@@ -655,7 +655,7 @@ If the provider does not support command preparation, it may return an error as 
 
 ---
 
-## <a name="properties"></a>Properties (CADOCommand)
+### <a name="properties"></a>Properties (CADOCommand)
 
 Returns a reference to the `Properties` collection.
 
@@ -669,7 +669,7 @@ A reference to the `Properties` collection.
 
 ---
 
-## <a name="state"></a>State (CADOCommand)
+### <a name="state"></a>State (CADOCommand)
 
 Indicates if the `Command` object is open or closed.
 
@@ -695,7 +695,7 @@ Specifies whether the **Open** method of a `Connection` object should return aft
 
 ---
 
-## <a name="append"></a>Append (CADOParameters)
+### <a name="append"></a>Append (CADOParameters)
 
 Appends an object to the `Parameters` collection.
 
@@ -721,7 +721,7 @@ Use the **CreateParameter** method to create `Parameter` objects with the approp
 
 ---
 
-## <a name="count"></a>Count (CADOParameters)
+### <a name="count"></a>Count (CADOParameters)
 
 Retrieves the number of objects of the `Parameters` collection.
 
@@ -741,7 +741,7 @@ If the **Count** property is zero, there are no objects in the collection.
 
 ---
 
-## <a name="Delete_"></a>Delete_ (CADOParameters)
+### <a name="delete_"></a>Delete_ (CADOParameters)
 
 Deletes an object from the `Parameters` collection.
 
@@ -763,7 +763,7 @@ Using the **Delete_** method on a collection lets you remove one of the objects 
 
 ---
 
-## <a name="Item"></a>Item (CADOParameters)
+### <a name="item"></a>Item (CADOParameters)
 
 Indicates a specific member of the `Parameters` collection, by name or ordinal number.
 
@@ -785,7 +785,7 @@ If **Item** cannot find an object in the collection corresponding to the **Index
 
 ---
 
-## <a name="Refresh"></a>Refresh (CADOParameters)
+### <a name="refresh"></a>Refresh (CADOParameters)
 
 Refreshes the contents of the `Parameters` collection.
 
@@ -809,7 +809,7 @@ If you access the `Parameters` collection before calling the **Refresh** method,
 
 ---
 
-## <a name="appendchunk"></a>AppendChunk (CADOParameter)
+### <a name="appendchunk"></a>AppendChunk (CADOParameter)
 
 Appends data to a `Parameter` object.
 
@@ -835,7 +835,7 @@ The first **AppendChunk** call on a `Parameter` object writes data to the parame
 
 ---
 
-## <a name="attach"></a>Attach (CADOParameter)
+### <a name="attach"></a>Attach (CADOParameter)
 
 Attaches a reference to an `Parameter` object to the class.
 
@@ -850,7 +850,7 @@ SUB Attach (BYVAL pParameter AS Afx_ADOParameter PTR, BYVAL fAddRef AS BOOLEAN =
 
 ---
 
-## <a name="attributes"></a>Attributes (CADOParameter)
+### <a name="attributes"></a>Attributes (CADOParameter)
 
 Indicates one or more characteristics of an object.
 
@@ -885,7 +885,7 @@ For a `Parameter` object, the **Attributes** property is read/write, and its val
 
 ---
 
-## <a name="direction"></a>Direction (CADOParameter)
+### <a name="direction"></a>Direction (CADOParameter)
 
 Indicates whether the `Parameter` represents an input parameter, an output parameter, an input and an output parameter, or if the parameter is the return value from a stored procedure.
 
@@ -924,7 +924,7 @@ Not all providers can determine the direction of parameters in their stored proc
 
 ---
 
-## <a name="Name2"></a>Name (CADOParameter)
+### <a name="name2"></a>Name (CADOParameter)
 
 Sets or returns a string value that indicates the name of a `Parameter` object. 
 
@@ -947,7 +947,7 @@ For `Parameter` objects not yet appended to the `Parameters` collection, the **N
 
 ---
 
-## <a name="numericscale"></a>NumericScale (CADOParameter)
+### <a name="numericscale"></a>NumericScale (CADOParameter)
 
 Indicates the scale of numeric values in a `Parameter` object.
 
@@ -974,7 +974,7 @@ For `Parameter` objects, the **NumericScale** property is read/write.
 
 ---
 
-## <a name="precision"></a>Precision (CADOParameter)
+### <a name="precision"></a>Precision (CADOParameter)
 
 Indicates the degree of precision for numeric values in a `Parameter` object.
 
@@ -999,7 +999,7 @@ Use the **Precision** property to determine the maximum number of digits used to
 
 ---
 
-## <a name="properties2"></a>Properties (CADOParameter)
+### <a name="properties2"></a>Properties (CADOParameter)
 
 Returns a reference to the `Properties` collection.
 
@@ -1042,7 +1042,7 @@ The **Size** property is read/write.
 
 ---
 
-## <a name="Type_"></a>Type_ (CADOParameter)
+### <a name="type_"></a>Type_ (CADOParameter)
 
 Indicates the operational type or data type of a `Parameter` object.
 
@@ -1060,7 +1060,7 @@ Specifies the data type of a `Field`, `Parameter`, or `Property`. The correspond
 
 | Constant   | Description |
 | ---------- | ----------- |
-| **AdArray** | A flag value, always combined with another data type constant, that indicates an array of that other data type. (Does not apply to ADOX.) |
+| **adArray** | A flag value, always combined with another data type constant, that indicates an array of that other data type. (Does not apply to ADOX.) |
 | **adBigInt** | Indicates an eight-byte signed integer (DBTYPE_I8). |
 | **adBinary** | Indicates a binary value (DBTYPE_BYTES). |
 | **adBoolean** | Indicates a boolean value (DBTYPE_BOOL). |
@@ -1102,7 +1102,7 @@ Specifies the data type of a `Field`, `Parameter`, or `Property`. The correspond
 
 ---
 
-## <a name="value"></a>Value (CADOParameter)
+### <a name="value"></a>Value (CADOParameter)
 
 Indicates the value assigned to a `Parameter` object.
 

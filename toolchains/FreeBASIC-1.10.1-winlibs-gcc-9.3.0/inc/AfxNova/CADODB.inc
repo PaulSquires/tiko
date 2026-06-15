@@ -29,6 +29,7 @@
 #include once "AfxNova/AfxCOM.inc"
 #include once "AfxNova/DWSTRING.inc"
 #include once "AfxNova/DVARIANT.inc"
+USING AfxNova
 
 NAMESPACE AfxNova
 

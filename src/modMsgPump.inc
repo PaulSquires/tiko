@@ -33,19 +33,14 @@ function handleMouseShowScrollBar( byval uMsg as MSG ) as boolean
     ' Should we show an Editor HScrollbar
     dim as clsDocument ptr pDoc = gTTabCtl.GetActiveDocumentPtr()
     if (pDoc <> 0) andalso (pDoc->bSizing = false) then   ' no testing during split panel resizing
-        for i as long = lbound(pDoc->hWindow) to ubound(pDoc->hWindow)
-            dim as boolean isVisible = IsWindowVisible( HWND_FRMEDITOR_HSCROLLBAR(i) )
-            dim as long curState = iif(isVisible, SW_SHOWNOACTIVATE, SW_HIDE)
-            dim as long newState = SW_HIDE
-            if isMouseOverWindow( pDoc->hWindow(i) ) orelse _
-                isMouseOverWindow( HWND_FRMEDITOR_HSCROLLBAR(i) ) then 
-                newState = frmEditorHScroll_NeedScrollBar( pDoc, i )
-            end if
-            if newState <> curState then 
-                ShowWindow( HWND_FRMEDITOR_HSCROLLBAR(i), newState )
-                frmMain_PositionWindows()
-            end if
-        next
+        ' If the xOffset has changed then we need to update the horizontal scrollbar
+        dim as long GetXOffset = SciExec( pDoc->hWndActiveScintilla, SCI_GETXOFFSET, 0, 0 )
+        if pDoc->lastXOffsetPos <> GetXOffset then
+            pDoc->lastXOffsetPos = GetXOffset
+            AfxRedrawWindow( HWND_FRMEDITOR_HSCROLLBAR(0) )
+            AfxRedrawWindow( HWND_FRMEDITOR_HSCROLLBAR(1) )
+        end if
+        frmEditorHScroll_DoNeedScrollBar( pDoc )
     end if
     
     ' we want our mouse message to continue so return FALSE

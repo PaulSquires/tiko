@@ -1,7 +1,6 @@
 ' ########################################################################################
 ' Platform: Microsoft Windows
 ' Filename: CWinHttpRequest.inc
-' Purpose:  Sorting procedures
 ' Compiler: Wrapper class for Microsoft WinHTTP Services, version 5.1
 ' Copyright (c) 2025 José Roca
 '
@@ -27,6 +26,7 @@
 #pragma once
 #include once "windows.bi"
 #include once "AfxNova/AfxWinHttpRequest.bi"
+#include once "AfxNova/AfxCOM.inc"
 #include once "AfxNova/DVARIANT.inc"
 USING AfxNova
 

@@ -28,7 +28,7 @@ To execute a query without using a `Command` object, pass a query string to the 
 
 | Name       | Description |
 | ---------- | ----------- |
-| [Attributes](#Attributes) | Indicates one or more characteristics of an object. |
+| [Attributes](#attributes) | Indicates one or more characteristics of an object. |
 | [BeginTrans](#begintrans) | Begins a new transaction. |
 | [Cancel](#cancel) | Cancels execution of a pending, asynchronous method call. |
 | [Close](#close) | Closes a `Connection` object and any dependent objects. |
@@ -142,7 +142,7 @@ One of the following values.
 
 #### XactAttributeEnum
 
-Specifies the transaction attributes of a Connection object.
+Specifies the transaction attributes of a `Connection` object.
 
 | Constant   | Description |
 | ---------- | ----------- |
@@ -161,7 +161,7 @@ This property is not available on a client-side `Connection` object.
 
 ---
 
-## BeginTrans
+### BeginTrans
 
 Begins a new transaction.
 
@@ -233,7 +233,7 @@ pRecordset.Close
 pConnection.Close
 ```
 
-# <a name="Cancel"></a>Cancel
+### <a name="cancel"></a>Cancel
 
 Cancels execution of a pending, asynchronous method call.
 
@@ -251,7 +251,7 @@ Use the **Cancel** method to terminate execution of an asynchronous method call 
 
 For a `Connection` object, the last asynchronous call to the **Execute** or **Open** methods is terminated.
 
-## Close
+### Close
 
 Closes a `Connection` object and any dependent objects.
 
@@ -274,7 +274,7 @@ IF pConnection.State = adStateOpen THEN pConnection.Close
 ```
 ...
 
-## CommandTimeout
+### CommandTimeout
 
 Sets or returns a Long value that indicates, in seconds, how long to wait for a command to execute. Default is 30.
 
@@ -311,7 +311,7 @@ DIM lTimeout AS LONG = pConnection.CommandTimeout
 ```
 ---
 
-## CommitTrans
+### CommitTrans
 
 Saves any changes and ends the current transaction. It may also start a new transaction.
 
@@ -379,7 +379,7 @@ pRecordset.Close
 pConnection.Close
 ```
 
-## ConnectionString
+### ConnectionString
 
 Indicates the information used to establish a connection to a data source.
 
@@ -465,7 +465,7 @@ pConnection.Close
 ```
 ---
 
-# <a name="ConnectionTimeout"></a>ConnectionTimeout
+### <a name="connectiontimeout"></a>ConnectionTimeout
 
 Indicates how long to wait while establishing a connection before terminating the attempt and generating an error.
 
@@ -492,7 +492,7 @@ On a `Connection` object, the **ConnectionTimeout** property remains read/write 
 
 ---
 
-## CursorLocation
+### CursorLocation
 
 Indicates the location of the cursor service.
 
@@ -545,7 +545,7 @@ DIM lCursorLoc AS LONG = pConnection.CursorLocation
 ```
 ---
 
-## DefaultDatabase
+### DefaultDatabase
 
 Indicates the default database for a `Connection` object.
 
@@ -576,7 +576,7 @@ This property is not available on a client-side `Connection` object.
 
 ---
 
-## Execute
+### Execute
 
 Executes the specified query, SQL statement, stored procedure, or provider-specific text.
 
@@ -681,7 +681,7 @@ pConnection.Close
 ```
 ---
 
-## GetErrorInfo
+### GetErrorInfo
 
 Returns information about ADO errors.
 
@@ -699,7 +699,7 @@ A description of the error(s).
 
 ---
 
-## IsolationLevel
+### IsolationLevel
 
 Indicates the level of isolation for a `Connection` object.
 
@@ -754,7 +754,7 @@ DIM level AS LONG = pConnection.IsolationLevel
 ```
 ---
 
-## Mode
+### Mode
 
 Indicates the available permissions for modifying data in a `Connection` object.
 
@@ -789,7 +789,7 @@ Specifies the available permissions for modifying data in a `Connection`, openin
 
 ---
 
-## Open
+### Open
 
 Opens a connection to a data source.
 
@@ -873,7 +873,7 @@ pConnection.Close
 ```
 ---
 
-## OpenSchema
+### OpenSchema
 
 Obtains database schema information from the provider.
 
@@ -913,7 +913,7 @@ When not using client side cursors, retrieving the "ORDINAL_POSITION" of a colum
 
 ---
 
-## Properties
+### Properties
 
 Returns a reference to the `Properties` collection.
 
@@ -933,7 +933,7 @@ pProperties = pConnection.Properties
 ```
 ---
 
-## Provider
+### Provider
 
 Indicates the name of the provider for a Connection object.
 
@@ -963,7 +963,7 @@ DIM dwsProvider AS DWSTRING = pConnection.Provider
 ```
 ---
 
-## RollbackTrans
+### RollbackTrans
 
 Saves any changes and ends the current transaction. It may also start a new transaction.
 
@@ -1030,7 +1030,7 @@ pConnection.Close
 ```
 ---
 
-## State
+### State
 
 Indicates if a `Connection` is open or closed.
 
@@ -1067,7 +1067,7 @@ IF pConnection.State = adStateOpen THEN pConnection.Close
 ```
 ---
 
-## Version
+### Version
 
 Indicates the ADO version number.
 
@@ -1092,7 +1092,7 @@ DIM dwsVersion AS DWSTRING = pConnection.Version
 ```
 ---
 
-## SetEvents
+### SetEvents
 
 Sets the events sink.
 

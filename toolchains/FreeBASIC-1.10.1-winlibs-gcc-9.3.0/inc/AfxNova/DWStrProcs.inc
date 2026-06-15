@@ -1830,7 +1830,7 @@ END FUNCTION
 PRIVATE FUNCTION DWStrAbbrevDayName (BYVAL nDay AS LONG, BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
    IF nDay < 1 OR nDay > 7 THEN RETURN ""
-   GetLocaleInfoEx(pwszLocale, LOCALE_SABBREVDAYNAME1 + nDay - 1, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SABBREVDAYNAME1 + nDay - 1, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -1840,7 +1840,7 @@ END FUNCTION
 PRIVATE FUNCTION DWStrAbbrevMonthName (BYVAL nMonth AS LONG, BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
    IF nMonth < 1 OR nMonth > 12 THEN RETURN ""
-   GetLocaleInfoEx(pwszLocale, LOCALE_SABBREVMONTHNAME1 + nMonth - 1, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SABBREVMONTHNAME1 + nMonth - 1, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -1850,7 +1850,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrCountryName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SCOUNTRY, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SCOUNTRY, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -1861,7 +1861,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrCurrencySymbol (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SCURRENCY, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SCURRENCY, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -1875,7 +1875,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrDateSeparator (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SDATE, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SDATE, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -1885,7 +1885,7 @@ END FUNCTION
 PRIVATE FUNCTION DWStrDayName (BYVAL nDay AS LONG, BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
    IF nDay < 1 OR nDay > 7 THEN RETURN ""
-   GetLocaleInfoEx(pwszLocale, LOCALE_SDAYNAME1 + nDay - 1, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SDAYNAME1 + nDay - 1, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -1896,7 +1896,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrDecimalSeparator (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SDECIMAL, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SDECIMAL, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -1910,7 +1910,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrDigitsGrouping (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SGROUPING, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SGROUPING, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -1920,7 +1920,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrDisplayName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SLANGDISPLAYNAME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SLANGDISPLAYNAME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -1929,7 +1929,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrEnglishCountryName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SENGCOUNTRY, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SENGCOUNTRY, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -1938,7 +1938,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrEnglishCurrencyName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SENGCURRNAME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SENGCURRNAME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -1948,7 +1948,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrEnglishDisplayName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SENGLISHDISPLAYNAME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SENGLISHDISPLAYNAME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -1957,7 +1957,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrEnglishLanguageName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SENGLANGUAGE, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SENGLANGUAGE, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -1968,7 +1968,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrInternationalMonetarySymbol (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SINTLSYMBOL, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SINTLSYMBOL, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -1979,7 +1979,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrISO639LanguageName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SISO639LANGNAME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SISO639LANGNAME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -1990,7 +1990,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrISO639LanguageName2 (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SISO639LANGNAME2, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SISO639LANGNAME2, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2001,7 +2001,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrISO3166CountryName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SISO3166CTRYNAME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SISO3166CTRYNAME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2012,7 +2012,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrISO3166CountryName2 (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SISO3166CTRYNAME2, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SISO3166CTRYNAME2, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2022,7 +2022,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrLanguageName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SLANGUAGE, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SLANGUAGE, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2033,7 +2033,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrListItemsSeparator (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SLIST, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SLIST, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2044,7 +2044,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrLocaleName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SNAME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SNAME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2056,7 +2056,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrLocalizedCountryName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SLOCALIZEDCOUNTRYNAME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SLOCALIZEDCOUNTRYNAME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2068,7 +2068,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrLocalizedDisplayName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SLOCALIZEDDISPLAYNAME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SLOCALIZEDDISPLAYNAME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2079,7 +2079,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrLocalizedLanguageName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SLOCALIZEDDISPLAYNAME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SLOCALIZEDDISPLAYNAME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2093,7 +2093,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrLongDateFormatString (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SLONGDATE, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SLONGDATE, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2105,7 +2105,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrMonetaryDecimalSeparator (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SMONDECIMALSEP, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SMONDECIMALSEP, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2119,7 +2119,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrMonetaryGrouping (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SMONGROUPING, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SMONGROUPING, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2131,7 +2131,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrMonetaryThousandsSeparator (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SMONTHOUSANDSEP, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SMONTHOUSANDSEP, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2146,7 +2146,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrMonthDayFormatString (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SMONTHDAY, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SMONTHDAY, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2156,7 +2156,7 @@ END FUNCTION
 PRIVATE FUNCTION DWStrMonthName (BYVAL nMonth AS LONG, BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
    IF nMonth < 1 OR nMonth > 12 THEN RETURN ""
-   GetLocaleInfoEx(pwszLocale, LOCALE_SMONTHNAME1 + nMonth - 1, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SMONTHNAME1 + nMonth - 1, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2179,7 +2179,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrNativeCountryName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SNATIVECTRYNAME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SNATIVECTRYNAME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2189,7 +2189,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrNativeCurrencyName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SNATIVECURRNAME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SNATIVECURRNAME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2199,7 +2199,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrNativeDigits (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SNATIVEDIGITS, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SNATIVEDIGITS, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2209,7 +2209,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrNativeDisplayName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SNATIVEDISPLAYNAME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SNATIVEDISPLAYNAME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2219,7 +2219,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrNativeLanguageName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SNATIVELANGNAME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SNATIVELANGNAME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2243,7 +2243,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrNegativeSign (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SNEGATIVESIGN, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SNEGATIVESIGN, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2252,7 +2252,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrOpenTypeLanguageTag (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SOPENTYPELANGUAGETAG, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SOPENTYPELANGUAGETAG, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2261,7 +2261,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrPermilleSymbol (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SPERMILLE, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SPERMILLE, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2286,7 +2286,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrPositiveSign (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SPOSITIVESIGN, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SPOSITIVESIGN, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2312,7 +2312,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrShortDateFormatString (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SSHORTDATE, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SSHORTDATE, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2322,7 +2322,7 @@ END FUNCTION
 PRIVATE FUNCTION DWStrShortestDayName (BYVAL nDay AS LONG, BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
    IF nDay < 1 OR nDay > 7 THEN RETURN ""
-   GetLocaleInfoEx(pwszLocale, LOCALE_SSHORTESTDAYNAME1 + nDay - 1, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SSHORTESTDAYNAME1 + nDay - 1, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2335,7 +2335,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrShortTimeFormatString (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SSHORTTIME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SSHORTTIME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2344,7 +2344,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrSortLocale (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SSORTLOCALE, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SSORTLOCALE, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2354,7 +2354,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrSortName (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SSORTNAME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SSORTNAME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2366,7 +2366,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrThousandsSeparator (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_STHOUSAND, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_STHOUSAND, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2377,7 +2377,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrTimeFormatString (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_STIMEFORMAT, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_STIMEFORMAT, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2387,7 +2387,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrTimeSeparator (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_STIME, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_STIME, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================
@@ -2399,7 +2399,7 @@ END FUNCTION
 ' ========================================================================================
 PRIVATE FUNCTION DWStrYearMonthFormatString (BYVAL pwszLocale AS WSTRING PTR = LOCALE_NAME_USER_DEFAULT) AS DWSTRING
    DIM wszBuf AS WSTRING * 260
-   GetLocaleInfoEx(pwszLocale, LOCALE_SYEARMONTH, wszBuf, SIZEOF(wszBuf))
+   GetLocaleInfoEx(pwszLocale, LOCALE_SYEARMONTH, wszBuf, SIZEOF(wszBuf)\2)
    RETURN wszBuf
 END FUNCTION
 ' ========================================================================================

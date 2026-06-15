@@ -16,8 +16,8 @@ Windows Management Instrumentation (WMI) is the infrastructure for management da
 
 | Name       | Description |
 | ---------- | ----------- |
-| [Constructor(Moniker)](#constructor1) | Connects to WMI using a moniker. |
-| [Constructor(Server)](#constructor2) | Connects to the namespace that is specified on the *wszNamespace* parameter on the computer that is specified in the *wszServer* parameter. The target computer can be either local or remote, but it must have WMI installed. |
+| [Constructor (Moniker)](#constructor1) | Connects to WMI using a moniker. |
+| [Constructor (Server)](#constructor2) | Connects to the namespace that is specified on the *wszNamespace* parameter on the computer that is specified in the *wszServer* parameter. The target computer can be either local or remote, but it must have WMI installed. |
 
 ---
 
@@ -48,7 +48,7 @@ Windows Management Instrumentation (WMI) is the infrastructure for management da
 
 ---
 
-## <a name="Constructor1"></a>Constructor(Moniker)
+## <a name="constructor1"></a>Constructor (Moniker)
 
 Connects to WMI using a moniker.
 
@@ -82,7 +82,7 @@ print "Result: ", VAL(dvRes)
 ```
 ---
 
-## <a name="Constructor2"></a>Constructor(Server)
+## <a name="constructor2"></a>Constructor (Server)
 
 Connects to the namespace that is specified on the *wszNamespace* parameter on the computer that is specified in the *wszServer* parameter. The target computer can be either local or remote, but it must have WMI installed.
 
@@ -109,7 +109,7 @@ If successful, WMI returns an **SWbemServices** object that is bound to the name
 **Usage example** (with the local computer):
 
 ```
-DIM pServices AS CWmiServices = CWmiServices(".", "root\\cimv2")
+DIM pServices AS CWmiServices = CWmiServices(".", "root\cimv2")
 ```
 
 ### Remarks
@@ -151,113 +151,84 @@ Returns S_OK (0) on success, or an HRESULT code on failure.
 Using an enumerator (the standard **IEnumVARIANT** interface) to retrieve the information:
 
 ```
-#include "windows.bi"
 #include "AfxNova/CWmiDisp.inc"
 USING AfxNova
 
 ' // Connect to WMI using a moniker
 ' // Note: $ is used to avoid the pedantic warning of the compiler about escape characters
 DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2"
-IF pServices.ServicesPtr = NULL THEN END
+
 ' // Execute a query
 DIM hr AS HRESULT = pServices.ExecQuery("SELECT Caption, SerialNumber FROM Win32_BIOS")
-IF hr <> S_OK THEN PRINT AfxWmiGetErrorCodeText(hr) : SLEEP : END
+
 ' // Get the number of objects retrieved
 DIM nCount AS LONG = pServices.ObjectsCount
 print "Count: ", nCount
-IF nCount = 0 THEN PRINT "No objects found" : SLEEP : END
+
 ' // Enumerate the objects using the standard IEnumVARIANT enumerator (NextObject method)
 ' // and retrieve the properties using the CDispInvoke class.
 DIM pDispServ AS CDispInvoke = pServices.NextObject
-IF pDispServ.DispPtr THEN
-   PRINT "Caption: "; pDispServ.Get("Caption")
-   PRINT "Serial number: "; pDispServ.Get("SerialNumber")
-END IF
-PRINT
-PRINT "Press any key..."
-SLEEP
+PRINT "Caption: "; pDispServ.Get("Caption")
+PRINT "Serial number: "; pDispServ.Get("SerialNumber")
 ```
 
 If the query returns more than one object, then we will use a loop:
 
 ```
-#include "windows.bi"
 #include "AfxNova/CWmiDisp.inc"
 USING AfxNova
 
 ' // Connect to WMI using a moniker
 ' // Note: $ is used to avoid the pedantic warning of the compiler about escape characters
 DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2"
-IF pServices.ServicesPtr = NULL THEN END
 
 ' // Execute a query
 DIM hr AS HRESULT = pServices.ExecQuery("SELECT * FROM Win32_Printer")
-IF hr <> S_OK THEN PRINT AfxWmiGetErrorCodeText(hr) : SLEEP : END
 
 ' // Get the number of objects retrieved
 DIM nCount AS LONG = pServices.ObjectsCount
-print "Count: ", nCount
-IF nCount = 0 THEN PRINT "No objects found" : SLEEP : END
 
 ' // Enumerate the objects
 FOR i AS LONG = 0 TO nCount - 1
    PRINT "--- Index " & STR(i) & " ---"
    DIM pDispServ AS CDispInvoke = pServices.NextObject
-   IF pDispServ.DispPtr THEN
-      PRINT "Caption: "; pDispServ.Get("Caption")
-      PRINT "Capabilities "; pDispServ.Get("Capabilities")
-   END IF
+   PRINT "Caption: "; pDispServ.Get("Caption")
+   PRINT "Capabilities "; pDispServ.Get("Capabilities")
 NEXT
-
-PRINT
-PRINT "Press any key..."
-SLEEP
 ```
 
 To improve enumeration performance set the *iFlags* parameter of the **ExecQuery** method to *WbemFlagReturnImmediately* and *WbemFlagForwardOnly* (the combined value of these flags is 48) to allow semisynchronous return of the data with an enumerator that discards each item from WMI as it is delivered. In this case don't call the **ObjectsCount** method because it will return 0, since the operation has not been completed.
 
 ```
-#include "windows.bi"
 #include "AfxNova/CWmiDisp.inc"
 USING AfxNova
 
 ' // Connect to WMI using a moniker
 ' // Note: $ is used to avoid the pedantic warning of the compiler about escape characters
 DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2"
-IF pServices.ServicesPtr = NULL THEN END
 
 ' // Execute a query
 DIM hr AS HRESULT = pServices.ExecQuery("SELECT Caption, SerialNumber FROM Win32_BIOS", 48)
-IF hr <> S_OK THEN PRINT AfxWmiGetErrorCodeText(hr) : SLEEP : END
 
 ' // Enumerate the objects using the standard IEnumVARIANT enumerator (NextObject method)
 ' // and retrieve the properties using the CDispInvoke class.
 DIM pDispServ AS CDispInvoke = pServices.NextObject
-IF pDispServ.DispPtr THEN
-   PRINT "Caption: "; pDispServ.Get("Caption")
-   PRINT "Serial number: "; pDispServ.Get("SerialNumber")
-END IF
-
-PRINT
-PRINT "Press any key..."
-SLEEP
+PRINT "Caption: "; pDispServ.Get("Caption")
+PRINT "Serial number: "; pDispServ.Get("SerialNumber")
 ```
 
 If there are several objects in the collection, we can use a loop:
 
 ```
-#include "windows.bi"
 #include "AfxNova/CWmiDisp.inc"
 USING AfxNova
 
 ' // Connect to WMI using a moniker
 ' // Note: $ is used to avoid the pedantic warning of the compiler about escape characters
 DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2"
-IF pServices.ServicesPtr = NULL THEN END
 
 ' // Execute a query
 DIM hr AS HRESULT = pServices.ExecQuery("SELECT * FROM Win32_Printer", 48)
-IF hr <> S_OK THEN PRINT AfxWmiGetErrorCodeText(hr) : SLEEP : END
 
 ' // Enumerate the objects using the standard IEnumVARIANT enumerator (NextObject method)
 ' // and retrieve the properties using the CDispInvoke class.
@@ -268,67 +239,47 @@ DO
    PRINT "Caption: "; pDispServ.Get("Caption")
    PRINT "Capabilities "; pDispServ.Get("Capabilities")
 LOOP
-
-PRINT
-PRINT "Press any key..."
-SLEEP
 ```
 
 Calling the **GetNamedProperties** method after executing the query. **GetNamedProperties** generates a named collection of properties. This has the advantage of not having to use **CDispInvoke**.
 
 ```
-#include "windows.bi"
 #include "AfxNova/CWmiDisp.inc"
 USING AfxNova
 
 ' // Connect to WMI using a moniker
 ' // Note: $ is used to avoid the pedantic warning of the compiler about escape characters
 DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2"
-IF pServices.ServicesPtr = NULL THEN END
 
 ' // Execute a query
 DIM hr AS HRESULT = pServices.ExecQuery("SELECT Caption, SerialNumber FROM Win32_BIOS")
-IF hr <> S_OK THEN PRINT AfxWmiGetErrorCodeText(hr) : SLEEP : END
 
 ' // Get the number of objects retrieved
 DIM nCount AS LONG = pServices.ObjectsCount
-print "Number of objects: ", nCount
-IF nCount = 0 THEN PRINT "No objects found" : SLEEP : END
 
 ' // Get a collection of named properties
-IF pServices.GetNamedProperties <> S_OK THEN PRINT "Failed to get the named properties" : SLEEP : END
+IF pServices.GetNamedProperties <> S_OK THEN PRINT "Failed to get the named properties"
 
 ' // Retrieve the value of the properties
-'DIM dv AS DVARIANT = pServices.PropValue("Caption")
-'PRINT dv
 PRINT pServices.PropValue("Caption")
 PRINT pServices.PropValue("SerialNumber")
-
-PRINT
-PRINT "Press any key..."
-SLEEP
 ```
 
-Using a loop:
+**Using a loop**:
 
 ```
-#include "windows.bi"
 #include "AfxNova/CWmiDisp.inc"
 USING AfxNova
 
 ' // Connect to WMI using a moniker
 ' // Note: $ is used to avoid the pedantic warning of the compiler about escape characters
 DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2"
-IF pServices.ServicesPtr = NULL THEN END
 
 ' // Execute a query
 DIM hr AS HRESULT = pServices.ExecQuery("SELECT * FROM Win32_Printer")
-IF hr <> S_OK THEN PRINT AfxWmiGetErrorCodeText(hr) : SLEEP : END
 
 ' // Get the number of objects retrieved
 DIM nCount AS LONG = pServices.ObjectsCount
-print "Number of objects: ", nCount
-IF nCount = 0 THEN PRINT "No objects found" : SLEEP : END
 
 ' // Enumerate the objects
 FOR i AS LONG = 0 TO nCount - 1
@@ -339,10 +290,77 @@ FOR i AS LONG = 0 TO nCount - 1
       PRINT pServices.PropValue("Capabilities")
    END IF
 NEXT
+```
 
-PRINT
-PRINT "Press any key..."
-SLEEP
+#### Example
+
+The following example monitors process performance information.
+
+```
+DO   ' // fake loop to avoid nested IFs/ENDIFs
+
+   ' // Connect to WMI using a moniker
+   ' // Note: $ is used to avoid the pedantic warning of the compiler about escape characters
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2"
+   IF pServices.ServicesPtr = NULL THEN EXIT DO
+
+   ' // Execute a query
+   DIM hr AS HRESULT = pServices.ExecQuery("SELECT * FROM Win32_Process")
+   IF hr <> S_OK THEN PRINT AfxWmiGetErrorCodeText(hr) : EXIT DO
+
+   ' // Get the number of objects retrieved
+   DIM nCount AS LONG = pServices.ObjectsCount
+   print "Number of objects: ", nCount
+   IF nCount = 0 THEN PRINT "No objects found" : EXIT DO
+
+   ' // Enumerate the objects
+   FOR i AS LONG = 0 TO nCount - 1
+      PRINT "--- Index " & STR(i) & " ---"
+      ' // Get a collection of named properties
+      IF pServices.GetNamedProperties(i) = S_OK THEN
+         PRINT pServices.PropValue("Name")
+         PRINT pServices.PropValue("ProcessID")
+         PRINT pServices.PropValue("ThreadCount")
+         PRINT pServices.PropValue("PageFileUsage")
+         PRINT pServices.PropValue("PageFaults")
+         PRINT pServices.PropValue("WorkingSetSize")
+      END IF
+   NEXT
+
+   EXIT DO   ' // Inconditional exit
+LOOP
+```
+
+Using an enumerator:
+
+```
+DO   ' // fake loop to avoid nested IFs/ENDIFs
+
+   ' // Connect to WMI using a moniker
+   ' // Note: $ is used to avoid the pedantic warning of the compiler about escape characters
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2"
+   IF pServices.ServicesPtr = NULL THEN EXIT DO
+
+   ' // Execute a query
+   DIM hr AS HRESULT = pServices.ExecQuery("SELECT * FROM Win32_Process", 48)
+   IF hr <> S_OK THEN PRINT AfxWmiGetErrorCodeText(hr) : EXIT DO
+
+   ' // Enumerate the objects using the standard IEnumVARIANT enumerator (NextObject method)
+   ' // and retrieve the properties using the CDispInvoke class.
+   DIM pDispServ AS CDispInvoke
+   DO
+      pDispServ = pServices.NextObject
+      IF pDispServ.DispPtr = NULL THEN EXIT DO
+      PRINT "Name: "; pDispServ.Get("Name")
+      PRINT "ProcessID "; pDispServ.Get("ProcessID")
+      PRINT "ThreadCount "; pDispServ.Get("ThreadCount")
+      PRINT "PageFileUsage "; pDispServ.Get("PageFileUsage")
+      PRINT "PageFaults "; pDispServ.Get("PageFaults")
+      PRINT "WorkingSetSize "; pDispServ.Get("WorkingSetSize")
+   LOOP
+
+   EXIT DO   ' // Inconditional exit
+LOOP
 ```
 ---
 
@@ -379,17 +397,14 @@ May return one of the error codes in the following list:
 #### Example
 
 ```
-#include "windows.bi"
 #include "AfxNova/CWmiDisp.inc"
-USING AfxNova
+using AfxNova
 
 ' // Connect to WMI using a moniker
 DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2"
-IF pServices.ServicesPtr = NULL THEN END
  
 ' // Get an instance of the printer "OKI B410" --> change me
 DIM hr AS HRESULT = pServices.Get("Win32_Printer.DeviceID='OKI B410'")
-IF hr <> S_OK THEN PRINT AfxWmiGetErrorCodeText(hr) : SLEEP : END
 
 ' // Number of properties
 PRINT "Number of properties: ", pServices.PropsCount
@@ -399,16 +414,11 @@ PRINT
 PRINT "Port name: "; pServices.PropValue("PortName")
 PRINT "Attributes: "; pServices.PropValue("Attributes")
 PRINT "Paper sizes supported: "; pServices.PropValue("PaperSizesSupported")
-
-PRINT
-PRINT "Press any key..."
-SLEEP
 ```
 
 Example
 
 ```
-#include "windows.bi"
 #include "AfxNpva/CWmiDisp.inc"
 USING AfxNova
 
@@ -416,12 +426,10 @@ USING AfxNova
 'DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2"
 ' Use the constructor for server connection, just for trying...
 DIM pServices AS CWmiServices = CWmiServices(".", "root\cimv2")
-IF pServices.ServicesPtr = NULL THEN END
  
  '// Get an instance of a file --> change me
 DIM dwsPath AS DWSTRING = ExePath & "\EX_CWMI_Get_01.bas"   ' --> change me
 DIM hr AS HRESULT = pServices.Get("CIM_DataFile.Name='" & dwsPath & "'")
-IF hr <> S_OK THEN PRINT AfxWmiGetErrorCodeText(hr) : SLEEP : END
 
 ' // Number of properties
 PRINT "Number of properties: ", pServices.PropsCount
@@ -434,10 +442,6 @@ PRINT "Extension: "; pServices.PropValue("Extension")
 PRINT "Size: "; pServices.PropValue("Filesize")
 'PRINT pServices.PropValue("LastModified")
 PRINT "Date last modified: "; pServices.WmiDateToStr(pServices.PropValue("LastModified"), "dd-MM-yyyy")   ' // change the mask if needed
-
-PRINT
-PRINT "Press any key..."
-SLEEP
 ```
 ---
 
@@ -513,58 +517,44 @@ May return one of the error codes in the following list:
 #### Examples
 
 ```
-#include "windows.bi"
 #include "AfxNova/CWmiDisp.inc"
 USING AfxNova
 
 ' // Connect to WMI using a moniker
 ' // Note: $ is used to avoid the pedantic warning of the compiler about escape characters
 DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2"
-IF pServices.ServicesPtr = NULL THEN END
 
 ' // Execute a query
 DIM hr AS HRESULT = pServices.ExecQuery("SELECT Caption, SerialNumber FROM Win32_BIOS")
-IF hr <> S_OK THEN PRINT AfxWmiGetErrorCodeText(hr) : SLEEP : END
 
 ' // Get the number of objects retrieved
 DIM nCount AS LONG = pServices.ObjectsCount
 print "Number of objects: ", nCount
-IF nCount = 0 THEN PRINT "No objects found" : SLEEP : END
 
 ' // Get a collection of named properties
-IF pServices.GetNamedProperties <> S_OK THEN PRINT "Failed to get the named properties" : SLEEP : END
+IF pServices.GetNamedProperties <> S_OK THEN PRINT "Failed to get the named properties"
 
 ' // Retrieve the value of the properties
-'DIM dv AS DVARIANT = pServices.PropValue("Caption")
-'PRINT dv
 PRINT pServices.PropValue("Caption")
 PRINT pServices.PropValue("SerialNumber")
-
-PRINT
-PRINT "Press any key..."
-SLEEP
 ```
 
 Using a loop:
 
 ```
-#include "windows.bi"
 #include "AfxNova/CWmiDisp.inc"
 USING AfxNova
 
 ' // Connect to WMI using a moniker
 ' // Note: $ is used to avoid the pedantic warning of the compiler about escape characters
 DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2"
-IF pServices.ServicesPtr = NULL THEN END
 
 ' // Execute a query
 DIM hr AS HRESULT = pServices.ExecQuery("SELECT * FROM Win32_Printer")
-IF hr <> S_OK THEN PRINT AfxWmiGetErrorCodeText(hr) : SLEEP : END
 
 ' // Get the number of objects retrieved
 DIM nCount AS LONG = pServices.ObjectsCount
 print "Number of objects: ", nCount
-IF nCount = 0 THEN PRINT "No objects found" : SLEEP : END
 
 ' // Enumerate the objects
 FOR i AS LONG = 0 TO nCount - 1
@@ -575,10 +565,6 @@ FOR i AS LONG = 0 TO nCount - 1
       PRINT pServices.PropValue("Capabilities")
    END IF
 NEXT
-
-PRINT
-PRINT "Press any key..."
-SLEEP
 ```
 ---
 
@@ -611,18 +597,15 @@ S_OK on success or an error code.
 #### Example
 
 ```
-#include "windows.bi"
 #include "AfxNova/CWmiDisp.inc"
 USING AfxNova
 
 ' // Connect to WMI using a moniker
 ' // Note: $ is used to avoid the pedantic warning of the compiler about escape characters
 DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2"
-IF pServices.ServicesPtr = NULL THEN END
 
 ' // Retrieve the instances of
 DIM hr AS HRESULT = pServices.InstancesOf("Win32_Printer")
-IF hr <> S_OK THEN PRINT AfxWmiGetErrorCodeText(hr) : SLEEP : END
 
 ' // Enumerate the objects using the standard IEnumVARIANT enumerator (NextObject method)
 ' // and retrieve the properties using the CDispInvoke class.
@@ -633,10 +616,6 @@ DO
    PRINT "Caption: "; pDispServ.Get("Caption")
    PRINT "Capabilities "; pDispServ.Get("Capabilities")
 LOOP
-
-PRINT
-PRINT "Press any key..."
-SLEEP
 ```
 ---
 
@@ -673,60 +652,45 @@ Te retrieved object.
 #### Example
 
 ```
-#include "windows.bi"
 #include "AfxNova/CWmiDisp.inc"
 USING AfxNova
 
 ' // Connect to WMI using a moniker
 ' // Note: $ is used to avoid the pedantic warning of the compiler about escape characters
 DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2"
-IF pServices.ServicesPtr = NULL THEN END
+
 ' // Execute a query
 DIM hr AS HRESULT = pServices.ExecQuery("SELECT Caption, SerialNumber FROM Win32_BIOS")
-IF hr <> S_OK THEN PRINT AfxWmiGetErrorCodeText(hr) : SLEEP : END
+
 ' // Get the number of objects retrieved
 DIM nCount AS LONG = pServices.ObjectsCount
 print "Count: ", nCount
-IF nCount = 0 THEN PRINT "No objects found" : SLEEP : END
+
 ' // Enumerate the objects using the standard IEnumVARIANT enumerator (NextObject method)
 ' // and retrieve the properties using the CDispInvoke class.
 DIM pDispServ AS CDispInvoke = pServices.NextObject
-IF pDispServ.DispPtr THEN
-   PRINT "Caption: "; pDispServ.Get("Caption")
-   PRINT "Serial number: "; pDispServ.Get("SerialNumber")
-END IF
-PRINT
-PRINT "Press any key..."
-SLEEP
+PRINT "Caption: "; pDispServ.Get("Caption")
+PRINT "Serial number: "; pDispServ.Get("SerialNumber")
 ```
 
 To improve enumeration performance set the *iFlags* parameter of the **ExecQuery** method to *WbemFlagReturnImmediately* and *WbemFlagForwardOnly* (the combined value of these flags is 48) to allow semisynchronous return of the data with an enumerator that discards each item from WMI as it is delivered. In this case don't call the **ObjectsCount** method because it will return 0, since the operation has not been completed.
 
 ```
-#include "windows.bi"
 #include "AfxNova/CWmiDisp.inc"
 USING AfxNova
 
 ' // Connect to WMI using a moniker
 ' // Note: $ is used to avoid the pedantic warning of the compiler about escape characters
 DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2"
-IF pServices.ServicesPtr = NULL THEN END
 
 ' // Execute a query
 DIM hr AS HRESULT = pServices.ExecQuery("SELECT Caption, SerialNumber FROM Win32_BIOS", 48)
-IF hr <> S_OK THEN PRINT AfxWmiGetErrorCodeText(hr) : SLEEP : END
 
 ' // Enumerate the objects using the standard IEnumVARIANT enumerator (NextObject method)
 ' // and retrieve the properties using the CDispInvoke class.
 DIM pDispServ AS CDispInvoke = pServices.NextObject
-IF pDispServ.DispPtr THEN
-   PRINT "Caption: "; pDispServ.Get("Caption")
-   PRINT "Serial number: "; pDispServ.Get("SerialNumber")
-END IF
-
-PRINT
-PRINT "Press any key..."
-SLEEP
+PRINT "Caption: "; pDispServ.Get("Caption")
+PRINT "Serial number: "; pDispServ.Get("SerialNumber")
 ```
 ---
 
@@ -927,4 +891,562 @@ FUNCTION WmiTimeToStr (BYVAL pwszDateTime AS WSTRING PTR, BYREF wszMask AS WSTRI
 
 The formatted date as a string.
 
+---
+
+### Examples to call methods of WMI classes
+
+```
+#cmdline "-s console"
+#include "AfxNova/CWmiDisp.inc"
+using AfxNova
+
+DO   ' // fake loop to allow early exit
+
+' // Connect to WMI using a moniker
+DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\.\root\default:StdRegProv"
+IF pServices.ServicesPtr = NULL THEN EXIT DO
+ 
+' // Assign the WMI services object pointer to CDispInvoke
+' // CWmiServices.ServicesObj returns an AddRefed pointer, whereas CWmiServices.ServicesPtr not.
+DIM pDispServices AS CDispInvoke = CDispInvoke(pServices.ServicesObj)
+
+' Parameters of the GetStringValue method:
+' %HKEY_LOCAL_MACHINE ("2147483650") - The value must be specified as an string and in decimal, not hexadecimal.
+' vDefKey = [IN]  "2147483650"
+' vPath   = [IN]  "Software\Microsoft\Windows NT\CurrentVersion"
+' vValue  = [OUT] "ProductName"
+
+DIM bsValue AS BSTRING
+DIM dvRes AS DVARIANT = pDispServices.Invoke("GetStringValue", "2147483650", _
+    $"Software\Microsoft\Windows NT\CurrentVersion", "ProductName", DVARIANT(bsValue.vptr, VT_BSTR))
+PRINT bsValue
+
+EXIT DO   ' // exit the fake loop
+LOOP
+```
+---
+
+```
+#cmdline "-s console"
+#include "AfxNova/CWmiDisp.inc"
+using AfxNova
+
+DO   ' // fake loop to allow early exit
+
+' // Connect to WMI using a moniker
+DIM pServices AS CWmiServices = ( _
+   $"winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2:Win32_Process")
+IF pServices.ServicesPtr = NULL THEN EXIT DO
+ 
+' // Assign the WMI services object pointer to CDispInvoke
+' // CWmiServices.ServicesObj returns an AddRefed pointer, whereas CWmiServices.ServicesPtr not.
+DIM pDispServices AS CDispInvoke = CDispInvoke(pServices.ServicesObj)
+
+' // Note: Although the WMI documentation says that this OUT parameter is an UInt32,
+' // it only works if I use "LONG".
+DIM ProcessId AS LONG
+pDispServices.Invoke("Create", "notepad.exe", AfxDVarOptPrm, AfxDVarOptPrm, DVARIANT(@ProcessId, "LONG"))
+PRINT "Process id: ", ProcessId
+
+EXIT DO   ' // exit the fake loop
+LOOP
+```
+---
+
+### Miscellaneous wrapper functions
+
+```
+' ========================================================================================
+' Retrieves the baseboard (also known as a motherboard or system board) serial number.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetBaseBoardSerialNumber (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN ""
+   pServices.ExecQuery("SELECT SerialNumber FROM Win32_BaseBoard")
+   pServices.GetNamedProperties
+   RETURN pServices.PropValue("SerialNumber")
+END FUNCTION
+' ========================================================================================
+```
+
+```
+' ========================================================================================
+' Retrieves the Bios serial number.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetBiosSerialNumber (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN ""
+   pServices.ExecQuery("SELECT SerialNumber FROM Win32_BIOS")
+   pServices.GetNamedProperties
+   RETURN pServices.PropValue("SerialNumber")
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Retrieves the manufacturer serial number.
+' Contrarily to the serial number returned by AfxGetDiskDriveSerialNumber, this one won't
+' change even if you format your hard drive.
+' Requires Windows Vista+.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetManufacturerSerialNumber (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN ""
+   pServices.ExecQuery("SELECT SerialNumber FROM Win32_PhysicalMedia")
+   pServices.GetNamedProperties
+   RETURN pServices.PropValue("SerialNumber")
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Retrieves the disk drive serial number.
+' Contrarily to the serial number returned by AfxGetManufacturerSerialNumber, that does not
+' change, this one will change every time the hard drive is formatted.
+' Requires Windows Vista+.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetDiskDriveSerialNumber (BYREF wszServerName AS WSTRING = ".") AS STRING
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN ""
+   pServices.ExecQuery("SELECT SerialNumber FROM Win32_DiskDrive")
+   pServices.GetNamedProperties
+   RETURN pServices.PropValue("SerialNumber")
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Retrieves the system running on the Windows-based computer. The following list identifiers
+' the returned value: "X86-based PC", "MIPS-based PC", "Alpha-based PC", "Power PC",
+' "SH-x PC", "StrongARM PC", "64-bit Intel PC", "64-bit Alpha PC", "Unknown", "X86-Nec98 PC".
+' ========================================================================================
+PRIVATE FUNCTION AfxGetSystemType (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN ""
+   pServices.ExecQuery("SELECT SystemType FROM Win32_ComputerSystem")
+   pServices.GetNamedProperties
+   RETURN pServices.PropValue("SystemType")
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Retrieves the type of the computer in use, such as laptop, desktop, or Tablet.
+' Not available in Windows Server 2003, Windows XP, Windows 2000, Windows NT 4.0, and Windows Me/98/95.
+' Value   Meaning
+' ------- --------------------------------------------
+' 0 (&H0) Unspecified
+' 1 (&H1) Desktop
+' 2 (&H2) Mobile
+' 3 (&H3) Workstation
+' 4 (&H4) Enterprise Server
+' 5 (&H5) Small Office and Home Office (SOHO) Server
+' 6 (&H6) Appliance PC
+' 7 (&H7) Performance Server
+' 8 (&H8) Maximum
+' ========================================================================================
+PRIVATE FUNCTION AfxGetPCSystemType (BYREF wszServerName AS WSTRING = ".") AS USHORT
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT PCSystemType FROM Win32_ComputerSystem")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("PCSystemType"))
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Retrieves the name of the disk drive from which the Windows operating system starts.
+' Example: "\Device\Harddisk0"
+' ========================================================================================
+PRIVATE FUNCTION AfxGetBootDevice (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN ""
+   pServices.ExecQuery("SELECT BootDevice FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN pServices.PropValue("BootDevice")
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Type of build used for an operating system.
+' Examples: "retail build", "checked build", "Multiprocessor Free".
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSBuildType (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN ""
+   pServices.ExecQuery("SELECT BuildType FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN pServices.PropValue("BuildType")
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Short description of the object—a one-line string. The string includes the operating
+' system version. For example, "Microsoft Windows 7 Enterprise ". This property can be localized.
+' Windows Vista and Windows 7: This property may contain trailing characters. For example,
+' the string "Microsoft Windows 7 Enterprise " (trailing space included) may be necessary
+' to retrieve information using this property.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSCaption (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN ""
+   pServices.ExecQuery("SELECT Caption FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN pServices.PropValue("Caption")
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Number, in minutes, an operating system is offset from Greenwich mean time (GMT).
+' The number is positive, negative, or zero.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSCurrentTimeZone (BYREF wszServerName AS WSTRING = ".") AS USHORT
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT CurrentTimeZone FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("CurrentTimeZone"))
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Name of the registered user of the operating system. Example: "Ben Smith".
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSRegisteredUser (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN ""
+   pServices.ExecQuery("SELECT RegisteredUser FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN pServices.PropValue("RegisteredUser")
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Company name for the registered user of the operating system.
+' Example: "Microsoft Corporation"
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSOrganization (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN ""
+   pServices.ExecQuery("SELECT Organization FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN pServices.PropValue("Organization")
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' The date in which the OS was installed.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSInstallDate (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN ""
+   pServices.ExecQuery("SELECT InstallDate FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN pServices.PropValue("InstallDate")
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Date and time the operating system was last restarted.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSLastBootUpTime (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN ""
+   pServices.ExecQuery("SELECT LastBootUpTime FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN pServices.PropValue("LastBootUpTime")
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Encryption level for secure transactions: 40-bit, 128-bit, or n-bit.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSEncryptionLevel (BYREF wszServerName AS WSTRING = ".") AS ULONG
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT EncryptionLevel FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("EncryptionLevel"))
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Number, in kilobytes, of physical memory currently unused and available.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSFreePhysicalMemory (BYREF wszServerName AS WSTRING = ".") AS ULONGLONG
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT FreePhysicalMemory FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("FreePhysicalMemory"))
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Number, in kilobytes, that can be mapped into the operating system paging files without
+' causing any other pages to be swapped out.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSFreeSpaceInPagingFiles (BYREF wszServerName AS WSTRING = ".") AS ULONGLONG
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT FreeSpaceInPagingFiles FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("FreeSpaceInPagingFiles"))
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Number, in kilobytes, of virtual memory currently unused and available.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSFreeVirtualMemory (BYREF wszServerName AS WSTRING = ".") AS ULONGLONG
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT FreeVirtualMemory FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("FreeVirtualMemory"))
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Maximum number of process contexts the operating system can support. The default value
+' set by the provider is 4294967295 (0xFFFFFFFF). If there is no fixed maximum, the value
+' should be 0 (zero). On systems that have a fixed maximum, this object can help diagnose
+' failures that occur when the maximum is reached—if unknown, enter 4294967295 (0xFFFFFFFF).
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSMaxNumberOfProcesses (BYREF wszServerName AS WSTRING = ".") AS ULONG
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT MaxNumberOfProcesses FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("MaxNumberOfProcesses"))
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Maximum number, in kilobytes, of memory that can be allocated to a process.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSMaxProcessMemorySize (BYREF wszServerName AS WSTRING = ".") AS ULONGLONG
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT MaxProcessMemorySize FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("MaxProcessMemorySize"))
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Number of process contexts currently loaded or running on the operating system.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSNumberOfProcesses (BYREF wszServerName AS WSTRING = ".") AS ULONG
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT NumberOfProcesses FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("NumberOfProcesses"))
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Number of user sessions for which the operating system is storing state information currently.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSNumberOfUsers (BYREF wszServerName AS WSTRING = ".") AS ULONG
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT NumberOfUsers FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("NumberOfUsers"))
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Number, in kilobytes, of virtual memory. For example, this may be calculated by adding
+' the amount of total RAM to the amount of paging space, that is, adding the amount of
+' memory in or aggregated by the computer system to the property, SizeStoredInPagingFiles.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSTotalVirtualMemorySize (BYREF wszServerName AS WSTRING = ".") AS ULONGLONG
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT TotalVirtualMemorySize FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("TotalVirtualMemorySize"))
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Total amount, in kilobytes, of physical memory available to the operating system. This
+' value does not necessarily indicate the true amount of physical memory, but what is
+' reported to the operating system as available to it.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetOSTotalVisibleMemorySize (BYREF wszServerName AS WSTRING = ".") AS ULONGLONG
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT TotalVisibleMemorySize FROM Win32_OperatingSystem")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("TotalVisibleMemorySize"))
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Media Access Control (MAC) address of the network adapter. A MAC address is assigned by
+' the manufacturer to uniquely identify the network adapter. Example: "00:80:C7:8F:6C:96".
+' ========================================================================================
+PRIVATE FUNCTION AfxGetNetworkAdapterMACAddress (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN ""
+   pServices.ExecQuery("SELECT MACAddress FROM Win32_NetworkAdapterConfiguration")
+   pServices.GetNamedProperties
+   RETURN pServices.PropValue("MACAddress")
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Gets the physical sector size of the physical disk, in bytes. For example: for 4K native
+' and 512-byte emulated disks, the value of this property should be 4096.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetPhysicalDiskSectorSize (BYREF wszServerName AS WSTRING = ".") AS UINT64
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\Microsoft\Windows\Storage"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT PhysicalSectorSize FROM MSFT_PhysicalDisk")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("PhysicalSectorSize"))
+END FUNCTION
+' ========================================================================================
+```
+---
+
+```
+' ========================================================================================
+' Gets the total physical storage size of the disk, in bytes.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetPhysicalDiskSize (BYREF wszServerName AS WSTRING = ".") AS UINT64
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\Microsoft\Windows\Storage"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT Size FROM MSFT_PhysicalDisk")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("Size"))
+END FUNCTION
+' ========================================================================================
+```
 ---

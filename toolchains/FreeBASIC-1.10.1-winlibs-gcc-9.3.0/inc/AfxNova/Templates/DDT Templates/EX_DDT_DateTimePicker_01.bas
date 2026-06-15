@@ -81,7 +81,7 @@ FUNCTION DlgProc (BYVAL hDlg AS HWND, BYVAL uMsg AS DWORD, BYVAL wParam AS DWORD
             IF dtp.nmhdr.code = DTN_DATETIMECHANGE THEN
                ' // Get the selected date
                DIM wszDate AS WSTRING * 260
-               GetDateFormatW LOCALE_USER_DEFAULT, DATE_LONGDATE, @dtp.st, NULL, wszDate, SIZEOF(wszDate)
+               GetDateFormatW LOCALE_USER_DEFAULT, DATE_LONGDATE, @dtp.st, NULL, wszDate, SIZEOF(wszDate)\2
                ControlSetText(hDlg, IDC_LABEL, "Selected date: " & wszDate)
             END IF
          END IF

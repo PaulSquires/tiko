@@ -2477,7 +2477,7 @@ FUNCTION GdipLoadImageFromStream (BYVAL stream AS IStream PTR, BYVAL image AS Gp
 
 | Parameter  | Description |
 | ---------- | ----------- |
-| *stream* | [in] Pointer to the **Image** object. |
+| *stream* | [in] Pointer to the stream. |
 | *image* | [out] Pointer to a **GpImage** variable that receives a pointer to the loaded **Image** object. |
 
 #### Example

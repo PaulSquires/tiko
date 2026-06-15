@@ -109,11 +109,14 @@ END CONSTRUCTOR
 ' ========================================================================================
 PRIVATE CONSTRUCTOR BSTRING (BYREF ansiStr AS STRING = "", BYVAL nCodePage AS UINT = 0)
    BSTRING_DP("STRING - " & ansiStr)
+   IF nCodePage = CP_UTF8 THEN   ' // check if it is really valid utf-8
+      IF this.IsUtf8(ansiStr) = FALSE THEN nCodePage = CP_ACP
+   END IF
    IF nCodePage = CP_UTF8 THEN
-      DIM dwLen AS DWORD = MultiByteToWideChar(CP_UTF8, 0, STRPTR(ansiStr), .LEN(ansiStr), NULL, 0)
+      DIM dwLen AS DWORD = MultiByteToWideChar(CP_UTF8, 0, STRPTR(ansiStr), -1, NULL, 0)
       IF dwLen THEN
          m_bstr = SysAllocString(..WSTR(SPACE(dwLen)))
-         MultiByteToWideChar(CP_UTF8, 0, STRPTR(ansiStr), .LEN(ansiStr), m_bstr, dwLen * 2)
+         MultiByteToWideChar(CP_UTF8, 0, STRPTR(ansiStr), -1, m_bstr, dwLen * 2)
       ELSE
          m_bstr = SysAllocString("")
       END IF
@@ -184,6 +187,20 @@ PRIVATE SUB BSTRING.Append (BYVAL pwszStr AS WSTRING PTR)
    m_bstr = b
    BSTRING_DP("handle: " & ..WSTR(m_bstr))
 END SUB
+' ========================================================================================
+
+' ========================================================================================
+' Detect if the codification is valid utf-8
+' ========================================================================================
+FUNCTION BSTRING.IsUtf8 (BYREF s AS STRING) AS BOOLEAN
+   IF LEN(s) = 0 THEN RETURN FALSE
+   ' // Detect if it has a UTF-8 BOM
+   IF LEN(s) >= 3 THEN
+      IF ASC(s,1) = &hEF AND ASC(s,2) = &hBB AND ASC(s,3) = &hBF THEN RETURN TRUE
+   END IF
+   DIM wLen AS LONG = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, STRPTR(s), LEN(s), NULL, 0)
+   RETURN (wLen <> 0)
+END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
@@ -368,17 +385,27 @@ PRIVATE FUNCTION BSTRING.sptr () AS WSTRING PTR
 END FUNCTION
 ' ========================================================================================
 
-
 ' ========================================================================================
 ' Converts the BSTRING to UTF8.
 ' ========================================================================================
+'PRIVATE PROPERTY BSTRING.Utf8 () AS STRING
+'   BSTRING_DP("STRING - TO Utf8")
+'   DIM cbLen AS INTEGER, bstrLen AS LONG
+'   IF m_bstr = NULL THEN RETURN ""
+'   bstrLen = SysStringLen(m_bstr)
+'   DIM buffer AS STRING = STRING(bstrLen * 5 + 1, 0)
+'   PROPERTY = *cast(ZSTRING PTR, WCharToUTF(1, cast(WSTRING PTR, m_bstr), bstrLen, STRPTR(buffer), @cbLen))
+'END PROPERTY
+' ========================================================================================
 PRIVATE PROPERTY BSTRING.Utf8 () AS STRING
    BSTRING_DP("STRING - TO Utf8")
-   DIM cbLen AS INTEGER, bstrLen AS LONG
    IF m_bstr = NULL THEN RETURN ""
-   bstrLen = SysStringLen(m_bstr)
-   DIM buffer AS STRING = STRING(bstrLen * 5 + 1, 0)
-   PROPERTY = *cast(ZSTRING PTR, WCharToUTF(1, cast(WSTRING PTR, m_bstr), bstrLen, STRPTR(buffer), @cbLen))
+   DIM bstrLen AS LONG = SysStringLen(m_bstr)
+   DIM cbLen AS LONG = WideCharToMultiByte(CP_UTF8, 0, cast(WSTRING PTR, m_bstr), bstrLen, NULL, 0, NULL, NULL)
+   IF cbLen = 0 THEN RETURN ""
+   DIM buffer AS STRING = STRING(cbLen, 0)
+   WideCharToMultiByte(CP_UTF8, 0, cast(WSTRING PTR, m_bstr), bstrLen, STRPTR(buffer), cbLen, NULL, NULL)
+   RETURN buffer
 END PROPERTY
 ' ========================================================================================
 
@@ -388,10 +415,10 @@ END PROPERTY
 PRIVATE PROPERTY BSTRING.Utf8 (BYREF utf8String AS STRING)
    BSTRING_DP("STRING - FROM Utf8")
    IF m_bstr THEN SysFreeString(m_bstr)
-   DIM dwLen AS DWORD = MultiByteToWideChar(CP_UTF8, 0, STRPTR(utf8String), .LEN(utf8String), NULL, 0)
+   DIM dwLen AS DWORD = MultiByteToWideChar(CP_UTF8, 0, STRPTR(utf8String), -1, NULL, 0)
    IF dwLen THEN
       m_bstr = SysAllocString(..WSTR(SPACE(dwLen)))
-      MultiByteToWideChar(CP_UTF8, 0, STRPTR(utf8String), .LEN(utf8String), m_bstr, dwLen * 2)
+      MultiByteToWideChar(CP_UTF8, 0, STRPTR(utf8String), -1, m_bstr, dwLen * 2)
    ELSE
       m_bstr = SysAllocString("")
    END IF

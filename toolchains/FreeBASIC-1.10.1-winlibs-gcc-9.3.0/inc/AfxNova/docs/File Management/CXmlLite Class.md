@@ -1625,9 +1625,9 @@ LOOP
 
 END SCOPE
 
-' =========================
-' Reader: lee varios libros
-' =========================
+' ==========================
+' Reader: read several books
+' ==========================
 SCOPE
 
 DO

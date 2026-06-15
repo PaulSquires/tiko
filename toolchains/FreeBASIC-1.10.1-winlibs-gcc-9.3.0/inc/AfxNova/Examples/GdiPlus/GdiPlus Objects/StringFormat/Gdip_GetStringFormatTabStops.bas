@@ -41,8 +41,7 @@ SUB Example_GetStringFormatTabStops (BYVAL hdc AS HDC)
    graphics.ScaleTransform
 
    ' // Create the font
-   DIM fontFamily AS GdiPlusFontFamily = "Times New Roman"
-   DIM font AS GdiPlusFont = GdiPlusFont(*fontFamily, AfxGdipPointsToPixels(12, TRUE), FontStyleRegular, UnitPixel)
+   DIM font AS GdiPlusFont = GdiPlusFont("Times New Roman", 12, TRUE)
 
    ' // Create a solid brush
    DIM solidBrush AS GdiPlusSolidBrush = ARGB_BLUE
@@ -51,15 +50,13 @@ SUB Example_GetStringFormatTabStops (BYVAL hdc AS HDC)
    DIM format AS GdiPlusStringFormat = GdiPlusStringFormat(0, LANG_NEUTRAL)
    DIM tabs(2) AS SINGLE = {150, 100, 100}
    GdipSetStringFormatTabStops(format, 0, 3, @tabs(0))
-   DIM rcf AS GpRectF = (20, 20, 500, 100)
-   rcf.x = 20 : rcf.y = 20 : rcf.Width = 500 : rcf.Height = 100
    DIM wszText AS WSTRING * 128 = "Name" & CHR(9) & "Test 1" & CHR(9) & "Test 2" & CHR(9) & "Test 3"
-   GdipDrawString(graphics, wszText, LEN(wszText), font, @rcf, format, solidBrush)
+   graphics.DrawString(wszText, font, solidBrush, 20, 20, 500, 100, format)
 
    ' // Draw the rectangle that encloses the text.
    DIM pen AS GdiPlusPen = GdiPlusPen(ARGB_BLUE, 1, UnitPixel)
    GdipScalePenTransform(pen, graphics.dpiRatioX, graphics.dpiRatioY, MatrixOrderPrepend)
-   GdipDrawRectangle(graphics, pen, rcf.x, rcf.y, rcf.Width, rcf.Height)
+   GdipDrawRectangle(graphics, pen, 20, 20, 500, 100)
 
    ' // Get the tab stops.
    DIM tabStopCount AS LONG
@@ -105,20 +102,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_GetStringFormatTabStops(hdc)
+   Example_GetStringFormatTabStops(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

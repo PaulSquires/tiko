@@ -214,10 +214,10 @@ end function
 ''
 ''
 function clsDB2.dbSeek( _
-            byval sParentName as string, _
-            byval sLookFor as string, _
+            byval sParentName as DWSTRING, _
+            byval sLookFor as DWSTRING, _
             byval Action as integer, _
-            byval sFilename as string = "" _
+            byval sFilename as DWSTRING = "" _
             ) as DB2_DATA ptr
 
     ' GENERIC SEEK FUNCTION THAT OTHER FUNCTIONS CALL TO DO THE HARD WORK
@@ -256,26 +256,26 @@ end function
 
 ''
 ''
-function clsDB2.dbFindFunction( byref sFunctionName as string, byref sFilename as string = "") as DB2_DATA ptr
+function clsDB2.dbFindFunction( byref sFunctionName as DWSTRING, byref sFilename as DWSTRING = "") as DB2_DATA ptr
     return this.dbSeek( "", sFunctionName, DB2_FUNCTION, sFilename ) 
 end function
 
 ''
 ''
-function clsDB2.dbFindFunctionTYPE( byref sTypeName as string, byref sFunctionName as string) as DB2_DATA ptr
+function clsDB2.dbFindFunctionTYPE( byref sTypeName as DWSTRING, byref sFunctionName as DWSTRING) as DB2_DATA ptr
     return this.dbSeek( sTypeName, sFunctionName, DB2_FUNCTION ) 
 end function
 
 ''
 ''
-function clsDB2.dbFindVariable( byref sParentName as string, byref sVariableName as string ) as DB2_DATA ptr
+function clsDB2.dbFindVariable( byref sParentName as DWSTRING, byref sVariableName as DWSTRING ) as DB2_DATA ptr
     return this.dbSeek( sParentName, sVariableName, DB2_VARIABLE )      
 end function
 
 
 ''
 ''
-function clsDB2.dbFindTYPE( byref sTypeName as string ) as DB2_DATA ptr
+function clsDB2.dbFindTYPE( byref sTypeName as DWSTRING ) as DB2_DATA ptr
     dim pData as DB2_DATA ptr       
     pData = this.dbSeek("", sTypeName, DB2_TYPE) 
     if pData = 0 then return 0

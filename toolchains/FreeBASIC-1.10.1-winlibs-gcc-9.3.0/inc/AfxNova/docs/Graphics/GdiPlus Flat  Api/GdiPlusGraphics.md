@@ -210,7 +210,7 @@ The **GdipBeginContainer** function returns a value of type **GraphicsContainer*
 
 When you call the **GdipBeginContainer** function, an information block that holds the state of the **Graphics** object is put on a stack. The **GdipBeginContainer** function returns a value that identifies that information block. When you pass the identifying value to the **GdipEndContainer** function, the information block is removed from the stack and is used to restore the **Graphics** object to the state it was in at the time of the **GdipBeginContainer** call.
 
-Containers can be nested; that is, you can call the *GdipBeginContainer** function several times before you call the **GdipEndContainer** function. Each time you call the **GdipBeginContainer** function, an information block is put on the stack, and you receive an identifier for the information block. When you pass one of those identifiers to the **GdipEndContainer** function, the **Graphics** object is returned to the state it was in at the time of the **GdipBeginContainer** call that returned that particular identifier. The information block placed on the stack by that **GdipBeginContainer** call is removed from the stack, and all information blocks placed on that stack after that **GdipBeginContainer** call are also removed.
+Containers can be nested; that is, you can call the **GdipBeginContainer** function several times before you call the **GdipEndContainer** function. Each time you call the **GdipBeginContainer** function, an information block is put on the stack, and you receive an identifier for the information block. When you pass one of those identifiers to the **GdipEndContainer** function, the **Graphics** object is returned to the state it was in at the time of the **GdipBeginContainer** call that returned that particular identifier. The information block placed on the stack by that **GdipBeginContainer** call is removed from the stack, and all information blocks placed on that stack after that **GdipBeginContainer** call are also removed.
 
 Calls to the **GdipSaveGraphics** function place information blocks on the same stack as calls to the **GdipBeginContainer** function. Just as an **GdipEndContainer** call is paired with a **GdipBeginContainer** call, a **GdipRestoreGraphics** call is paired with a **GdipSaveGraphics** call.
 
@@ -1989,7 +1989,7 @@ FUNCTION GdipDrawImagePointsI (BYVAL graphics AS GpGraphics PTR, BYVAL image AS 
 
 #### Remarks
 
-The value of the count parameter must equal 3 to specify the coordinates of the upper-left corner, upper-right corner, and lower-left corner of the parallelogram. The coordinate of the lower-right corner is calculated using the three given coordinates, the width, and the height of the image. The image is scaled to fit the parallelogram.
+The value of the *count* parameter must equal 3 to specify the coordinates of the upper-left corner, upper-right corner, and lower-left corner of the parallelogram. The coordinate of the lower-right corner is calculated using the three given coordinates, the width, and the height of the image. The image is scaled to fit the parallelogram.
 
 #### Example
 
@@ -2075,7 +2075,7 @@ FUNCTION GdipDrawImagePointsRectI (BYVAL graphics AS GpGraphics PTR, BYVAL image
 
 #### Remarks
 
-The value of the count parameter must equal 3 to specify the coordinates of the upper-left corner, upper-right corner, and lower-left corner of the parallelogram. The coordinate of the lower-right corner is calculated using the three given coordinates, the width, and the height of the image. The portion of the source image to be drawn is scaled to fit the parallelogram.
+The value of the *count* parameter must equal 3 to specify the coordinates of the upper-left corner, upper-right corner, and lower-left corner of the parallelogram. The coordinate of the lower-right corner is calculated using the three given coordinates, the width, and the height of the image. The portion of the source image to be drawn is scaled to fit the parallelogram.
 
 #### Example
 
@@ -2646,7 +2646,7 @@ SUB Example_DrawPolygon (BYVAL hdc AS HDC)
    DIM points(4) AS GpPointF
    points(0).x = 100.0 : points(0).y = 100.0
    points(1).x = 200.0 : points(1).y = 130.0
-   points(2).x = 150.0 : points(3).y = 200.0
+   points(2).x = 150.0 : points(2).y = 200.0
    points(3).x = 50.0  : points(3).y = 200.0
    points(4).x = 0.0   : points(4).y = 130.0
 
@@ -2812,7 +2812,7 @@ FUNCTION GdipEndContainer (BYVAL graphics AS GpGraphics PTR, _
 
 #### Remarks
 
-When you call the **GdipBeginContainer** function, an information block that holds the state of the **Graphics** object is put on a stack. The **GdipBeginContainer** method returns a value that identifies that information block. When you pass the identifying value to the **GdipEndContainer** method, the information block is removed from the stack and is used to restore the **Graphics** object to the state it was in at the time of the GdipBeginContainer call.
+When you call the **GdipBeginContainer** function, an information block that holds the state of the **Graphics** object is put on a stack. The **GdipBeginContainer** method returns a value that identifies that information block. When you pass the identifying value to the **GdipEndContainer** method, the information block is removed from the stack and is used to restore the **Graphics** object to the state it was in at the time of the **GdipBeginContainer** call.
 
 Containers can be nested; that is, you can call the **GdipBeginContainer** function several times before you call the **GdipEndContainer** function. Each time you call the **GdipBeginContainer** function, an information block is put on the stack, and you receive an identifier for the information block. When you pass one of those identifiers to the **GdipEndContainer** function, the **Graphics** object is returned to the state it was in at the time of the **GdipBeginContainer** call that returned that particular identifier. The information block placed on the stack by that **GdipBeginContainer** call is removed from the stack, and all information blocks placed on that stack after that **GdipBeginContainer** call are also removed.
 
@@ -3751,7 +3751,7 @@ END SUB
 ```
 ---
 
-## GdipFillPolygo
+## GdipFillPolygon
 
 Uses a brush to fill the interior of a pie.
 
@@ -5612,7 +5612,7 @@ FUNCTION GdipGetPageUnit (BYVAL graphics AS GpGraphics PTR, BYVAL unit AS GpUnit
 | Parameter  | Description |
 | ---------- | ----------- |
 | *graphics* | [in] Pointer to the **Graphics** object. |
-| *unit* | [out] Pointer to a variable that receives an element of the Unit enumeration that indicates the unit of measure currently set for the **Graphics** object. |
+| *unit* | [out] Pointer to a variable that receives an element of the **GpUnit** enumeration that indicates the unit of measure currently set for the **Graphics** object. |
 
 #### Example
 
