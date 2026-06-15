@@ -40,6 +40,7 @@ function frmOptions_SaveEditorOptions() as long
     gConfig.CompileAutosave      = Button_GetCheck( GetDlgItem(hwnd, IDC_FRMOPTIONSGENERAL_CHKCOMPILEAUTOSAVE) )
     gConfig.AskExit              = Button_GetCheck( GetDlgItem(hwnd, IDC_FRMOPTIONSGENERAL_CHKASKEXIT) )
     gConfig.RestoreSession       = Button_GetCheck( GetDlgItem(hwnd, IDC_FRMOPTIONSGENERAL_CHKRESTORESESSION) )
+    gConfig.CheckUpdates         = Button_GetCheck( GetDlgItem(hwnd, IDC_FRMOPTIONSGENERAL_CHKUPDATES) )
     
     dim as long CompactMenus     = Button_GetCheck( GetDlgItem(hwnd, IDC_FRMOPTIONSGENERAL_CHKCOMPACTMENUS) )
     if (gConfig.CompactMenus <> CompactMenus) then bChangesNextRun = true

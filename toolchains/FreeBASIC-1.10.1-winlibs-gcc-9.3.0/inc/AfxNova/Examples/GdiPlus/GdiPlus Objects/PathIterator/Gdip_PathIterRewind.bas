@@ -61,13 +61,11 @@ SUB Example_PathIterRewind (BYVAL hdc AS HDC)
    GdipPathIterGetSubpathCount(iterator, @subpathCount)
 
    ' Display count
-   DIM fontFamily AS GdiPlusFontFamily ="Arial"
-   DIM font AS GdiPlusFont = GdiPlusFont(*fontFamily, AfxGdipPointsToPixels(12, TRUE), FontStyleRegular, UnitPixel)
+   DIM font AS GdiPlusFont = GdiPlusFont("Arial", 12, TRUE)
    DIM brush AS GdiPlusSolidBrush = ARGB_BLACK
 
    DIM info AS STRING = "Subpath count (first pass): " & subpathCount
-   DIM layout AS GpRectF = (10.0, 10.0, 300.0, 20.0)
-   GdipDrawString(graphics, info, -1, font, @layout, NULL, brush)
+   graphics.DrawString("Text drawn using an Arial font", font, brush, 10, 10)
 
    ' Rewind iterator
    GdipPathIterRewind(iterator)
@@ -81,10 +79,8 @@ SUB Example_PathIterRewind (BYVAL hdc AS HDC)
    DO
       GdipPathIterNextSubpath(iterator, @resultCount, @startIdx, @endIdx, @isClosed)
       IF resultCount = 0 THEN EXIT DO
-      DIM lin AS STRING
-      lin = "Subpath " & subpathIndex & ": Start=" & startIdx & ", End=" & endIdx & ", Closed=" & IIF(isClosed, "True", "False")
-      DIM layout AS GpRectF = (10.0, yOffset, 400.0, 20.0)
-      GdipDrawString(graphics, lin, -1, font, @layout, NULL, brush)
+      DIM info AS STRING = "Subpath " & subpathIndex & ": Start=" & startIdx & ", End=" & endIdx & ", Closed=" & IIF(isClosed, "True", "False")
+      graphics.DrawString(info, font, brush, 10, yOffset)
       yOffset += 20.0
       subpathIndex += 1
    LOOP
@@ -119,20 +115,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_PathIterRewind(hdc)
+   Example_PathIterRewind(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

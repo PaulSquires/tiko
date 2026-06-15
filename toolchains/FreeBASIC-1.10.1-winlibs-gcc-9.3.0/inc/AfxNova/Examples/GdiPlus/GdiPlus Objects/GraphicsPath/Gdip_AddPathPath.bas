@@ -46,11 +46,11 @@ SUB Example_DrawPathPath (BYVAL hdc AS HDC)
    GdipAddPathRectangle(subPath, 150, 100, 90, 40)
 
    ' // Merge subPath into basePath
-   DIM connect AS BOOL = FALSE  ' FALSE = separate figure
-   GdipAddPathPath(basePath, subPath, connect)
+   DIM bConnect AS BOOL = FALSE  ' FALSE = separate figure
+   GdipAddPathPath(basePath, subPath, bConnect)
 
    ' // Create pen
-   DIM pen AS GdiPlusPen = GdiPlusPen(ARGB_BLUE, 2, UnitWorld)
+   DIM pen AS GdiPlusPen = GdiPlusPen(ARGB_BLUE, 2)
 
    ' // Draw combined path
    GdipDrawPath(graphics, pen, basePath)
@@ -85,20 +85,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_DrawPathPath(hdc)
+   Example_DrawPathPath(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

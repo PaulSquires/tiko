@@ -9,7 +9,7 @@
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-'#CONSOLE ON
+#cmdline "-s console"
 #define _WIN32_WINNT &h0602
 #INCLUDE ONCE "AfxNova/AfxGdiPlus.inc"
 #INCLUDE ONCE "AfxNova/AfxCOM.inc"

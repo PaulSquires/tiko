@@ -990,7 +990,7 @@ PRIVATE SUB CXpButton.UxDrawPushButton (BYVAL hDC AS HDC)
    IF m_bIsThemed = FALSE THEN lStyle = .GetWindowLongPtrW(m_hCtl, GWL_STYLE)
 
    ' // Gets the text of the button
-   .GetWindowTextW(m_hCtl, wszCaption, SIZEOF(wszCaption))
+   .GetWindowTextW(m_hCtl, wszCaption, SIZEOF(wszCaption)\2)
 
    ' // Opens the theme data for the specified window and class
    IF m_bIsThemed THEN

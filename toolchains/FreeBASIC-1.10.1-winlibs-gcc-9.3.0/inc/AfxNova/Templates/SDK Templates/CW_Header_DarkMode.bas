@@ -9,8 +9,9 @@
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-#define UNICODE
+'#define UNICODE
 #INCLUDE ONCE "AfxNova/CWindow.inc"
+#INCLUDE ONCE "AfxNova/CHeader.inc"
 USING AfxNova
 
 DECLARE FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
@@ -60,15 +61,15 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    thdi.fmt  = HDF_LEFT OR HDF_STRING
    thdi.cxy  = pWindow.ScaleX(80)
    thdi.pszText  = @wszItem
-   Header_InsertItem(hHeader, 1, @thdi)
+   CHeader.InsertItem(hHeader, 1, @thdi)
    wszItem   = "Item 2"
-   Header_InsertItem(hHeader, 2, @thdi)
+   CHeader.InsertItem(hHeader, 2, @thdi)
    wszItem   = "Item 3"
-   Header_InsertItem(hHeader, 3, @thdi)
+   CHeader.InsertItem(hHeader, 3, @thdi)
    wszItem   = "Item 4"
-   Header_InsertItem(hHeader, 4, @thdi)
+   CHeader.InsertItem(hHeader, 4, @thdi)
    wszItem   = "Item 5"
-   Header_InsertItem(hHeader, 5, @thdi)
+   CHeader.InsertItem(hHeader, 5, @thdi)
 
    ' // Adds a button
    DIM hButton AS HWND = pWindow.AddControl("Button", hWin, IDCANCEL, "&Close", 270, 155, 75, 30)

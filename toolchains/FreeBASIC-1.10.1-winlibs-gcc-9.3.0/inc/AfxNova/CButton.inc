@@ -26,9 +26,11 @@
 
 #pragma once
 #include once "windows.bi"
+#include once "win/uxtheme.bi"
 #include once "AfxNova/DWSTRING.inc"
 ' // conflicting define in windowsx.bi
 #undef DeleteBitmap
+USING AfxNova
 
 NAMESPACE AfxNova
 
@@ -36,10 +38,15 @@ NAMESPACE AfxNova
 ' CButton class
 ' ========================================================================================
 TYPE CButton
-   m_hButton AS HWND
+
+Private:
+   m_pData AS ANY PTR   ' Not used by the static functions, but we can't have an empty type.
+
+Protected:
    DECLARE CONSTRUCTOR
    DECLARE DESTRUCTOR
 
+Public:
    DECLARE STATIC SUB Click (BYVAL hButton AS HWND)
    DECLARE STATIC FUNCTION GetImage (BYVAL hButton AS HWND, BYVAL imgType AS LONG) AS HANDLE
    DECLARE STATIC FUNCTION GetBitmap (BYVAL hButton AS HWND) AS HANDLE
@@ -47,7 +54,9 @@ TYPE CButton
    DECLARE STATIC FUNCTION SetImage (BYVAL hButton AS HWND, BYVAL ImageType AS DWORD, BYVAL hImage AS HANDLE) AS HANDLE
    DECLARE STATIC FUNCTION SetBitmap (BYVAL hButton AS HWND, BYVAL hbmp AS HBITMAP) AS HBITMAP
    DECLARE STATIC FUNCTION SetIcon (BYVAL hButton AS HWND, BYVAL hIcon AS HICON) AS HICON
-   DECLARE STATIC FUNCTION GetImageList (BYVAL hButton AS HWND) AS BUTTON_IMAGELIST PTR
+   DECLARE STATIC FUNCTION GetImageList (BYVAL hButton AS HWND, BYVAL pbuttonImagelist AS BUTTON_IMAGELIST PTR) AS BOOLEAN
+   DECLARE STATIC FUNCTION GetImageList (BYVAL hButton AS HWND, BYREF buttonImagelist AS BUTTON_IMAGELIST) AS BOOLEAN
+   DECLARE STATIC FUNCTION GetImageList (BYVAL hButton AS HWND) AS BUTTON_IMAGELIST
    DECLARE STATIC FUNCTION SetImageList (BYVAL hButton AS HWND, BYVAL pbuttonImagelist AS BUTTON_IMAGELIST PTR) AS BOOLEAN
    DECLARE STATIC FUNCTION SetImageList (BYVAL hButton AS HWND, BYVAL himl AS HIMAGELIST, BYVAL nLeft AS LONG, BYVAL nTop AS LONG, BYVAL nRight AS LONG, BYVAL nBottom AS LONG, BYVAL uALign AS DWORD = 0) AS BOOLEAN
    DECLARE STATIC FUNCTION DeleteImage (BYVAL hButton AS HWND, BYVAL ImageType AS DWORD) AS BOOLEAN
@@ -63,27 +72,43 @@ TYPE CButton
    DECLARE STATIC SUB Check (BYVAL hButton AS HWND)
    DECLARE STATIC SUB Uncheck (BYVAL hButton AS HWND)
    DECLARE STATIC SUB Gray (BYVAL hButton AS HWND)
+   DECLARE STATIC SUB Indeterminate (BYVAL hButton AS HWND)
    DECLARE STATIC FUNCTION GetState (BYVAL hButton AS HWND) AS LRESULT
    DECLARE STATIC SUB SetState (BYVAL hButton AS HWND, BYVAL bstate AS BOOLEAN)
-   DECLARE STATIC FUNCTION GetStyle (BYVAL hButton AS HWND) AS LONG_PTR
+   DECLARE STATIC FUNCTION GetStyle (BYVAL hButton AS HWND) AS DWORD
    DECLARE STATIC SUB SetStyle (BYVAL hButton AS HWND, BYVAL dwStyle AS DWORD, BYVAL fRedraw AS BOOLEAN)
    DECLARE STATIC FUNCTION GetIdealSize (BYVAL hButton AS HWND, BYVAL pSize AS SIZE PTR) AS BOOLEAN
+   DECLARE STATIC FUNCTION GetIdealSize (BYVAL hButton AS HWND, BYREF sz AS SIZE) AS BOOLEAN
+   DECLARE STATIC FUNCTION GetIdealSize (BYVAL hButton AS HWND) AS SIZE
    DECLARE STATIC FUNCTION GetTextMargin (BYVAL hButton AS HWND, BYVAL pMargin AS RECT PTR) AS BOOLEAN
+   DECLARE STATIC FUNCTION GetTextMargin (BYVAL hButton AS HWND, BYREF margin AS RECT) AS BOOLEAN
    DECLARE STATIC FUNCTION GetTextMargin (BYVAL hButton AS HWND) AS RECT
    DECLARE STATIC FUNCTION SetTextMargin (BYVAL hButton AS HWND, BYVAL pMargin AS RECT PTR) AS BOOLEAN
+   DECLARE STATIC FUNCTION SetTextMargin (BYVAL hButton AS HWND, BYREF margin AS RECT) AS BOOLEAN
    DECLARE STATIC FUNCTION SetTextMargin (BYVAL hButton AS HWND, BYVAL nLeft AS LONG, BYVAL nTop AS LONG, BYVAL nRight AS LONG, BYVAL nBottom AS LONG) AS BOOLEAN
 
    #if _WIN32_WINNT >= &h0600
    DECLARE STATIC SUB SetDontClick (BYVAL hButton AS HWND, BYVAL bState AS BOOLEAN)
    DECLARE STATIC FUNCTION SetDropDownState (BYVAL hButton AS HWND, BYVAL fDropDown AS BOOLEAN) AS BOOLEAN
-   DECLARE STATIC FUNCTION GetSplitInfo (BYVAL hButton AS HWND, BYVAL info AS BUTTON_SPLITINFO PTR) AS BOOLEAN
+   DECLARE STATIC FUNCTION GetSplitGlyphSize (BYVAL hButton AS HWND) AS SIZE
+   DECLARE STATIC FUNCTION GetSplitInfo (BYVAL hButton AS HWND, BYVAL pinfo AS BUTTON_SPLITINFO PTR) AS BOOLEAN
+   DECLARE STATIC FUNCTION GetSplitInfo (BYVAL hButton AS HWND, BYREF info AS BUTTON_SPLITINFO) AS BOOLEAN
    DECLARE STATIC FUNCTION GetSplitInfo (BYVAL hButton AS HWND) AS BUTTON_SPLITINFO
-   DECLARE STATIC FUNCTION SetSplitInfo (BYVAL hButton AS HWND, BYVAL info AS BUTTON_SPLITINFO PTR) AS BOOLEAN
+   DECLARE STATIC FUNCTION SetSplitInfo (BYVAL hButton AS HWND, BYVAL pinfo AS BUTTON_SPLITINFO PTR) AS BOOLEAN
+   DECLARE STATIC FUNCTION SetSplitInfo (BYVAL hButton AS HWND, BYREF info AS BUTTON_SPLITINFO) AS BOOLEAN
+   DECLARE STATIC FUNCTION GetSplitStyle (BYVAL hButton AS HWND) AS UINT
+   DECLARE STATIC FUNCTION GetSplitImageList (BYVAL hButton AS HWND) AS HIMAGELIST
+   DECLARE STATIC FUNCTION SetSplitGlyphSize (BYVAL hButton AS HWND, BYVAL cx AS LONG, BYVAL cy AS LONG) AS BOOLEAN
+   DECLARE STATIC FUNCTION SetSplitStyle (BYVAL hButton AS HWND, BYVAL uStyle AS UINT) AS BOOLEAN
+   DECLARE STATIC FUNCTION SetSplitImageList (BYVAL hButton AS HWND, BYVAL himlGlyph AS HIMAGELIST) AS BOOLEAN
    DECLARE STATIC FUNCTION GetNoteLength (BYVAL hButton AS HWND) AS LONG
    DECLARE STATIC FUNCTION GetNote (BYVAL hButton AS HWND) AS DWSTRING
    DECLARE STATIC FUNCTION SetNote (BYVAL hButton AS HWND, BYVAL pwsz AS WSTRING PTR) AS BOOLEAN
    DECLARE STATIC FUNCTION SetElevationRequiredState (BYVAL hButton AS HWND, BYVAL fRequired AS BOOLEAN) AS LONG
    #endif
+
+   DECLARE STATIC FUNCTION SetDarkMode(BYVAL hButton AS HWND) AS HRESULT
+   DECLARE STATIC FUNCTION RemoveDarkMode(BYVAL hButton AS HWND) AS HRESULT
 
 END TYPE
 ' ========================================================================================
@@ -98,7 +123,7 @@ END DESTRUCTOR
 ' ========================================================================================
 
 ' ========================================================================================
-' Simulates the user clicking a button. This message causes the button to receive the
+' * Simulates the user clicking a button. This message causes the button to receive the
 ' WM_LBUTTONDOWN and WM_LBUTTONUP messages, and the button's parent window to receive a
 ' BN_CLICKED notification code.
 ' ========================================================================================
@@ -108,7 +133,7 @@ END sUB
 ' ========================================================================================
 
 ' ========================================================================================
-' Retrieves a handle to the image (icon or bitmap) associated with the button.
+' * Retrieves a handle to the image (icon or bitmap) associated with the button.
 ' The return value is a handle to the image, if any; otherwise, it is NULL.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.GetImage (BYVAL hButton AS HWND, BYVAL imgType AS LONG) AS HANDLE
@@ -116,14 +141,14 @@ PRIVATE FUNCTION CButton.GetImage (BYVAL hButton AS HWND, BYVAL imgType AS LONG)
 END FUNCTION
 ' ========================================================================================
 ' ========================================================================================
-' Retrieves a handle to the bitmap associated with the button.
+' * Retrieves a handle to the bitmap associated with the button.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.GetBitmap (BYVAL hButton AS HWND) AS HANDLE
    RETURN CAST(HANDLE, SendMessageW(hButton, BM_GETIMAGE, IMAGE_BITMAP, 0))
 END FUNCTION
 ' ========================================================================================
 ' ========================================================================================
-' Retrieves a handle to the icon associated with the button.
+' * Retrieves a handle to the icon associated with the button.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.GetIcon (BYVAL hButton AS HWND) AS HANDLE
    RETURN cast(HANDLE, SendMessageW(hButton, BM_GETIMAGE, IMAGE_ICON, 0))
@@ -131,7 +156,7 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Associates a new image (icon or bitmap) with the button. The return value is a handle to
+' * Associates a new image (icon or bitmap) with the button. The return value is a handle to
 ' the image previously associated with the button, if any; otherwise, it is NULL.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.SetImage (BYVAL hButton AS HWND, BYVAL ImageType AS DWORD, BYVAL hImage AS HANDLE) AS HANDLE
@@ -140,7 +165,7 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Associates a new bitmap with a button. The return value is a handle to the image previously
+' * Associates a new bitmap with a button. The return value is a handle to the image previously
 ' associated with the button, if any; otherwise, it is NULL.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.SetBitmap (BYVAL hButton AS HWND, BYVAL hbmp AS HBITMAP) AS HBITMAP
@@ -149,7 +174,7 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Associates a new icon with the button. The return value is a handle to the image previously
+' * Associates a new icon with the button. The return value is a handle to the image previously
 ' associated with the button, if any; otherwise, it is NULL.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.SetIcon (BYVAL hButton AS HWND, BYVAL hIcon AS HICON) AS HICON
@@ -158,23 +183,33 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Gets the BUTTON_IMAGELIST structure that describes the image list assigned to a button control. 
+' * Gets the BUTTON_IMAGELIST structure that describes the image list assigned to a button control. 
 ' ========================================================================================
-PRIVATE FUNCTION CButton.GetImageList (BYVAL hButton AS HWND) AS BUTTON_IMAGELIST PTR
-   DIM pbuttonImagelist AS BUTTON_IMAGELIST PTR
-   SendMessageW(hButton, BCM_GETIMAGELIST, 0, CAST(LPARAM, @pbuttonImagelist))
-   RETURN pbuttonImagelist
+PRIVATE FUNCTION CButton.GetImageList (BYVAL hButton AS HWND, BYVAL pbuttonImagelist AS BUTTON_IMAGELIST PTR) AS BOOLEAN
+   RETURN SendMessageW(hButton, BCM_GETIMAGELIST, 0, CAST(LPARAM, pbuttonImagelist))
 END FUNCTION
 ' ========================================================================================
 ' ========================================================================================
-' Assigns an image list to a button control.
+PRIVATE FUNCTION CButton.GetImageList (BYVAL hButton AS HWND, BYREF buttonImagelist AS BUTTON_IMAGELIST) AS BOOLEAN
+   RETURN SendMessageW(hButton, BCM_GETIMAGELIST, 0, CAST(LPARAM, @buttonImagelist))
+END FUNCTION
+' ========================================================================================
+' ========================================================================================
+PRIVATE FUNCTION CButton.GetImageList (BYVAL hButton AS HWND) AS BUTTON_IMAGELIST
+   DIM bi AS BUTTON_IMAGELIST
+   SendMessageW(hButton, BCM_GETIMAGELIST, 0, CAST(LPARAM, @bi))
+   RETURN bi
+END FUNCTION
+' ========================================================================================
+' ========================================================================================
+' * Assigns an image list to a button control.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.SetImageList (BYVAL hButton AS HWND, BYVAL pbuttonImagelist AS BUTTON_IMAGELIST PTR) AS BOOLEAN
-   RETURN SendMessageW(hButton, BCM_SETIMAGELIST, 0, CAST(LPARAM, pbuttonImagelist))
+   RETURN SendMessageW(hButton, BCM_SETIMAGELIST, 0, cast(LPARAM, pbuttonImagelist))
 END FUNCTION
 ' ========================================================================================
 ' ========================================================================================
-' Assigns an image list to a button control. Requires Windows XP or superior.
+' * Assigns an image list to a button control. Requires Windows XP or superior.
 ' Parameters:
 ' - hButon     = The handle of the button.
 ' - hImageList =
@@ -190,18 +225,15 @@ END FUNCTION
 '                BUTTON_IMAGELIST_ALIGN_CENTER Center the image.
 '                The default value is BUTTON_IMAGELIST_ALIGN_LEFT.
 ' Return value:  If the function succeeds, it returns TRUE. Otherwise it returns FALSE.
-' Note:  To use this application programming interface (API), you must provide a manifest
-' specifying Comclt32.dll version 6.0.
 ' ========================================================================================
-PRIVATE FUNCTION CButton.SetImageList (BYVAL hButton AS HWND, BYVAL himl AS HIMAGELIST, BYVAL nLeft AS LONG, BYVAL nTop AS LONG, BYVAL nRight AS LONG, BYVAL nBottom AS LONG, BYVAL uALign AS DWORD = 0) AS BOOLEAN
+PRIVATE FUNCTION CButton.SetImageList (BYVAL hButton AS HWND, BYVAL himl AS HIMAGELIST, BYVAL nLeft AS LONG, BYVAL nTop AS LONG, BYVAL nRight AS LONG, BYVAL nBottom AS LONG, BYVAL uALign AS UINT = 0) AS BOOLEAN
    DIM bi AS BUTTON_IMAGELIST = (himl, (nLeft, nTop, nRight, nBottom), uAlign)
    RETURN SendMessageW(hButton, BCM_SETIMAGELIST, 0, cast(LPARAM, @bi))
 END FUNCTION
 ' ========================================================================================
 
-
 ' ========================================================================================
-' Deletes an image (icon or bitmap) associated a button.
+' * Deletes an image (icon or bitmap) associated a button.
 ' Returns TRUE or FALSE.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.DeleteImage (BYVAL hButton AS HWND, BYVAL ImageType AS DWORD) AS BOOLEAN
@@ -209,7 +241,7 @@ PRIVATE FUNCTION CButton.DeleteImage (BYVAL hButton AS HWND, BYVAL ImageType AS 
 END FUNCTION
 ' ========================================================================================
 ' ========================================================================================
-' Deletes a bitmap associated with a button.
+' * Deletes a bitmap associated with a button.
 ' Returns TRUE or FALSE.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.DeleteBitmap (BYVAL hButton AS HWND) AS BOOLEAN
@@ -217,7 +249,7 @@ PRIVATE FUNCTION CButton.DeleteBitmap (BYVAL hButton AS HWND) AS BOOLEAN
 END FUNCTION
 ' ========================================================================================
 ' ========================================================================================
-' Deletes an icon associated with a button.
+' * Deletes an icon associated with a button.
 ' Returns TRUE or FALSE.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.DeleteIcon (BYVAL hButton AS HWND) AS BOOLEAN
@@ -226,14 +258,14 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Enables mouse and keyboard input to the specified button 
+' * Enables mouse and keyboard input to the specified button 
 ' ========================================================================================
 PRIVATE FUNCTION CButton.Enable (BYVAL hButton AS HWND) AS BOOLEAN
    RETURN EnableWIndow(hButton, CTRUE)
 END FUNCTION
 ' ========================================================================================
 ' ========================================================================================
-' Disables mouse and keyboard input to the specified button 
+' * Disables mouse and keyboard input to the specified button 
 ' ========================================================================================
 PRIVATE FUNCTION CButton.Disable (BYVAL hButton AS HWND) AS BOOLEAN
    RETURN EnableWIndow(hButton, FALSE)
@@ -241,18 +273,18 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Gets the text of a button.
+' * Gets the text of a button.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.GetText (BYVAL hButton AS HWND) AS DWSTRING
-   DIM nLen AS LONG = ..GetWindowTextLengthW(hButton)
+   DIM nLen AS LONG = GetWindowTextLengthW(hButton)
    DIM dwsText AS DWSTRING = WSPACE(nLen + 1)
    GetWindowTextW(hButton, dwsText, nLen +  1)
-   RETURN LEFT(dwsText, nLen)
+   RETURN dwsText
 END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Gets the length of the text of a button.
+' * Gets the length of the text of a button.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.GetTextLength (BYVAL hButton AS HWND) AS LONG
    RETURN GetWindowTextLengthW(hButton)
@@ -260,7 +292,7 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Sets the text of the button.
+' * Sets the text of the button.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.SetText (BYVAL hButton AS HWND, BYVAL pwszText AS WSTRING PTR) AS BOOLEAN
    RETURN SetWindowTextW(hButton, pwszText)
@@ -268,7 +300,7 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Gets the check state of a radio button or check box.
+' * Gets the check state of a radio button or check box.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.GetCheck (BYVAL hButton AS HWND) AS LRESULT
    RETURN SendMessageW(hButton, BM_GETCHECK, 0, 0)
@@ -276,7 +308,7 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Sets the check state of a radio button or check box.
+' * Sets the check state of a radio button or check box.
 ' ========================================================================================
 PRIVATE SUB CButton.SetCheck (BYVAL hButton AS HWND, BYVAL checkState AS LONG)
    SendMessageW(hButton, BM_SETCHECK, checkState, 0)
@@ -284,37 +316,42 @@ END SUB
 ' ========================================================================================
 
 ' ========================================================================================
-' Sets the button state to checked.
+' * Sets the button state to checked.
 ' ========================================================================================
 PRIVATE SUB CButton.Check (BYVAL hButton AS HWND)
    SendMessageW hButton, BM_SETCHECK, BST_CHECKED, 0
 END SUB
 ' ========================================================================================
 ' ========================================================================================
-' Sets the button state to cleared.
+' * Unchecks the button.
 ' ========================================================================================
 PRIVATE SUB CButton.Uncheck (BYVAL hButton AS HWND)
    SendMessageW hButton, BM_SETCHECK, BST_UNCHECKED, 0
 END SUB
 ' ========================================================================================
 ' ========================================================================================
-' Sets the button state to grayed, indicating an indeterminate state. Use this value only
+' * Sets the button state to grayed, indicating an indeterminate state. Use this value only
 ' if the button has the BS_3STATE or BS_AUTO3STATE style.
 ' ========================================================================================
 PRIVATE SUB CButton.Gray (BYVAL hButton AS HWND)
    SendMessageW hButton, BM_SETCHECK, BST_INDETERMINATE, 0
 END SUB
 ' ========================================================================================
+' ========================================================================================
+PRIVATE SUB CButton.Indeterminate (BYVAL hButton AS HWND)
+   SendMessageW hButton, BM_SETCHECK, BST_INDETERMINATE, 0
+END SUB
+' ========================================================================================
 
 ' ========================================================================================
-' Gets the state of a button or check box.
+' * Gets the state of a button or check box.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.GetState (BYVAL hButton AS HWND) AS LRESULT
    RETURN SendMessageW(hButton, BM_GETSTATE, 0, 0)
 END FUNCTION
 ' ========================================================================================
 ' ========================================================================================
-' Sets the highlight state of a button. The highlight state indicates whether the button
+' * Sets the highlight state of a button. The highlight state indicates whether the button
 ' is highlighted as if the user had pushed it. 
 ' ========================================================================================
 PRIVATE SUB CButton.SetState (BYVAL hButton AS HWND, BYVAL bstate AS BOOLEAN)
@@ -323,9 +360,9 @@ END SUB
 ' ========================================================================================
 
 ' ========================================================================================
-' Retrieves the style of button.
+' * Gets the style of button.
 ' ========================================================================================
-PRIVATE FUNCTION CButton.GetStyle (BYVAL hButton AS HWND) AS LONG_PTR
+PRIVATE FUNCTION CButton.GetStyle (BYVAL hButton AS HWND) AS DWORD
    RETURN GetWindowLongPtrW(hButton, GWL_STYLE)
 END FUNCTION
 ' ========================================================================================
@@ -338,18 +375,30 @@ END SUB
 ' ========================================================================================
 
 ' ========================================================================================
-' Gets the size of the button that best fits its text and image, if an image list is present.
+' * Gets the size of the button that best fits its text and image, if an image list is present.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.GetIdealSize (BYVAL hButton AS HWND, BYVAL pSize AS SIZE PTR) AS BOOLEAN
    RETURN SendMessageW(hButton, BCM_GETIDEALSIZE, 0, CAST(LPARAM, pSize))
 END FUNCTION
 ' ========================================================================================
+' ========================================================================================
+PRIVATE FUNCTION CButton.GetIdealSize (BYVAL hButton AS HWND) AS SIZE
+   DIM sz AS SIZE
+   SendMessageW(hButton, BCM_GETIDEALSIZE, 0, CAST(LPARAM, @sz))
+   RETURN sz
+END FUNCTION
+' ========================================================================================
 
 ' ========================================================================================
-' Retrieves the margins used to draw text in a button control.
+' * Retrieves the margins used to draw text in a button control.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.GetTextMargin (BYVAL hButton AS HWND, BYVAL pMargin AS RECT PTR) AS BOOLEAN
    RETURN SendMessageW(hButton, BCM_GETTEXTMARGIN, 0, CAST(LPARAM, pMargin))
+END FUNCTION
+' ========================================================================================
+' ========================================================================================
+PRIVATE FUNCTION CButton.GetTextMargin (BYVAL hButton AS HWND, BYREF margin AS RECT) AS BOOLEAN
+   RETURN SendMessageW(hButton, BCM_GETTEXTMARGIN, 0, CAST(LPARAM, @margin))
 END FUNCTION
 ' ========================================================================================
 ' ========================================================================================
@@ -360,10 +409,15 @@ PRIVATE FUNCTION CButton.GetTextMargin (BYVAL hButton AS HWND) AS RECT
 END FUNCTION
 ' ========================================================================================
 ' ========================================================================================
-' Sets the margins for drawing text in a button control.
+' * Sets the margins for drawing text in a button control.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.SetTextMargin (BYVAL hButton AS HWND, BYVAL pMargin AS RECT PTR) AS BOOLEAN
    RETURN SendMessageW(hButton, BCM_SETTEXTMARGIN, 0, CAST(LPARAM, pMargin))
+END FUNCTION
+' ========================================================================================
+' ========================================================================================
+PRIVATE FUNCTION CButton.SetTextMargin (BYVAL hButton AS HWND, BYREF margin AS RECT) AS BOOLEAN
+   RETURN SendMessageW(hButton, BCM_SETTEXTMARGIN, 0, CAST(LPARAM, @margin))
 END FUNCTION
 ' ========================================================================================
 ' ========================================================================================
@@ -378,14 +432,16 @@ END FUNCTION
 ' ========================================================================================
 ' Sets a flag on a radio button that controls the generation of BN_CLICKED messages when
 ' the button receives focus.
+' Starting with Vista and later, radio buttons no longer send BN_CLICKED when they
+' receive focus, so this message has not effect in these Windows versions.
 ' ========================================================================================
-PRIVATE SUB CButton.SetDontClick (BYVAL hButton AS HWND, BYVAL bState AS BOOLEAN)
-   SendMessageW(hButton, BM_SETDONTCLICK, cast(WPARAM, bState), 0)
+PRIVATE SUB CButton.SetDontClick (BYVAL hButton AS HWND, BYVAL fState AS BOOLEAN)
+   SendMessageW(hButton, BM_SETDONTCLICK, cast(WPARAM, fState), 0)
 END SUB
  ' ========================================================================================
 
  ' ========================================================================================
-' Sets the drop down state for a specified button with style of BS_SPLITBUTTON.
+' * Sets the drop down state for a specified button with style of BS_SPLITBUTTON.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.SetDropDownState (BYVAL hButton AS HWND, BYVAL fDropDown AS BOOLEAN) AS BOOLEAN
    RETURN SendMessageW(hButton, BCM_SETDROPDOWNSTATE, fDropDown, 0)
@@ -393,29 +449,101 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
+PRIVATE FUNCTION CButton.GetSplitGlyphSize (BYVAL hButton AS HWND) AS SIZE
+   DIM info AS BUTTON_SPLITINFO
+   info.mask = BCSIF_SIZE
+   SendMessageW(hButton, BCM_GETSPLITINFO, 0, CAST(LPARAM, @info))
+   DIM sz AS SIZE
+   sz.cx = info.size.cx
+   sz.cy = info.size.cy
+   RETURN sz
+END FUNCTION
+' ========================================================================================
+' ========================================================================================
 ' Gets information for a specified split button control.
 ' ========================================================================================
-PRIVATE FUNCTION CButton.GetSplitInfo (BYVAL hButton AS HWND, BYVAL info AS BUTTON_SPLITINFO PTR) AS BOOLEAN
-   RETURN SendMessageW(hButton, BCM_GETSPLITINFO, 0, CAST(LPARAM, info))
+PRIVATE FUNCTION CButton.GetSplitInfo (BYVAL hButton AS HWND, BYVAL pinfo AS BUTTON_SPLITINFO PTR) AS BOOLEAN
+   RETURN SendMessageW(hButton, BCM_GETSPLITINFO, 0, CAST(LPARAM, pinfo))
+END FUNCTION
+' ========================================================================================
+' ========================================================================================
+PRIVATE FUNCTION CButton.GetSplitInfo (BYVAL hButton AS HWND, BYREF info AS BUTTON_SPLITINFO) AS BOOLEAN
+   RETURN SendMessageW(hButton, BCM_GETSPLITINFO, 0, CAST(LPARAM, @info))
 END FUNCTION
 ' ========================================================================================
 ' ========================================================================================
 PRIVATE FUNCTION CButton.GetSplitInfo (BYVAL hButton AS HWND) AS BUTTON_SPLITINFO
    DIM info AS BUTTON_SPLITINFO
+'   info.mask = BCSIF_GLYPH OR BCSIF_IMAGE OR BCSIF_SIZE OR BCSIF_STYLE
+   info.mask = BCSIF_IMAGE OR BCSIF_SIZE OR BCSIF_STYLE
    SendMessageW(hButton, BCM_GETSPLITINFO, 0, CAST(LPARAM, @info))
    RETURN info
 END FUNCTION
 ' ========================================================================================
 ' ========================================================================================
-' Sets information for a specified split button control.
+PRIVATE FUNCTION CButton.GetSplitStyle (BYVAL hButton AS HWND) AS UINT
+   DIM info AS BUTTON_SPLITINFO
+   info.mask = BCSIF_STYLE
+   SendMessageW(hButton, BCM_GETSPLITINFO, 0, CAST(LPARAM, @info))
+   RETURN info.uSplitStyle
+END FUNCTION
 ' ========================================================================================
-PRIVATE FUNCTION CButton.SetSplitInfo (BYVAL hButton AS HWND, BYVAL info AS BUTTON_SPLITINFO PTR) AS BOOLEAN
-   RETURN SendMessageW(hButton, BCM_SETSPLITINFO, 0, CAST(LPARAM, info))
+' ========================================================================================
+PRIVATE FUNCTION CButton.GetSplitImageList (BYVAL hButton AS HWND) AS HIMAGELIST
+   DIM info AS BUTTON_SPLITINFO
+   info.mask = BCSIF_IMAGE
+   SendMessageW(hButton, BCM_GETSPLITINFO, 0, CAST(LPARAM, @info))
+   RETURN info.himlGlyph
 END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Gets the length of the note text that may be displayed in the description for a command link.
+' Sets the split size (glyph area) of a split button (BCSIF_SIZE).
+' ========================================================================================
+PRIVATE FUNCTION CButton.SetSplitGlyphSize (BYVAL hButton AS HWND, BYVAL cx AS LONG, BYVAL cy AS LONG) AS BOOLEAN
+   DIM info AS BUTTON_SPLITINFO
+   info.mask = BCSIF_SIZE
+   info.size.cx = cx
+   info.size.cy = cy
+   RETURN SendMessageW(hButton, BCM_SETSPLITINFO, 0, CAST(LPARAM, @info))
+END FUNCTION
+' ========================================================================================
+' ========================================================================================
+' Sets information for a specified split button control.
+' ========================================================================================
+PRIVATE FUNCTION CButton.SetSplitInfo (BYVAL hButton AS HWND, BYVAL pinfo AS BUTTON_SPLITINFO PTR) AS BOOLEAN
+   RETURN SendMessageW(hButton, BCM_SETSPLITINFO, 0, CAST(LPARAM, pinfo))
+END FUNCTION
+' ========================================================================================
+' ========================================================================================
+PRIVATE FUNCTION CButton.SetSplitInfo (BYVAL hButton AS HWND, BYREF info AS BUTTON_SPLITINFO) AS BOOLEAN
+   RETURN SendMessageW(hButton, BCM_SETSPLITINFO, 0, CAST(LPARAM, @info))
+END FUNCTION
+' ========================================================================================
+' ========================================================================================
+' * Sets the split style of a split button (BCSIF_STYLE).
+' ========================================================================================
+PRIVATE FUNCTION CButton.SetSplitStyle (BYVAL hButton AS HWND, BYVAL uStyle AS UINT) AS BOOLEAN
+   DIM info AS BUTTON_SPLITINFO
+   info.mask = BCSIF_STYLE
+   info.uSplitStyle = uStyle
+   RETURN SendMessageW(hButton, BCM_SETSPLITINFO, 0, CAST(LPARAM, @info))
+END FUNCTION
+' ========================================================================================
+' ========================================================================================
+' Sets the image list used as split glyph (BCSIF_IMAGE / BCSIF_GLYPH).
+' Normally you only need BCSIF_IMAGE; BCSIF_GLYPH is optional.
+' ========================================================================================
+PRIVATE FUNCTION CButton.SetSplitImageList (BYVAL hButton AS HWND, BYVAL himlGlyph AS HIMAGELIST) AS BOOLEAN
+   DIM info AS BUTTON_SPLITINFO
+   info.mask = BCSIF_IMAGE   ' o BCSIF_IMAGE OR BCSIF_GLYPH if you want to force a glyph
+   info.himlGlyph = himlGlyph
+   RETURN SendMessageW(hButton, BCM_SETSPLITINFO, 0, CAST(LPARAM, @info))
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' * Gets the length of the note text that may be displayed in the description for a command link.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.GetNoteLength (BYVAL hButton AS HWND) AS LONG
    RETURN SendMessageW(hButton, BCM_GETNOTELENGTH, 0, 0)
@@ -423,18 +551,26 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Gets the text of the note associated with the Command Link button.
+' * Gets the text of the note associated with the Command Link button.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.GetNote (BYVAL hButton AS HWND) AS DWSTRING
-   DIM nLen AS LONG = SendMessageW(hButton, BCM_GETNOTELENGTH, 0, 0)
-   DIM dws AS DWSTRING = WSPACE(nLen + 1)
-   SendMessageW(hButton, BCM_GETNOTE, nLen + 1, CAST(LPARAM, *dws))
+   DIM nLen AS DWORD = SendMessageW(hButton, BCM_GETNOTELENGTH, 0, 0)
+   IF nLen < 1 THEN RETURN ""
+   nLen += 1
+   DIM dws AS DWSTRING = WSPACE(nLen)
+'   SendMessageW(hButton, BCM_GETNOTE, cast(WPARAM, @nLen), CAST(LPARAM, STRPTR(dws)))
+   SendMessageW(hButton, BCM_GETNOTE, cast(WPARAM, @nLen), CAST(LPARAM, *dws))
+   IF nLen THEN dws = LEFT(dws, nLen - 1)
    RETURN dws
 END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Sets the text of the note associated with a specified command link button.
+' * Sets the text of the note associated with a specified command link button.
+' Note: The note text is displayed underneath the main caption.  
+'       Command Link buttons require extra vertical space; if the control  
+'       is too short, Windows will hide the note and render a single-line layout.  
+'       Make the button taller to ensure the note becomes visible.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.SetNote (BYVAL hButton AS HWND, BYVAL pwsz AS WSTRING PTR) AS BOOLEAN
    RETURN SendMessageW(hButton, BCM_SETNOTE, 0, CAST(LPARAM, pwsz))
@@ -442,8 +578,8 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Sets the elevation required state for a specified button or command link to display an
-' elevated icon.
+' * Sets the elevation required state for a specified button or command link to display an elevated icon.
+' Note: Although the documentation says that it returns 1 on success, it seems to return always 0.
 ' ========================================================================================
 PRIVATE FUNCTION CButton.SetElevationRequiredState (BYVAL hButton AS HWND, BYVAL fRequired AS BOOLEAN) AS LONG
    RETURN SendMessageW(hButton, BCM_SETSHIELD, 0, fRequired)
@@ -452,5 +588,19 @@ END FUNCTION
 
 #endif
 
+' ========================================================================================
+' * Set button dark mode.
+' ========================================================================================
+PRIVATE FUNCTION CButton.SetDarkMode (BYVAL hButton AS HWND) AS HRESULT
+   RETURN SetWindowTheme(hButton, "DarkMode_Explorer", NULL)
+END FUNCTION
+' ========================================================================================
+' ========================================================================================
+' * Remove button dark mode.
+' ========================================================================================
+PRIVATE FUNCTION CButton.RemoveDarkMode (BYVAL hButton AS HWND) AS HRESULT
+   RETURN SetWindowTheme(hButton, NULL, NULL)
+END FUNCTION
+' ========================================================================================
 
 END NAMESPACE

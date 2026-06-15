@@ -63,7 +63,7 @@ Wrapper class for Microsoft WinHTTP Services, version 5.1
 
 ---
 
-## GetLastResult
+### GetLastResult
 
 Returns the last result code.
 
@@ -77,7 +77,7 @@ The result code returned by the last executed method. The **WinHttpRequest** obj
 
 ---
 
-## SetResult
+### SetResult
 
 Sets the last result code.
 
@@ -91,7 +91,7 @@ The result code returned by the last executed method.
 
 ---
 
-## GetErrorInfo
+### GetErrorInfo
 
 Returns the description of the most recent OLE error in the current logical thread and clears the error state for the thread. It should be called as soon as possible after calling a method of this class. The numerical error code can obtained calling the **GetLastResult** method.
 
@@ -105,7 +105,7 @@ A localized description of the error.
 
 ---
 
-## Abort
+### Abort
 
 Aborts a WinHTTP **Send** method.
 
@@ -123,7 +123,7 @@ You can abort both asynchronous and synchronous **Send** methods. To abort a syn
 
 ---
 
-## GetAllResponseHeaders
+### GetAllResponseHeaders
 
 Gets all HTTP response headers.
 
@@ -146,25 +146,29 @@ This method returns all of the headers contained in the most recent server respo
 #### Example
 
 ```
-#include once "windows.bi"
+#cmdline "-s console"
 #include once "AfxNova/CWinHttpRequest.inc"
 using AfxNova
 
-' // Create an instance of the CWinHttpRequest class
+' // Create an instance of the CWinHttp class
 DIM pWHttp AS CWinHttpRequest
+
 ' // Open an HTTP connection to an HTTP resource
 pWHttp.Open "GET", "http://microsoft.com"
+
 ' // Send an HTTP request to the HTTP server
 pWHttp.Send
+
 ' // Wait for response with a timeout of 5 seconds
 DIM iSucceeded AS LONG = pWHttp.WaitForResponse(5)
+
 ' // Get the response headers
 DIM dwsResponseHeaders AS DWSTRING = pWHttp.GetAllResponseHeaders
 PRINT dwsResponseHeaders
 ```
 ---
 
-## GetOption
+### GetOption
 
 Retrieves a Microsoft Windows HTTP Services (WinHTTP) option value.
 
@@ -183,8 +187,9 @@ Variant that contains the option value.
 #### Example
 
 ```
+#cmdline "-s console"
 #include once "AfxNova/CWinHttpRequest.inc"
-USING AfxNova
+using AfxNova
 
 ' // Create an instance of the CWinHttp class
 DIM pWHttp AS CWinHttpRequest
@@ -216,7 +221,7 @@ Returns S_OK (0) if successful or an error value otherwise.
 
 ---
 
-## GetResponseBody
+### GetResponseBody
 
 Retrieves the response entity body as an array of unsigned bytes.
 
@@ -239,46 +244,56 @@ This method returns the response data in an array of unsigned bytes. If the resp
 #### Examples
 
 ```
+#cmdline "-s console"
 #include once "AfxNova/CWinHttpRequest.inc"
-USING AfxNova
+using AfxNova
 
-' // Create an instance of the CWinHttpRequest class
+' // Create an instance of the CWinHttp class
 DIM pWHttp AS CWinHttpRequest
+
 ' // Open an HTTP connection to an HTTP resource
 pWHttp.Open "GET", "http://microsoft.com"
+
 ' // Send an HTTP request to the HTTP server
 pWHttp.Send
+
 ' // Wait for response with a timeout of 5 seconds
 DIM iSucceeded AS LONG = pWHttp.WaitForResponse(5)
+
 ' // Get the response body
 DIM strResponseBody AS STRING = pWHttp.GetResponseBody
 PRINT strResponseBody
 ```
 ```
+#cmdline "-s console"
 #include once "AfxNova/CWinHttpRequest.inc"
-#include once "AfxNova/CStream.inc"
-USING AfxNova
+#include once "Afx/CStream.inc"
+using AfxNova
 
-' // Create an instance of the CWinHttpRequest class
+' // Create an instance of the CWinHttp class
 DIM pWHttp AS CWinHttpRequest
+
 ' // Open an HTTP connection to an HTTP resource
-pWHttp.Open "GET", "https://i.ytimg.com/vi/nPUi1XNiRzQ/maxresdefault.jpg"
-print pWHttp.GetErrorInfo
+pWHttp.Open "GET", "https://learn.microsoft.com/en-us/archive/msdn-magazine/2012/october/images/jj658963.banner.png"
+
 ' // Send an HTTP request to the HTTP server
 pWHttp.Send
+
 ' // Wait for response with a timeout of 5 seconds
 DIM iSucceeded AS LONG = pWHttp.WaitForResponse(5)
-' // Get the reponse body and sae it into a file
-DIM st AS STRING = pWHttp.GetResponseBody
+
+' // Get the response body as an array of unsigned bytes.
+DIM strResponseBody AS STRING = pWHttp.GetResponseBody
+
 ' // Open a file stream
 DIM pFileStream AS CFileStream
-IF pFileStream.Open("image.jpg", STGM_CREATE OR STGM_WRITE) = S_OK then
-   pFileStream.WriteTextA(st)
+IF pFileStream.Open("image.png", STGM_CREATE OR STGM_WRITE) = S_OK then
+   pFileStream.WriteTextA(strResponseBody)
 END IF
 ```
 ---
 
-## GetResponseHeader
+### GetResponseHeader
 
 Gets the specified HTTP response header.
 
@@ -305,25 +320,29 @@ Invoke this method only after the **Send** method has been called.
 #### Example
 
 ```
-#include "AfxNova/CWinHttpRequest.inc"
-USING AfxNova
+#cmdline "-s console"
+#include once "AfxNova/CWinHttpRequest.inc"
+using AfxNova
 
-' // Create an instance of the CWinHttpRequest class
+' // Create an instance of the CWinHttp class
 DIM pWHttp AS CWinHttpRequest
+
 ' // Open an HTTP connection to an HTTP resource
 pWHttp.Open "GET", "http://microsoft.com"
+
 ' // Send an HTTP request to the HTTP server
 pWHttp.Send
+
 ' // Wait for response with a timeout of 5 seconds
 DIM iSucceeded AS LONG = pWHttp.WaitForResponse(5)
-' // Get the response headers
+
 ' // Get the response headers
 DIM dwsResponseHeader AS DWSTRING = pWHttp.GetResponseHeader("Date")
 PRINT dwsResponseHeader
 ```
 ---
 
-## GetResponseStream
+### GetResponseStream
 
 Retrieves the response entity body as a stream.
 
@@ -343,9 +362,39 @@ Returns S_OK (0) if successful or an error value otherwise.
 
 This method can only be invoked after the **Send** method has been called.
 
+#### Example
+
+```
+#cmdline "-s console"
+#include once "AfxNova/CWinHttpRequest.inc"
+#include once "Afx/CStream.inc"
+using AfxNova
+
+' // Create an instance of the CWinHttp class
+DIM pWHttp AS CWinHttpRequest
+
+' // Open an HTTP connection to an HTTP resource
+pWHttp.Open "GET", "http://microsoft.com"
+' // Send an HTTP request to the HTTP server
+pWHttp.Send
+
+' // Wait for response with a timeout of 5 seconds
+DIM iSucceeded AS LONG = pWHttp.WaitForResponse(5)
+
+' // Open a file stream
+DIM pFileStream AS CFileStream = pWHttp.GetResponseStream
+DIM cbSize AS LONG = pFileStream.GetSize
+DIM buffer(cbSize) AS BYTE
+DIM cbRead AS ULONG = pFileStream.Read(@buffer(0), cbSize)
+DIM fn AS LONG = FREEFILE
+OPEN "response.txt" FOR BINARY AS #fn
+PUT #fn, 1, buffer()
+CLOSE #fn
+PRINT "File saved"
+```
 ---
 
-## GetResponseText
+### GetResponseText
 
 Retrieves the response entity body.
 
@@ -367,9 +416,37 @@ This method can only be invoked after the **Send** method has been called.
 
 When using this property in synchronous mode, the limit to the number of characters it returns is approximately 2,169,895.
 
+#### Example
+
+```
+#cmdline "-s console"
+#include once "AfxNova/CWinHttpRequest.inc"
+#include once "AfxNova/DWStrProcs.inc"
+using AfxNova
+
+' // Create an instance of the CWinHttp class
+DIM pWHttp AS CWinHttpRequest
+
+' // Open an HTTP connection to an HTTP resource
+pWHttp.Open "GET", "http://forum.qbasic.at/viewtopic.php?t=8996"
+
+' // Send an HTTP request to the HTTP server
+pWHttp.Send
+
+' // Wait for response with a timeout of 5 seconds
+DIM iSucceeded AS LONG = pWHttp.WaitForResponse(5)
+
+IF iSucceeded THEN
+   ' // Get the response headers
+   DIM dwsResponseText AS DWSTRING = pWHttp.GetResponseText
+   ' // Extract the version number from the Color Constants title
+   DIM dws AS DWSTRING = DWstrExtract(1, dwsResponseText, "Color Constants v", " [")
+   print "Online Color Constants version is v" & dws
+END IF
+```
 ---
 
-## GetStatus
+### GetStatus
 
 Retrieves the HTTP status code from the last response.
 
@@ -391,7 +468,7 @@ The results of this method are valid only after the **Send** method has successf
 
 ---
 
-## GetStatusText
+### GetStatusText
 
 Retrieves the HTTP status code from the last response.
 
@@ -413,7 +490,7 @@ Retrieves the text portion of the server response line, making available the "us
 
 ---
 
-## Open
+### Open
 
 Opens an HTTP connection to an HTTP resource.
 
@@ -452,7 +529,7 @@ DIM iSucceeded AS LONG = pWHttp.WaitForResponse(5)
 ```
 ---
 
-## Send
+### Send
 
 Sends an HTTP request to an HTTP server.
 
@@ -472,9 +549,24 @@ Returns S_OK (0) if successful or an error value otherwise.
 
 The request to be sent was defined in a prior call to the **Open** method. The calling application can provide data to be sent to the server through the *cvBody* parameter. If the HTTP verb of the object's Open is "GET", this method sends the request without *dvBody*, even if it is provided by the calling application.
 
+#### Example
+
+```
+#include once "AfxNova/CWinHttpRequest.inc"
+USING AfxNova
+
+' // Create an instance of the CWinHttpRequest class
+DIM pWHttp AS CWinHttpRequest
+' // Open an HTTP connection to an HTTP resource
+pWHttp.Open "GET", "http://microsoft.com"
+' // Send an HTTP request to the HTTP server
+pWHttp.Send
+' // Wait for response with a timeout of 5 seconds
+DIM iSucceeded AS LONG = pWHttp.WaitForResponse(5)
+```
 ---
 
-## SetAutoLogonPolicy
+### SetAutoLogonPolicy
 
 Sets the current Automatic Logon Policy.
 
@@ -498,7 +590,7 @@ Call **SetAutoLogonPolicy** to set the automatic logon policy before calling **S
 
 ---
 
-## SetClientCertificate
+### SetClientCertificate
 
 Selects a client certificate to send to a Secure Hypertext Transfer Protocol (HTTPS) server.
 
@@ -526,7 +618,7 @@ Microsoft Windows HTTP Services (WinHTTP) does not provide client certificates t
 
 ---
 
-## SetCredentials
+### SetCredentials
 
 Sets credentials to be used with an HTTP server, whether it is a proxy server or an originating server.
 
@@ -558,7 +650,7 @@ To authenticate with both the server and the proxy, the application must call **
 
 ---
 
-## SetEvents
+### SetEvents
 
 Sets the events sink.
 
@@ -630,7 +722,7 @@ PRINT dwsResponseHeaders
 ```
 ---
 
-## SetOption
+### SetOption
 
 Sets a Microsoft Windows HTTP Services (WinHTTP) option value.
 
@@ -678,7 +770,7 @@ END IF
 ```
 ---
 
-## SetProxy
+### SetProxy
 
 Sets proxy server information.
 
@@ -712,7 +804,7 @@ Enables the calling application to specify use of default proxy information (con
 
 ---
 
-## SetRequestHeader
+### SetRequestHeader
 
 Adds, changes, or deletes an HTTP request header.
 
@@ -739,7 +831,7 @@ The name and value of request headers added with this method are validated. Head
 
 ---
 
-## SetTimeouts
+### SetTimeouts
 
 Specifies the individual time-out components of a send/receive operation, in milliseconds.
 
@@ -767,7 +859,7 @@ Time-out values are applied at the Winsock layer.
 
 ---
 
-## WaitForResponse
+### WaitForResponse
 
 Waits for an asynchronous **Send** method to complete, with optional time-out value, in seconds.
 
@@ -791,7 +883,7 @@ Calling this property after a synchronous **Send** method returns immediately an
 
 ---
 
-## <a name="winhttprequestautologonpolicy"></a>WinHttpRequestAutoLogonPolicy Enumeration
+### <a name="winhttprequestautologonpolicy"></a>WinHttpRequestAutoLogonPolicy Enumeration
 
 The **WinHttpRequestAutoLogonPolicy** enumeration includes possible settings for the Automatic Logon Policy.
 
@@ -807,7 +899,7 @@ To set the automatic logon policy, call the **SetAutoLogonPolicy** method and sp
 
 ---
 
-## <a name="winhttprequestoption"></a>WinHttpRequestOption Enumeration
+### <a name="winhttprequestoption"></a>WinHttpRequestOption Enumeration
 
 The **WinHttpRequestOption** enumeration includes options that can be set or retrieved for the current Microsoft Windows HTTP Services (WinHTTP) session.
 
@@ -839,7 +931,7 @@ Set an option by specifying one of the preceding constants as the parameter of t
 
 ---
 
-## <a name="winhttprequestsecureprotocols"></a>WinHttpRequestSecureProtocols Enumeration
+### <a name="winhttprequestsecureprotocols"></a>WinHttpRequestSecureProtocols Enumeration
 
 Types of secure protocols.
 
@@ -852,7 +944,7 @@ Types of secure protocols.
 
 ---
 
-## <a name="winhttprequestsslerrorflags"></a>WinHttpRequestSslErrorFlags Enumeration
+### <a name="winhttprequestsslerrorflags"></a>WinHttpRequestSslErrorFlags Enumeration
 
 SSL certificate errors.
 
@@ -864,7 +956,7 @@ SSL certificate errors.
 | **SslErrorFlag_CertDateInvalid** | Invalid date or certificate expired. |
 | **SslErrorFlag_Ignore_All** | Ignore all. |
 
-# <a name="httpstatuscodes"></a>HTTP Status Codes
+## <a name="httpstatuscodes"></a>HTTP Status Codes
 
 These constants and corresponding values indicate HTTP status codes returned by servers on the Internet.
 
@@ -913,7 +1005,7 @@ These constants and corresponding values indicate HTTP status codes returned by 
 
 ---
 
-# <a name="onerror"></a>OnError Event
+### <a name="onerror"></a>OnError Event
 
 Occurs when there is a run-time error in the application.
 
@@ -928,7 +1020,7 @@ SUB OnError (BYVAL ErrorNumber AS LONG, BYVAL ErrorDescription AS BSTR)
 
 ---
 
-## <a name="onresponsedataavailable"></a>OnResponseDataAvailable Event
+### <a name="onresponsedataavailable"></a>OnResponseDataAvailable Event
 
 Occurs when data is available from the response.
 
@@ -942,7 +1034,7 @@ SUB OnResponseDataAvailable (BYVAL pData AS SAFEARRAY PTR)
 
 ---
 
-## <a name="onresponsefinished"></a>OnResponseFinished Event
+### <a name="onresponsefinished"></a>OnResponseFinished Event
 
 Occurs when the response data is complete.
 
@@ -951,7 +1043,7 @@ SUB OnResponseFinished
 ```
 ---
 
-## <a name="onresponsestart"></a>OnResponseStart Event
+### <a name="onresponsestart"></a>OnResponseStart Event
 
 Occurs when the response data starts to be received.
 

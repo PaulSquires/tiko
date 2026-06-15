@@ -43,8 +43,7 @@ SUB Example_GetStringFormatFlags (BYVAL hdc AS HDC)
    graphics.ScaleTransform
 
    ' // Create the font
-   DIM fontFamily AS GdiPlusFontFamily = "Times New Roman"
-   DIm font AS GdiPlusFont = GdiPlusFont(*fontFamily, AfxGdipPointsToPixels(18, TRUE), FontStyleRegular, UnitPixel)
+   DIM font AS GdiPlusFont = GdiPlusFont("Times New Roman", 18, TRUE)
 
    ' // Create a StringFormat object, and set its format flags.
    DIM format AS GdiPlusStringFormat = GdiPlusStringFormat(0, LANG_NEUTRAL)
@@ -62,14 +61,12 @@ SUB Example_GetStringFormatFlags (BYVAL hdc AS HDC)
    DIM solidBrush AS GdiPlusSolidBrush = ARGB_RED
 
    ' // Draw the string using the second StringFormat object
-   DIM wszText AS WSTRING * 64 = "This text is vertical because of a format flag."
-   DIM rcf AS GpRectF = (30, 30, 150, 200)
-   GdipDrawString(graphics, wszText, LEN(wszText), font, @rcf, format2, solidBrush)
+   graphics.DrawString("This text is vertical because of a format flag.", font, solidBrush, 30, 30, 150, 200)
 
    ' // Draw the rectangle that encloses the text
    DIM pen AS GdiPlusPen = GdiPlusPen(ARGB_RED, 1, UnitPixel)
    GdipScalePenTransform(pen, graphics.dpiRatioX, graphics.dpiRatioY, MatrixOrderPrepend)
-   GdipDrawRectangle(graphics, pen, rcf.x, rcf.y, rcf.width, rcf.height)
+   GdipDrawRectangle(graphics, pen, 30, 30, 150, 200)
 
 END SUB
 ' ========================================================================================
@@ -101,20 +98,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_GetStringFormatFlags(hdc)
+   Example_GetStringFormatFlags(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

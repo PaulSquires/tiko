@@ -463,7 +463,9 @@ END FUNCTION
 '   GET #nFile, , *pBuffer, bufferSize
 '   CLOSE nFile
 '   IF pBuffer THEN
-'      ImageList_ReplaceIcon(hImageList, -1, AfxGdipIconFromBuffer(pBuffer, ImageSize))
+'      DIM hIcon AS HICON = AfxGdipIconFromBuffer(pBuffer, ImageSize)
+'      ImageList_ReplaceIcon(hImageList, -1, hIcon)
+'      DestroyIcon(hIcon)
 '      DeAllocate(pBuffer)
 '   END IF
 ' ========================================================================================
@@ -980,7 +982,7 @@ PRIVATE FUNCTION AfxGdipPrintHBITMAP (BYVAL hbmp AS HBITMAP, BYVAL bStretch AS B
    DO
       ' // Get the name of the default printer
       DIM wszPrinterName AS WSTRING * MAX_PATH
-      GetProfileStringW("WINDOWS", "DEVICE", "", wszPrinterName, SIZEOF(wszPrinterName))
+      GetProfileStringW("WINDOWS", "DEVICE", "", wszPrinterName, SIZEOF(wszPrinterName) \ 1)
       DIM nPos AS LONG = INSTR(wszPrinterName, ",")
       IF nPos THEN wszPrinterName = LEFT(wszPrinterName, nPos - 1)
       IF wszPrinterName = "" THEN EXIT DO

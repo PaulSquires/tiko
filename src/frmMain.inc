@@ -1497,6 +1497,7 @@ function frmMain_WndProc( _
 
         case MSG_USER_PROCESS_CHECKFORUPDATE
             ' Check for any Tiko updated version (use a separate thread in case check hangs)
+            if gConfig.CheckUpdates = false then exit function
             dim as any ptr pThread = ThreadCreate( @DoCheckForUpdates )
             ThreadWait( pThread )
             frmMenuBar_PositionWindows()

@@ -32,7 +32,7 @@
 '                                  *** WINUSER32 ***
 ' ########################################################################################
 
-#inclib "user32"
+'#inclib "user32"
 
 ' // Identifies the dots per inch (dpi) setting for a thread, process, or window.
 type DPI_AWARENESS AS LONG
@@ -84,7 +84,7 @@ enum
   DDC_DISABLE_CONTROL_RELAYOUT = &h0004
 end enum
 
-extern "Windows"
+extern "Windows" LIB "user32.dll"
 DECLARE FUNCTION AdjustWindowRectExForDpi (BYVAL lpRect AS RECT PTR, BYVAL dwStyle AS DWORD, BYVAL bMenu As WINBOOL, _
    BYVAL dwExStyle AS DWORD, BYVAL dpi AS UINT) AS WINBOOL
 DECLARE FUNCTION AreDpiAwarenessContextsEqual (BYVAL dpiContextA AS DPI_AWARENESS_CONTEXT, BYVAL dpiContextB AS DPI_AWARENESS_CONTEXT) AS WINBOOL
@@ -114,7 +114,7 @@ DECLARE FUNCTION SetThreadDpiHostingBehavior (BYVAL value AS DPI_HOSTING_BEHAVIO
 DECLARE FUNCTION SystemParametersInfoForDpi (BYVAL uiAction AS UINT, BYVAL uiParam AS UINT, BYVAL pvParam AS PVOID, BYVAL fWinIni AS UINT, BYVAL dpi AS UINT) AS WINBOOL
 end extern
 
-extern "Windows"
+extern "Windows" LIB "user32.dll"
 DECLARE FUNCTION MessageBoxTimeoutA (BYVAL hWin AS HWND, BYVAL pszText AS LPCSTR, BYVAL pszCaption AS LPCSTR, _
    BYVAL uType AS UINT, BYVAL wLanguageId AS WORD, BYVAL dwMilliseconds AS DWORD) AS LONG
 DECLARE FUNCTION MessageBoxTimeoutW (BYVAL hWin AS HWND, BYVAL pwszText AS LPWSTR, BYVAL pwszCaption AS LPWSTR, _
@@ -128,7 +128,7 @@ end extern
 '                                    *** SHCORE ***
 ' ########################################################################################
 
-#inclib "shcore"
+'#inclib "shcore"
 
 type DISPLAY_DEVICE_TYPE AS LONG
 enum
@@ -184,7 +184,7 @@ CONST SCALE_400_PERCENT = 400
 CONST SCALE_450_PERCENT = 450
 CONST SCALE_500_PERCENT = 500
 
-extern "Windows"
+extern "Windows" LIB "shcore.dll"
 ' This function is not supported as of Windows 8.1. Use GetScaleFactorForMonitor instead.
 DECLARE FUNCTION GetScaleFactorForDevice (BYVAL deviceType AS DISPLAY_DEVICE_TYPE) AS DEVICE_SCALE_FACTOR
 ' This function is not supported as of Windows 8.1. Use RegisterScaleChangeEvent instead.

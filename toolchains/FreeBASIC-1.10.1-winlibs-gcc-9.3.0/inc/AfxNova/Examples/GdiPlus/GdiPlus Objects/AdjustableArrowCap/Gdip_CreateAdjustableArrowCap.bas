@@ -3,14 +3,14 @@
 ' File: Gdip_CreateAdjustableArrowCap.bas
 ' Contents: GDI+ Flat API - Gdip_CreateAdjustableArrowCap example
 ' Compiler: FreeBasic 32 & 64 bit
-' Copyright (c) 2025 José Roca. Freeware. Use at your own risk.
+' Copyright (c) 2026 José Roca. Freeware. Use at your own risk.
 ' THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
 ' EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
 #define _WIN32_WINNT &h0602
-'#define _GDIP_DEBUG_ 1
+#define _GDIP_DEBUG_ 1
 #INCLUDE ONCE "AfxNova/AfxGdipObjects.inc"
 #INCLUDE ONCE "AfxNova/CGraphCtx.inc"
 USING AfxNova
@@ -43,12 +43,12 @@ SUB Example_CreateAdjustableArrowCap (BYVAL hdc AS HDC)
 
    ' // Create an AdjustableArrowCap that is filled.
    DIM arrowCapStart AS GdiPlusAdjustableArrowCap = GdiPlusAdjustableArrowCap(10, 10, TRUE)
-   ' // Adjust to DPI by setting the scale width
+   ' // Adjust to DPI by setting the scale ratio
    GdipSetCustomLineCapWidthScale(arrowCapStart, dpiRatio)
 
    ' // Create an AdjustableArrowCap that is not filled.
    DIM arrowCapEnd AS GdiPlusAdjustableArrowCap = GdiPlusAdjustableArrowCap(15, 15, FALSE)
-   ' // Adjust to DPI by setting the scale width
+   ' // Adjust to DPI by setting the scale ratio
    GdipSetCustomLineCapWidthScale(arrowCapEnd, dpiRatio)
 
    ' // Get the type of CustomLineCap
@@ -97,20 +97,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM pGdiPlusObjects AS GdiPlusObjects
-
    ' // Draw the graphics
-   Example_CreateAdjustableArrowCap(hdc)
+   Example_CreateAdjustableArrowCap(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-'   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

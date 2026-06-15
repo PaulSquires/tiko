@@ -16,6 +16,7 @@ The `DWSTRING` class implements a dynamic unicode null terminated string. Free B
 | [Utf8](#utf8) | Converts from UTF8 to Unicode and from Unicode to UTF8. |
 | [vptr](#vptr) | Returns the address of the string buffer. |
 | [wchar](#wchar) | Returns the string data as a new unicode string allocated with **CoTaskMemAlloc**. |
+| [JScript](#jscript) | Converts the DWSTRING content into a safe JavaScript expression for use with WebView2 ExecuteScript. |
 
 # <a name="constructors"></a>Constructors
 
@@ -253,5 +254,33 @@ FUNCTION ChrW (BYVAL codePoint AS UInteger) AS DWSTRING
 | Parameter  | Description |
 | ---------- | ----------- |
 | *codepoint* | The code point. |
+
+---
+
+### <a name="jscript"></a>JScript
+
+Converts the `DWSTRING` content into a safe JavaScript expression for use with `WebView2` **ExecuteScript**.
+
+```
+PROPERTY DWSTRING.JScript () AS STRING
+```
+
+`WebView2` requires UTF-8 text when passing strings to JavaScript. This property takes the internal UTF-8 byte sequence of the `DWSTRING` and generates a JavaScripy expression of the form:
+```
+new TextDecoder('utf-8').decode(Uint8Array.from([b1,b2,b3,...]))
+```
+This guarantees that any Unicode text (including accents, symbols and emojis) is transmitted correctly to JavaScript without escaping issues, broken quotes, or encoding mismatches.
+
+The user can therefore pass `DWSTRING` values directly to **ExecuteScript** without worrying about UTF-8 handling or manual escaping.
+
+#### Usage example:
+
+```
+m_pWebView->ExecuteScript("console.log(" & myString.JScript & ");")
+```
+
+#### Notes
+
+The returned value is valid JavaScript code, not a literal string.
 
 ---

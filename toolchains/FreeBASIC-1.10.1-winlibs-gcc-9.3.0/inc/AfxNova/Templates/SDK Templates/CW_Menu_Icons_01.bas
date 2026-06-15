@@ -9,7 +9,7 @@
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-'#RESOURCE "CW_Menu_Icons_01.rc"
+#cmdline "CW_Menu_Icons_01.rc"
 #define UNICODE
 #define _WIN32_WINNT &h0602
 #INCLUDE ONCE "AfxNova/CWindow.inc"
@@ -135,6 +135,10 @@ FUNCTION WndProc (BYVAL hwnd AS HWND, BYVAL uMsg AS UINT, BYVAL wParam AS WPARAM
          RETURN 0
 
       CASE WM_DESTROY
+         ' // Destroy the menu and the bitmaps
+         DIM hMenu AS HMENU = GetMenu(hwnd)
+         AfxDestroyMenuBitmaps(hMenu)
+         DestroyMenu(hMenu)              
          ' // End the application by sending an WM_QUIT message
          PostQuitMessage(0)
          RETURN 0

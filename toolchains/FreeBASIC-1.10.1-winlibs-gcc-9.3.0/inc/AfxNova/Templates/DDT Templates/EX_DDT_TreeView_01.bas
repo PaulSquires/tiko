@@ -1,5 +1,5 @@
 '#TEMPLATE DDT Dialog with a TreeView
-'#RESOURCE "EX_DDT_TreeView_01.rc"
+#cmdline "EX_DDT_TreeView_01.rc"
 #define UNICODE
 #define _WIN32_WINNT &h0602
 #include once "AfxNova/AfxGdiplus.inc"
@@ -25,10 +25,10 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
                    BYVAL pwszCmdLine AS WSTRING PTR, _
                    BYVAL nCmdShow AS LONG) AS LONG
 
-   ' // Set process DPI aware
-   SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE)
-   ' // Enable visual styles without including a manifest file
-   AfxEnableVisualStyles
+'   ' // Set process DPI aware
+'   SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE)
+'   ' // Enable visual styles without including a manifest file
+'   AfxEnableVisualStyles
 
    ' // Create a new dialog using dialog units
    DIM hDlg AS HWND = DialogNew(0, "DDT Dialog with a TreeView", , , 190, 175, WS_OVERLAPPEDWINDOW OR DS_CENTER)
@@ -140,7 +140,7 @@ FUNCTION DlgProc (BYVAL hDlg AS HWND, BYVAL uMsg AS DWORD, BYVAL wParam AS DWORD
          END SELECT
 
       CASE WM_NOTIFY
-         DIM tv AS NMTREEVIEW
+         DIM tv AS NMTREEVIEWW
          CBNMTYPESET(tv, wParam, lParam)
          IF tv.hdr.idFrom = IDC_TREEVIEW THEN
             SELECT CASE tv.hdr.code
@@ -150,11 +150,12 @@ FUNCTION DlgProc (BYVAL hDlg AS HWND, BYVAL uMsg AS DWORD, BYVAL wParam AS DWORD
                   DIM dwsText AS DWSTRING = TreeViewGetText(hDlg, IDC_TREEVIEW, hItem)
                   MsgBox hDlg, dwsText, MB_OK, "Message"
                   RETURN TRUE
-               CASE TVN_ITEMEXPANDED
+               CASE TVN_ITEMEXPANDEDW
                   DIM tvi AS TVITEM = tv.itemNew
                   IF (tv.itemNew.state AND TVIS_EXPANDED) THEN tvi.iImage = 2 ELSE tvi.iImage = 1
                   ' // Set the item's new attributes
-                  TreeView_SetItem(cast(HWND, tv.hdr.idFrom), @tvi)
+                  DIM hTreeView AS HWND = ControlHandle(hDlg, IDC_TREEVIEW)
+                  TreeView_SetItem(hTreeView, @tvi)
                   RETURN TRUE
             END SELECT
          END IF

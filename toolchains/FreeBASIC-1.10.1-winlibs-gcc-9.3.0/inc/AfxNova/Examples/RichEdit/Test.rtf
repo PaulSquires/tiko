@@ -1,0 +1,94 @@
+This is an RTFBOX example.
+It will load the RTF text including the picture.
+
+Note that upon saving and reloading the picture is getting smaller(!)
+This problem is also with WordPad.
+
+%ID_FORM1_TEXT1 = 100
+%ID_FORM1_LISTBOX1 = 101
+%ID_FORM1_COMBO1 = 102
+
+Whatever> <Yep.. a picture
+
+
+        ' Form: "Form1"
+
+        Control Add "Edit", CbHndl, 100, "Text1", 5, 9, 104, 19,  _
+            %WS_CHILD Or %WS_TABSTOP Or %WS_VISIBLE Or %ES_LEFT Or %ES_AUTOVSCROLL Or %ES_MULTILINE Or %ES_WANTRETURN, %WS_EX_CLIENTEDGE
+        Control Add "ListBox", CbHndl, 101, "", 5, 54, 122, 64,  _
+            %WS_CHILD Or %WS_TABSTOP Or %WS_VISIBLE Or %LBS_NOTIFY Or %LBS_HASSTRINGS Or %LBS_USETABSTOPS, %WS_EX_CLIENTEDGE
+        Control Add "ComboBox", CbHndl, 102, "Combo1", 5, 36, 100, 92,  _
+            %WS_CHILD Or %WS_TABSTOP Or %WS_VISIBLE Or %CBS_DROPDOWN Or %CBS_AUTOHSCROLL Or %CBS_HASSTRINGS, 0
+
+
+'// MOST procedure are not required for you to use.
+'// The following declares will show the functions you can safely use:
+
+'// Use this after control creation, before file loading.
+'// It will enable the OLE part
+Declare Function RichCom_SetComInterface( ByVal hWnd As Long ) As Long
+
+'// Use to fill RTF control.
+'// bInsertText will insert RTF or text provided.
+Declare Function RichCom_Text( ByVal hWnd As Long, ByVal sText As String, ByVal bInsertText As Long ) As Long
+
+'// Returns the RTF code or Plain text from the RichCom control.
+'// nMode, use %SF_TEXT or use %SF_RTF
+Declare Function RichCom_GetText( ByVal hWnd As Long, ByVal nMode As Long ) As String
+
+'// Loads an RTF in memory to fill it in the RTF box. (inefficient)
+Declare Function RichCom_LoadFromFile( ByVal hWnd As Long, ByVal sFileName As String ) As Long
+
+'// Saves contents to file.
+'// nMode, use %SF_TEXT or use %SF_RTF
+Declare Function RichCom_SaveToFile( ByVal hWnd As Long, ByVal sFileName As String, ByVal nMode As Long ) As Long
+
+London Film Productions Ltd. – [British Lion Production Assets Limited]. © MCMXLIX [1949] London Film Productions Ltd. B/N, 35 mm. Sonido: Western Electric Recording. 104 minutos, 9.428 pies. Rodaje: 22 Oct 1948 – 11 Dic 1948 en Viena (Austria); terminada en los estudios Shepperton en Mar 1949. Censura: 20 Ago 1949; 107 minutos, 41 segundos, 9.692 pies; certificado: A. Distribución:  British Lion Film Corporation Ltd. Estreno en Londres: 31 Ago 1949. EE.UU.: © London Film Productions, Ltd.; 31 Ago 1949; LP2580. PCA no. 14125. Distribución: Selznick Releasing Organization. Estreno en Nueva York: 2 Feb 1950. 93 minutos. España: El tercer hombre.
+
+
+This is an RTFBOX example.
+It will load the RTF text including the picture.
+
+Note that upon saving and reloading the picture is getting smaller(!)
+This problem is also with WordPad.
+
+%ID_FORM1_TEXT1 = 100
+%ID_FORM1_LISTBOX1 = 101
+%ID_FORM1_COMBO1 = 102
+
+Whatever> <Yep.. a picture
+
+
+        ' Form: "Form1"
+
+        Control Add "Edit", CbHndl, 100, "Text1", 5, 9, 104, 19,  _
+            %WS_CHILD Or %WS_TABSTOP Or %WS_VISIBLE Or %ES_LEFT Or %ES_AUTOVSCROLL Or %ES_MULTILINE Or %ES_WANTRETURN, %WS_EX_CLIENTEDGE
+        Control Add "ListBox", CbHndl, 101, "", 5, 54, 122, 64,  _
+            %WS_CHILD Or %WS_TABSTOP Or %WS_VISIBLE Or %LBS_NOTIFY Or %LBS_HASSTRINGS Or %LBS_USETABSTOPS, %WS_EX_CLIENTEDGE
+        Control Add "ComboBox", CbHndl, 102, "Combo1", 5, 36, 100, 92,  _
+            %WS_CHILD Or %WS_TABSTOP Or %WS_VISIBLE Or %CBS_DROPDOWN Or %CBS_AUTOHSCROLL Or %CBS_HASSTRINGS, 0
+
+
+'// MOST procedure are not required for you to use.
+'// The following declares will show the functions you can safely use:
+
+'// Use this after control creation, before file loading.
+'// It will enable the OLE part
+Declare Function RichCom_SetComInterface( ByVal hWnd As Long ) As Long
+
+'// Use to fill RTF control.
+'// bInsertText will insert RTF or text provided.
+Declare Function RichCom_Text( ByVal hWnd As Long, ByVal sText As String, ByVal bInsertText As Long ) As Long
+
+'// Returns the RTF code or Plain text from the RichCom control.
+'// nMode, use %SF_TEXT or use %SF_RTF
+Declare Function RichCom_GetText( ByVal hWnd As Long, ByVal nMode As Long ) As String
+
+'// Loads an RTF in memory to fill it in the RTF box. (inefficient)
+Declare Function RichCom_LoadFromFile( ByVal hWnd As Long, ByVal sFileName As String ) As Long
+
+'// Saves contents to file.
+'// nMode, use %SF_TEXT or use %SF_RTF
+Declare Function RichCom_SaveToFile( ByVal hWnd As Long, ByVal sFileName As String, ByVal nMode As Long ) As Long
+
+

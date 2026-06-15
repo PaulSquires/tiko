@@ -73,7 +73,7 @@ FUNCTION DlgProc (BYVAL hDlg AS HWND, BYVAL uMsg AS DWORD, BYVAL wParam AS DWORD
                   IF LEN(wszIconPath) = 0 THEN wszIconPath = AfxGetSystemDllPath("Shell32.dll")
                   IF LEN(wszIconPath) = 0 THEN RETURN FALSE
                   ' // Activate the Pick Icon Common Dialog Box
-                  DIM hr AS LONG = PickIconDlg(hDlg, wszIconPath, SIZEOF(wszIconPath), @nIconIndex)
+                  DIM hr AS LONG = PickIconDlg(hDlg, wszIconPath, SIZEOF(wszIconPath)\2, @nIconIndex)
                   ' // If an icon has been selected...
                   IF hr = 1 THEN
                      ' // Destroy previously loaded icon, if any

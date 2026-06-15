@@ -43,7 +43,7 @@ SUB Example_CreateBitmap (BYVAL hdc AS HDC)
    myBitmap.SetResolution(graphics)
 
    ' // Draw the bitmap.
-   GdipDrawImage(graphics, myBitmap, 0, 0)
+   GdipDrawImage(graphics, myBitmap, 110, 60)
 
 END SUB
 ' ========================================================================================
@@ -71,24 +71,15 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
 
    ' // Add a graphic control
    DIM pGraphCtx AS CGraphCtx = CGraphCtx(@pWindow, IDC_GRCTX, "", 0, 0, pWindow.ClientWidth, pWindow.ClientHeight)
-   pGraphCtx.Clear RGB_WHITE
+   pGraphCtx.Clear RGB_FLORALWHITE
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_CreateBitmap(hdc)
+   Example_CreateBitmap(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

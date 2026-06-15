@@ -28,6 +28,7 @@
 #include once "win/commctrl.bi"
 #include once "win/uxtheme.bi"
 #include once "win/richedit.bi"
+#include once "AfxNova/AfxWin.inc"
 #include once "AfxNova/DWSTRING.inc"
 #include once "AfxNova/RGB_Colors.bi"
 USING AfxNova
@@ -3357,10 +3358,10 @@ BYVAL nLen AS LONG = 260, BYVAL bPassword AS BOOLEAN = FALSE) AS DWSTRING
    ' // IDS_OK (800) as the identifier and the Cancel button IDS_CANCEL (801).
    DIM hUser32Instance AS HINSTANCE = GetModuleHandleW("user32.dll")
    DIM wszOk AS WSTRING * 260
-   DIM cbLen AS LONG = LoadStringW(hUser32Instance, 800, @wszOk, SIZEOF(wszOk))
+   DIM cbLen AS LONG = LoadStringW(hUser32Instance, 800, @wszOk, SIZEOF(wszOk)\2)
    IF cbLen THEN wszOk = "&" & wszOk : SendMessageW(hOkButton, WM_SETTEXT, 0, cast(LPARAM, @wszOk))
    DIM wszCancel AS WSTRING * 260
-   cbLen = LoadStringW(hUser32Instance, 801, @wszCancel, SIZEOF(wszCancel))
+   cbLen = LoadStringW(hUser32Instance, 801, @wszCancel, SIZEOF(wszCancel)\2)
    IF cbLen THEN wszCancel = "&" & wszCancel : SendMessageW(hCancelButton, WM_SETTEXT, 0, cast(LPARAM, @wszCancel))
 
    ' // Set the text and the limit

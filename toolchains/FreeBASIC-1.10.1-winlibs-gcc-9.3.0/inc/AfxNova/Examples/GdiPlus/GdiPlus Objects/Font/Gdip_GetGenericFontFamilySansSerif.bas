@@ -42,16 +42,14 @@ SUB Example_GetGenericFontFamilySansSerif (BYVAL hdc AS HDC)
    GdipGetGenericFontFamilySansSerif(@monoFamily)
 
    ' Create a font from the generic monospace family
-   DIM font AS GdiPlusFont = GdiPlusFont(monoFamily, AfxGdipPointsToPixels(16, TRUE), FontStyleRegular, UnitPixel)
+   DIM font AS GdiPlusFont = GdiPlusFont(monoFamily, 16, TRUE)
    GdipDeleteFontFamily(monoFamily)
 
    ' // Create a solid brush
-   DIM solidBrush AS GdiPlusSolidBrush = ARGB_BLACK
+   DIM brush AS GdiPlusSolidBrush = ARGB_BLACK
 
    ' // Draw a string
-   DIM text AS WSTRING * 64 = "SansSerif text example"
-   DIM layout AS GpRectF = (20.0, 20.0, 300.0, 100.0)
-   GdipDrawString(graphics, text, LEN(text), font, @layout, NULL, solidBrush)
+   graphics.DrawString("SansSerif text example", font, brush, 20, 20, 300, 100)
 
 END SUB
 ' ========================================================================================
@@ -83,20 +81,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_GetGenericFontFamilySansSerif(hdc)
+   Example_GetGenericFontFamilySansSerif(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

@@ -9,7 +9,7 @@
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-'#CONSOLE ON
+#cmdline "-s console"
 #define _WIN32_WINNT &h0602
 #INCLUDE ONCE "AfxNova/AfxGdiPlus.inc"
 
@@ -26,7 +26,7 @@ DIM token AS ULONG_PTR = AfxGdipInit
 DIM image AS GpImage PTR
 hStatus = GdipLoadImageFromFile("climber.jpg", @image)
 
-' // Get the width of the image
+' // Get the height of the image
 DIM nHeight AS UINT
 hStatus = GdipGetImageHeight(image, @nHeight)
 PRINT "Image height: " & WSTR(nHeight)

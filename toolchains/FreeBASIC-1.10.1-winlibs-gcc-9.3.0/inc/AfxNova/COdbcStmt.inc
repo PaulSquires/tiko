@@ -250,7 +250,7 @@ PRIVATE FUNCTION COdbcStmt.GetLongVarcharData (BYVAL ColumnNumber AS SQLSMALLINT
          dws += MemoBuf
          EXIT DO
       ELSEIF m_Result = SQL_SUCCESS_WITH_INFO THEN
-         m_Result = SetResult(SQLGetDiagRecW(SQL_HANDLE_STMT, m_hStmt, 1, @wszSqlState, @lNativeError, @wszErrMsg, SIZEOF(wszErrMsg), @cbbytes), "COdbcStmt.GetLongVarcharData", SQL_HANDLE_STMT, m_hStmt)
+         m_Result = SetResult(SQLGetDiagRecW(SQL_HANDLE_STMT, m_hStmt, 1, @wszSqlState, @lNativeError, @wszErrMsg, SIZEOF(wszErrMsg)\2, @cbbytes), "COdbcStmt.GetLongVarcharData", SQL_HANDLE_STMT, m_hStmt)
          IF m_Result <> SQL_SUCCESS THEN EXIT DO      ' Error in SQLGetDiagRec
          IF wszSqlState = "01004" THEN           ' Insufficient buffer
             dws += MemoBuf

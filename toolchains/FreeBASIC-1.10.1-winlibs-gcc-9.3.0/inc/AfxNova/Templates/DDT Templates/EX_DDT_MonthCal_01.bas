@@ -75,7 +75,7 @@ FUNCTION DlgProc (BYVAL hDlg AS HWND, BYVAL uMsg AS DWORD, BYVAL wParam AS DWORD
             IF dst.nmhdr.code = MCN_SELCHANGE THEN
                ' // Get the selected date
                DIM wszDate AS WSTRING * 260
-               GetDateFormatW LOCALE_USER_DEFAULT, DATE_LONGDATE, @dst.stSelStart, NULL, wszDate, SIZEOF(wszDate)
+               GetDateFormatW LOCALE_USER_DEFAULT, DATE_LONGDATE, @dst.stSelStart, NULL, wszDate, SIZEOF(wszDate)\2
                DialogSetText(hDlg, wszDate)
             END IF
          END IF

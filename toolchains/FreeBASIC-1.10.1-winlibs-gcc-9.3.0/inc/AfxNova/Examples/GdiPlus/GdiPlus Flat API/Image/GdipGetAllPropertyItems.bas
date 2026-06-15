@@ -3,13 +3,13 @@
 ' File: GdipGetAllPropertyItems.bas
 ' Contents: GDI+ Flat API - GdipGetAllPropertyItems example
 ' Compiler: FreeBasic 32 & 64 bit
-' Copyright (c) 2025 JosÃ© Roca. Freeware. Use at your own risk.
+' Copyright (c) 2025 José Roca. Freeware. Use at your own risk.
 ' THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
 ' EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-'#CONSOLE ON
+#cmdline "-s console"
 #define _WIN32_WINNT &h0602
 #INCLUDE ONCE "AfxNova/AfxGdiPlus.inc"
 
@@ -17,10 +17,6 @@
 ' The following example creates an Image object based on a JPEG file. The code calls the
 ' GdipGetAllPropertyItems function to obtain its property items (metadata).
 ' ========================================================================================
-
-'#CONSOLE ON
-#define _WIN32_WINNT &h0602
-#INCLUDE ONCE "AfxNova/AfxGdiPlus.inc"
 
 DIM hStatus AS LONG
 
@@ -87,4 +83,3 @@ PRINT "Press any key"
 SLEEP
 
 ' ========================================================================================
-

@@ -1,4 +1,4 @@
-# CAdoEvents class
+# CAdoEvents Class
 
 The `CAdoEvents` class serves as a comprehensive event-handling interface for ActiveX Data Objects (ADO) within the `AfxNova` framework. It is designed to intercept and respond to a wide range of `ADO` operations, offering developers fine-grained control over database interactions at runtime.
 
@@ -132,7 +132,7 @@ pConnection.Close
 
 ---
 
-## WillConnect
+### WillConnect
 
 Called before a connection starts.
 
@@ -159,7 +159,7 @@ When this event is canceled, **ConnectComplete** will be called with its *adStat
 
 ---
 
-## ConnectComplete
+### ConnectComplete
 
 The **ConnectComplete** event is called after a connection starts.
 
@@ -175,7 +175,7 @@ FUNCTION ConnectComplete (BYVAL pError AS Afx_ADOError PTR, BYVAL adStatus AS Ev
 
 ---
 
-## Disconnect
+### Disconnect
 
 Called after a connection ends.
 
@@ -189,7 +189,7 @@ FUNCTION Disconnect (BYVAL adStatus AS EventStatusEnum PTR, BYVAL pConnection AS
 
 ---
 
-## WillExecute
+### WillExecute
 
 Called ust before a pending command executes on a connection.
 
@@ -218,7 +218,7 @@ A **WillExecute** event may occur due to a **Connection.Execute**, **Command.Exe
 
 ---
 
-## ExecuteComplete
+### ExecuteComplete
 
 Called after a command has finished executing.
 
@@ -242,7 +242,7 @@ An **ExecuteComplete** event may occur due to the **Connection.Execute**, **Comm
 
 ---
 
-## InfoMessage
+### InfoMessage
 
 Called whenever a warning occurs during a ConnectionEvent operation.
 
@@ -258,7 +258,7 @@ FUNCTION InfoMessage (BYVAL pError AS Afx_ADOError PTR, BYVAL adStatus AS EventS
 
 ---
 
-## BeginTransComplete
+### BeginTransComplete
 
 Called after the **BeginTrans** operation.
 
@@ -276,7 +276,7 @@ FUNCTION BeginTransComplete (BYVAL TransactionLevel AS LONG, BYVAL pError AS Afx
 
 ---
 
-## CommitTransComplete
+### CommitTransComplete
 
 Called after the **CommitTrans** operation.
 
@@ -293,7 +293,7 @@ FUNCTION CommitTransComplete (BYVAL pError AS Afx_ADOError PTR, BYVAL adStatus A
 
 ---
 
-## RollbackTransComplete
+### RollbackTransComplete
 
 Called after the **RollbackTrans** operation.
 
@@ -310,7 +310,7 @@ FUNCTION RollbackTransComplete (BYVAL pError AS Afx_ADOError PTR, BYVAL adStatus
 
 ---
 
-## WillChangeField
+### WillChangeField
 
 Called before a pending operation changes the value of one or more **Field** objects in the **Recordset**.
 
@@ -332,7 +332,7 @@ A **WillChangeField** or **FieldChangeComplete** event may occur when setting th
 
 ---
 
-## FieldChangeComplete 
+### FieldChangeComplete 
 
 Called after the value of one or more **Field** objects has changed.
 
@@ -356,7 +356,7 @@ A **WillChangeField** or **FieldChangeComplete** event may occur when setting th
 
 ---
 
-## WillChangeRecord
+### WillChangeRecord
 
 Called before one or more records (rows) in the **Recordset** change.
 
@@ -382,7 +382,7 @@ You must set the *adStatus* parameter to *adStatusUnwantedEvent* for each possib
 
 ---
 
-## RecordChangeComplete
+### RecordChangeComplete
 
 Called after one or more records change.
 
@@ -410,7 +410,7 @@ You must set the *adStatus* parameter to *adStatusUnwantedEvent* for each possib
 
 ---
 
-## WillChangeRecordset
+### WillChangeRecordset
 
 Called before a pending operation changes the **Recordset**.
 
@@ -435,7 +435,7 @@ You must set the *adStatus* parameter to *adStatusUnwantedEvent* for each possib
 
 ---
 
-## RcordsetChangeComplete
+### RcordsetChangeComplete
 
 Called after the **Recordset** has changed.
 
@@ -461,7 +461,7 @@ You must set the *adStatus* parameter to *adStatusUnwantedEvent* for each possib
 
 ---
 
-## WillMove
+### WillMove
 
 Called before a pending operation changes the current position in the **Recordset**.
 
@@ -503,7 +503,7 @@ You must set the *adStatus* parameter to *adStatusUnwantedEvent* for each possib
 
 ---
 
-## MoveComplete
+### MoveComplete
 
 Called after the current position in the **Recordset** changes.
 
@@ -546,7 +546,7 @@ You must set the *adStatus* parameter to *adStatusUnwantedEvent* for each possib
 
 ---
 
-## EndOfRecordset
+### EndOfRecordset
 
 Called when there is an attempt to move to a row past the end of the **Recordset**.
 
@@ -569,7 +569,7 @@ This event handler is called when an attempt is made to move past the end of the
 
 ---
 
-## FetchProgress
+### FetchProgress
 
 Called periodically during a lengthy asynchronous operation to report how many more rows have currently been retrieved into the **Recordset**.
 
@@ -591,7 +591,7 @@ When using **FetchProgress** with a child **Recordset**, be aware that the Progr
 
 ---
 
-## FetchComplete
+### FetchComplete
 
 Called after all the records in a lengthy asynchronous operation have been retrieved into the **Recordset**.
 

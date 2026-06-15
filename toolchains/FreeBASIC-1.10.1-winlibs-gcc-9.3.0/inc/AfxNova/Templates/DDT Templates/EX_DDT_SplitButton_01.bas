@@ -1,5 +1,5 @@
 '#TEMPLATE DDT Dialog with a Split button
-'#RESOURCE "EX_DDT_SplitButton_01.rc"
+#cmdline "EX_DDT_SplitButton_01.rc"
 #define _WIN32_WINNT &h0602
 #include once "AfxNova/AfxExt.bi"
 #include once "AfxNova/AfxGdiPlus.inc"
@@ -39,7 +39,7 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    DIM cx AS LONG = 16 * GetDpiForSystem \ 96
    ' // Create an image list for the button
    DIM hImageList AS HIMAGELIST = ImageListNewIcon(cx, cx, 32, 1)
-   IF hImageList THEN ImageList_ReplaceIcon(hImageList, -1, AfxGdipImageFromRes(hInstance, "IDI_SHUTDOWN_48"))
+   IF hImageList THEN AfxGdipAddIconFromRes(hImageList, hInstance, "IDI_SHUTDOWN_48")
    ' // Fill a BUTTON_IMAGELIST structure and set the image list
    DIM rc AS RECT = (2, 2, 2, 2)    ' // set the magins for the icon
    rc = ScaleRectForDpi(hDlg, rc)   ' // scale them for DPI

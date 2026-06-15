@@ -446,7 +446,6 @@ function Scintilla_OnNotify( _
                     end if
                 end if
             end if
-            return true
             
             
         case SCN_MARGINCLICK

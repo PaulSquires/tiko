@@ -31,6 +31,7 @@ TYPE CWebView2
    m_BrowserVersion AS DWSTRING                       ' // Runtime WebView version
 
    DECLARE CONSTRUCTOR (BYVAL hWin AS HWND, BYVAL pUserDataFolder AS WSTRING PTR = NULL)
+   DECLARE CONSTRUCTOR (BYVAL hWin AS HWND, BYREF wszUserDataFolder AS WSTRING)
    DECLARE DESTRUCTOR
    DECLARE FUNCTION GetBrowserVersion () AS DWSTRING
    DECLARE FUNCTION GetLastResult () AS HRESULT
@@ -70,6 +71,13 @@ TYPE CWebView2
    DECLARE FUNCTION CallDevToolsProtocolMethod (BYVAL methodName AS LPCWSTR, BYVAL parametersAsJson AS LPCWSTR, BYVAL handler AS Afx_ICoreWebView2CallDevToolsProtocolMethodCompletedHandler PTR) AS HRESULT
    DECLARE FUNCTION GetContainsFullScreenElement (BYVAL ContainsFullScreenElement AS LONG PTR) AS HRESULT
    DECLARE FUNCTION GetContainsFullScreenElement () AS LONG
+   DECLARE FUNCTION AddHostObjectToScript (BYVAL _name AS LPCWSTR, BYVAL _object AS VARIANT PTR) AS HRESULT
+   DECLARE FUNCTION RemoveHostObjectFromScript (BYVAL _name AS LPCWSTR) AS HRESULT
+   DECLARE FUNCTION AddScriptToExecuteOnDocumentCreated (BYVAL javaScript AS LPCWSTR, BYVAL handler AS Afx_ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler PTR) AS HRESULT
+   DECLARE FUNCTION RemoveScriptToExecuteOnDocumentCreated (BYVAL id AS LPCWSTR) AS HRESULT
+   DECLARE FUNCTION AddWebResourceRequestedFilter (BYVAL uri AS LPCWSTR, BYVAL ResourceContext AS COREWEBVIEW2_WEB_RESOURCE_CONTEXT) AS HRESULT
+   DECLARE FUNCTION RemoveWebResourceRequestedFilter (BYVAL uri AS LPCWSTR, BYVAL ResourceContext AS COREWEBVIEW2_WEB_RESOURCE_CONTEXT) AS HRESULT
+   DECLARE FUNCTION GetDevToolsProtocolEventReceiver (BYVAL eventName AS LPCWSTR, BYVAL receiver AS Afx_ICoreWebView2DevToolsProtocolEventReceiver PTR PTR) AS HRESULT
 
    ' // Settings
    DECLARE FUNCTION GetSettings () AS Afx_ICoreWebView2Settings PTR
@@ -137,13 +145,6 @@ TYPE CWebView2
    DECLARE FUNCTION RemoveLostFocus (BYVAL token AS EventRegistrationToken) AS HRESULT
    DECLARE FUNCTION AddAcceleratorKeyPressed (BYVAL eventHandler AS Afx_ICoreWebView2AcceleratorKeyPressedEventHandler PTR, BYVAL token AS EventRegistrationToken PTR) AS HRESULT
    DECLARE FUNCTION RemoveAcceleratorKeyPressed (BYVAL token AS EventRegistrationToken) AS HRESULT
-   DECLARE FUNCTION AddHostObjectToScript (BYVAL _name AS LPCWSTR, BYVAL _object AS VARIANT PTR) AS HRESULT
-   DECLARE FUNCTION RemoveHostObjectFromScript (BYVAL _name AS LPCWSTR) AS HRESULT
-   DECLARE FUNCTION AddScriptToExecuteOnDocumentCreated (BYVAL javaScript AS LPCWSTR, BYVAL handler AS Afx_ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler PTR) AS HRESULT
-   DECLARE FUNCTION RemoveScriptToExecuteOnDocumentCreated (BYVAL id AS LPCWSTR) AS HRESULT
-   DECLARE FUNCTION AddWebResourceRequestedFilter (BYVAL uri AS LPCWSTR, BYVAL ResourceContext AS COREWEBVIEW2_WEB_RESOURCE_CONTEXT) AS HRESULT
-   DECLARE FUNCTION RemoveWebResourceRequestedFilter (BYVAL uri AS LPCWSTR, BYVAL ResourceContext AS COREWEBVIEW2_WEB_RESOURCE_CONTEXT) AS HRESULT
-   DECLARE FUNCTION GetDevToolsProtocolEventReceiver (BYVAL eventName AS LPCWSTR, BYVAL receiver AS Afx_ICoreWebView2DevToolsProtocolEventReceiver PTR PTR) AS HRESULT
 
 END TYPE
 ' ========================================================================================
@@ -222,6 +223,28 @@ PRIVATE CONSTRUCTOR CWebView2 (BYVAL hWin AS HWND, BYVAL pUserDataFolder AS WSTR
    CWV2_DP("pEnv: " & WSTR(pEnv) & " - hr: " & HEX(hr))
 END CONSTRUCTOR
 ' ========================================================================================
+' ========================================================================================
+PRIVATE CONSTRUCTOR CWebView2 (BYVAL hWin AS HWND, BYREF wszUserDataFolder AS WSTRING)
+   CWV2_DP("hWin: " & WSTR(hWin) & " - UserDataFolder: " & wszUserDataFolder)
+   ' // Initialize the COM library
+   CoInitialize NULL
+   ' // Store the window handle
+   IF hWin = NULL THEN SetResult(E_POINTER): EXIT CONSTRUCTOR
+   SetWindowLongPtrW(hWin, GWLP_USERDATA, cast(LONG_PTR, @this))
+   m_hwnd = hWin
+   ' // Create the environment
+   DIM pEnv AS CWebView2CreateCoreWebView2EnvironmentCompletedHandlerInternal PTR
+   pEnv = NEW CWebView2CreateCoreWebView2EnvironmentCompletedHandlerInternal(@this)
+   DIM hr AS HRESULT
+   IF VARPTR(wszUserDataFolder) = NULL THEN
+      hr = CreateCoreWebView2Environment(cast(ANY PTR, pEnv))
+   ELSE
+      hr = CreateCoreWebView2EnvironmentWithOptions(NULL, @wszUserDataFolder, NULL, cast(ANY PTR, pEnv))
+   END IF
+   SetResult(hr)
+   CWV2_DP("pEnv: " & WSTR(pEnv) & " - hr: " & HEX(hr))
+END CONSTRUCTOR
+' ========================================================================================
 
 ' ========================================================================================
 ' Destructor
@@ -236,7 +259,7 @@ PRIVATE DESTRUCTOR CWebView2
       m_pController->Release
    END IF
    IF m_pEnv THEN m_pEnv->Release
-   CWV2_DP("delete clas - this: " & WSTR(@this))
+   CWV2_DP("delete class - this: " & WSTR(@this))
    ' // Uninitialize the COM library
    CoUninitialize
 END DESTRUCTOR
@@ -1542,7 +1565,7 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Saves the contents of a string buffer to a temporary file and returns the name of the file.
+' Saves the contents of an html script to a temporary file and returns the name of the file.
 ' The file is saved with a .html extension and using UTF-8 encoding.
 ' ========================================================================================
 PRIVATE FUNCTION AfxSaveTempHtmlFile (BYVAL pwszBuffer AS WSTRING PTR) AS DWSTRING

@@ -20,11 +20,13 @@ NAMESPACE AfxNova
 ' ========================================================================================
 ' Custom structure used by the CRichEditCtx.LoadRtfFromResource method.
 ' ========================================================================================
+#ifndef AFX_CRichEditCtx_CUSTOMDATA
 TYPE AFX_CRichEditCtx_CUSTOMDATA
    pData  AS BYTE PTR
    nLen   AS LONG
    curPos AS LONG
 END TYPE
+#endif
 ' ========================================================================================
 
 ' ========================================================================================

@@ -195,11 +195,13 @@ Public:
    DECLARE PROPERTY InstanceHandle () AS HINSTANCE
    DECLARE PROPERTY InstanceHandle (BYVAL hInst AS HINSTANCE)
    DECLARE PROPERTY ClassStyle () AS ULONG_PTR
-   DECLARE PROPERTY ClassStyle (BYVAL dwStyle AS ULONG_PTR)
-   DECLARE PROPERTY WindowStyle () AS ULONG_PTR
-   DECLARE PROPERTY WindowStyle (BYVAL dwStyle AS ULONG_PTR)
-   DECLARE PROPERTY WindowExStyle () AS ULONG_PTR
-   DECLARE PROPERTY WindowExStyle (BYVAL dwExStyle AS ULONG_PTR)
+   DECLARE PROPERTY ClassStyle (BYVAL dwStyle AS LONG_PTR)
+   DECLARE PROPERTY WindowStyle () AS LONG_PTR
+   DECLARE PROPERTY WindowStyle (BYVAL dwStyle AS LONG_PTR)
+   DECLARE PROPERTY WindowExStyle () AS LONG_PTR
+   DECLARE PROPERTY WindowExStyle (BYVAL dwExStyle AS LONG_PTR)
+   DECLARE PROPERTY WindowStyleEx () AS LONG_PTR
+   DECLARE PROPERTY WindowStyleEx (BYVAL dwExStyle AS LONG_PTR)
    DECLARE PROPERTY DefaultFontName () AS STRING
    DECLARE PROPERTY DefaultFontName (BYREF wszFontName AS WSTRING)
    DECLARE PROPERTY DefaultFontSize () AS LONG
@@ -239,6 +241,14 @@ Public:
    DECLARE SUB GetWorkArea OVERLOAD (BYVAL lpRect AS LPRECT)
    DECLARE FUNCTION GetWorkArea OVERLOAD () AS RECT
    DECLARE FUNCTION ControlHandle (BYVAL cID AS LONG) AS HWND
+   DECLARE FUNCTION ControlGetStyle (BYVAL hWnd AS HWND) AS LONG_PTR
+   DECLARE FUNCTION ControlGetExStyle (BYVAL hWnd AS HWND) AS LONG_PTR
+   DECLARE FUNCTION ControlSetStyle (BYVAL hWnd AS HWND, BYVAL dwStyle AS LONG_PTR) AS LONG_PTR
+   DECLARE FUNCTION ControlSetExStyle (BYVAL hWnd AS HWND, BYVAL dwExStyle AS LONG_PTR) AS LONG_PTR
+   DECLARE FUNCTION ControlAddStyle (BYVAL hWnd AS HWND, BYVAL dwStyle AS LONG_PTR) AS LONG_PTR
+   DECLARE FUNCTION ControlAddExStyle (BYVAL hWnd AS HWND, BYVAL dwExStyle AS LONG_PTR) AS LONG_PTR
+   DECLARE FUNCTION ControlRemoveStyle (BYVAL hWnd AS HWND, BYVAL dwStyle AS LONG_PTR) AS LONG_PTR
+   DECLARE FUNCTION ControlRemoveExStyle (BYVAL hWnd AS HWND, BYVAL dwExStyle AS DWORD) AS LONG_PTR
    DECLARE FUNCTION SetWindowPos (BYVAL hwnd AS HWND, BYVAL hwndInsertAfter AS HWND, BYVAL x AS LONG, BYVAL y AS LONG, BYVAL cx AS LONG, BYVAL cy AS LONG, BYVAL uFlags AS UINT) AS BOOLEAN
    DECLARE FUNCTION MoveWindow (BYVAL hwnd AS HWND, BYVAL x AS LONG, BYVAL y AS LONG, BYVAL nWidth AS LONG, BYVAL nHeight AS LONG, BYVAL bRepaint AS BOOLEAN = TRUE) AS BOOLEAN
    DECLARE SUB Resize ()
@@ -702,7 +712,7 @@ PRIVATE FUNCTION CWindow.Create (BYVAL hParent AS HWND = NULL, BYREF wszTitle AS
             hParent, NULL, m_hInstance, CAST(HANDLE, @this))
    IF m_hwnd = NULL THEN EXIT FUNCTION
    ' // Get the class name
-   ..GetClassNameW(m_hwnd, @m_wszClassName, SIZEOF(m_wszClassName))
+   ..GetClassNameW(m_hwnd, @m_wszClassName, SIZEOF(m_wszClassName)\2)
    FUNCTION = m_hwnd
    ' // Set the font
    IF m_hFont THEN ..SendMessageW m_hwnd, WM_SETFONT, CAST(WPARAM, m_hFont), FALSE
@@ -797,7 +807,7 @@ END PROPERTY
 ' =====================================================================================
 ' Sets the window class style.
 ' =====================================================================================
-PRIVATE PROPERTY CWindow.ClassStyle (BYVAL dwStyle AS ULONG_PTR)
+PRIVATE PROPERTY CWindow.ClassStyle (BYVAL dwStyle AS LONG_PTR)
    IF m_hwnd = NULL THEN EXIT PROPERTY
    ..SetClassLongPtrW(m_hwnd, GCL_STYLE, dwStyle)
 END PROPERTY
@@ -806,7 +816,7 @@ END PROPERTY
 ' =====================================================================================
 ' Gets the window style.
 ' =====================================================================================
-PRIVATE PROPERTY CWindow.WindowStyle () AS ULONG_PTR
+PRIVATE PROPERTY CWindow.WindowStyle () AS LONG_PTR
    IF m_hwnd = NULL THEN EXIT PROPERTY
    PROPERTY = ..GetWindowLongPtrW(m_hwnd, GWL_STYLE)
 END PROPERTY
@@ -816,16 +826,23 @@ END PROPERTY
 ' Sets the window style.
 ' Example to create a popup window: pWindow.WindowStyle = WS_POPUPWINDOW OR WS_CAPTION
 ' =====================================================================================
-PRIVATE PROPERTY CWindow.WindowStyle (BYVAL dwStyle AS ULONG_PTR)
+PRIVATE PROPERTY CWindow.WindowStyle (BYVAL dwStyle AS LONG_PTR)
    IF m_hwnd = NULL THEN EXIT PROPERTY
    ..SetWindowLongPtrW(m_hwnd, GWL_STYLE, dwStyle)
+   ..SetWindowPos(m_hwnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED OR SWP_NOMOVE OR SWP_NOSIZE OR SWP_NOZORDER)
 END PROPERTY
 ' =====================================================================================
 
 ' =====================================================================================
 ' Gets the window extended style.
 ' =====================================================================================
-PRIVATE PROPERTY CWindow.WindowExStyle () AS ULONG_PTR
+PRIVATE PROPERTY CWindow.WindowExStyle () AS LONG_PTR
+   IF m_hwnd = NULL THEN EXIT PROPERTY
+   PROPERTY = ..GetWindowLongPtrW(m_hwnd, GWL_EXSTYLE)
+END PROPERTY
+' =====================================================================================
+' =====================================================================================
+PRIVATE PROPERTY CWindow.WindowStyleEx () AS LONG_PTR
    IF m_hwnd = NULL THEN EXIT PROPERTY
    PROPERTY = ..GetWindowLongPtrW(m_hwnd, GWL_EXSTYLE)
 END PROPERTY
@@ -834,9 +851,17 @@ END PROPERTY
 ' =====================================================================================
 ' Sets the window extended style.
 ' =====================================================================================
-PRIVATE PROPERTY CWindow.WindowExStyle (BYVAL dwExStyle AS ULONG_PTR)
+PRIVATE PROPERTY CWindow.WindowExStyle (BYVAL dwExStyle AS LONG_PTR)
    IF m_hwnd = NULL THEN EXIT PROPERTY
    ..SetWindowLongPtrW(m_hwnd, GWL_EXSTYLE, dwExStyle)
+   ..SetWindowPos(m_hwnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED OR SWP_NOMOVE OR SWP_NOSIZE OR SWP_NOZORDER)
+END PROPERTY
+' =====================================================================================
+' =====================================================================================
+PRIVATE PROPERTY CWindow.WindowStyleEx (BYVAL dwExStyle AS LONG_PTR)
+   IF m_hwnd = NULL THEN EXIT PROPERTY
+   ..SetWindowLongPtrW(m_hwnd, GWL_EXSTYLE, dwExStyle)
+   ..SetWindowPos(m_hwnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED OR SWP_NOMOVE OR SWP_NOSIZE OR SWP_NOZORDER)
 END PROPERTY
 ' =====================================================================================
 
@@ -874,10 +899,10 @@ END PROPERTY
 
 ' =====================================================================================
 ' Sets the handle of the font used as default.
+' If m_hFont already exists, ignore it because the font is already being used.
 ' =====================================================================================
 PRIVATE PROPERTY CWindow.Font (BYVAL hFont AS HFONT)
-   IF m_hFont THEN ..DeleteObject m_hFont
-   m_hFont = hFont
+   IF m_hFont = NULL THEN m_hFont = hFont
 END PROPERTY
 ' =====================================================================================
 
@@ -1250,7 +1275,105 @@ PRIVATE FUNCTION CWindow.ControlHandle (BYVAL cID AS LONG) AS HWND
 END FUNCTION
 ' =====================================================================================
 
-' =====================================================================================
+' ========================================================================================
+' Retrieves the window styles of the specified control
+' ========================================================================================
+PRIVATE FUNCTION CWindow.ControlGetStyle (BYVAL hWnd AS HWND) AS LONG_PTR
+   RETURN GetWindowLongPtrW(hWnd, GWL_STYLE)
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Retrieves the extended window styles of the specified control
+' ========================================================================================
+PRIVATE FUNCTION CWindow.ControlGetExStyle (BYVAL hWnd AS HWND) AS LONG_PTR
+   RETURN GetWindowLongPtrW(hWnd, GWL_EXSTYLE)
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Sets the window styles of the specified control
+' ========================================================================================
+PRIVATE FUNCTION CWindow.ControlSetStyle (BYVAL hWnd AS HWND, BYVAL dwStyle AS LONG_PTR) AS LONG_PTR
+   DIM dwOldStyle AS LONG_PTR = GetWindowLongPtrW(hWnd, GWL_STYLE)
+   SetWindowLongPtrW(hWnd, GWL_STYLE, dwStyle)
+   SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED OR SWP_NOMOVE OR SWP_NOSIZE OR SWP_NOZORDER)
+   RETURN dwOldStyle
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Sets the window extended styles
+' ========================================================================================
+PRIVATE FUNCTION CWindow.ControlSetExStyle (BYVAL hWnd AS HWND, BYVAL dwExStyle AS LONG_PTR) AS LONG_PTR
+   DIM dwOldExStyle AS LONG_PTR = GetWindowLongPtrW(hWnd, GWL_EXSTYLE)
+   SetWindowLongPtrW(hWnd, GWL_EXSTYLE, dwExStyle)
+   SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED OR SWP_NOMOVE OR SWP_NOSIZE OR SWP_NOZORDER)
+   RETURN dwOldExStyle
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Adds a new style to the specified control.
+' - hwnd  = Window handle
+' - dwStyle = Style to add
+' Return value:
+'   The previous window styles
+' ========================================================================================
+PRIVATE FUNCTION CWindow.ControlAddStyle (BYVAL hWnd AS HWND, BYVAL dwStyle AS LONG_PTR) AS LONG_PTR
+   DIM dwOldStyle AS LONG_PTR = GetWindowLongPtrW(hWnd, GWL_STYLE)
+   SetWindowLongPtrW(hWnd, GWL_STYLE, dwOldStyle OR dwStyle)
+   SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED OR SWP_NOMOVE OR SWP_NOSIZE OR SWP_NOZORDER)
+   RETURN dwOldStyle
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Adds a new extended style to the specified control.
+' - hwnd  = Window handle
+' - dwExStyle = Style to add
+' Return value:
+'   The previous extended window styles
+' ========================================================================================
+PRIVATE FUNCTION CWindow.ControlAddExStyle (BYVAL hWnd AS HWND, BYVAL dwExStyle AS LONG_PTR) AS LONG_PTR
+   DIM dwOldExStyle AS LONG_PTR = GetWindowLongPtrW(hWnd, GWL_EXSTYLE)
+   SetWindowLongPtrW(hWnd, GWL_EXSTYLE, dwOldExStyle OR dwExStyle)
+   SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED OR SWP_NOMOVE OR SWP_NOSIZE OR SWP_NOZORDER)
+   RETURN dwOldExStyle
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Removes an style from the specified control.
+' - hwnd  = Window handle
+' - dwStyle = Style to remove
+' Return value:
+'   The previous window styles
+' ========================================================================================
+PRIVATE FUNCTION CWindow.ControlRemoveStyle (BYVAL hWnd AS HWND, BYVAL dwStyle AS LONG_PTR) AS LONG_PTR
+   DIM dwOldStyle AS LONG_PTR = GetWindowLongPtrW(hWnd, GWL_STYLE)
+   SetWindowLongPtrW(hWnd, GWL_STYLE, dwOldStyle AND (NOT dwStyle))
+   SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED OR SWP_NOMOVE OR SWP_NOSIZE OR SWP_NOZORDER)
+   RETURN dwOldStyle
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Removes an extended style from the specified control.
+' - hwnd  = Window handle
+' - dwExStyle = Style to remove
+' Return value:
+'   The previous window styles
+' ========================================================================================
+PRIVATE FUNCTION CWindow.ControlRemoveExStyle (BYVAL hWnd AS HWND, BYVAL dwExStyle AS DWORD) AS LONG_PTR
+   DIM dwOldExStyle AS LONG_PTR = GetWindowLongPtrW(hWnd, GWL_EXSTYLE)
+   SetWindowLongPtrW(hWnd, GWL_EXSTYLE, dwOldExStyle AND (NOT dwExStyle))
+   SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED OR SWP_NOMOVE OR SWP_NOSIZE OR SWP_NOZORDER)
+   RETURN dwOldExStyle
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
 ' Resizes the window
 ' =====================================================================================
 PRIVATE SUB CWindow.Resize
@@ -1457,6 +1580,8 @@ PRIVATE FUNCTION CWindow.AddControl ( _
          IF dwStyle = -1 THEN dwStyle = WS_VISIBLE OR WS_TABSTOP OR BS_PUSHBUTTON OR BS_CENTER OR BS_VCENTER
          IF dwStyle = BS_FLAT THEN dwStyle = WS_VISIBLE OR WS_TABSTOP OR BS_PUSHBUTTON OR BS_CENTER OR BS_VCENTER OR BS_FLAT
          IF dwStyle = BS_DEFPUSHBUTTON THEN dwStyle = WS_VISIBLE OR WS_TABSTOP OR BS_CENTER OR BS_VCENTER OR BS_DEFPUSHBUTTON
+         IF dwStyle = BS_BITMAP THEN dwStyle = WS_VISIBLE OR WS_TABSTOP OR BS_PUSHBUTTON OR BS_BITMAP
+         IF dwStyle = BS_ICON THEN dwStyle = WS_VISIBLE OR WS_TABSTOP OR BS_PUSHBUTTON OR BS_ICON
          IF dwStyle = BS_OWNERDRAW THEN dwStyle = WS_VISIBLE OR WS_TABSTOP OR BS_OWNERDRAW
          #if _WIN32_WINNT = &h0602
          IF dwStyle = BS_SPLITBUTTON THEN dwStyle = WS_VISIBLE OR WS_TABSTOP OR BS_CENTER OR BS_VCENTER OR BS_SPLITBUTTON
@@ -2548,10 +2673,10 @@ BYVAL nLen AS LONG = 260, BYVAL bPassword AS BOOLEAN = FALSE) AS DWSTRING
    ' // IDS_OK (801) as the identifier and the Cancel button IDS_CANCEL (801).
    DIM hUser32Instance AS HINSTANCE = GetModuleHandleW("user32.dll")
    DIM wszOk AS WSTRING * 260
-   DIM cbLen AS LONG = LoadStringW(hUser32Instance, 800, @wszOk, SIZEOF(wszOk))
+   DIM cbLen AS LONG = LoadStringW(hUser32Instance, 800, @wszOk, SIZEOF(wszOk)\2)
    IF cbLen THEN wszOk = "&" & wszOk : SendMessageW(hOkButton, WM_SETTEXT, 0, cast(LPARAM, @wszOk))
    DIM wszCancel AS WSTRING * 260
-   cbLen = LoadStringW(hUser32Instance, 801, @wszCancel, SIZEOF(wszCancel))
+   cbLen = LoadStringW(hUser32Instance, 801, @wszCancel, SIZEOF(wszCancel)\2)
    IF cbLen THEN wszCancel = "&" & wszCancel : SendMessageW(hCancelButton, WM_SETTEXT, 0, cast(LPARAM, @wszCancel))
    ' // Set the text and the limit
    IF nLen = 0 THEN nLen = 260

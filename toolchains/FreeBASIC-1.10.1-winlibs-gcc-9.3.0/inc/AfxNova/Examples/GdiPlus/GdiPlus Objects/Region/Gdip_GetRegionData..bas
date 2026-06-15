@@ -63,7 +63,7 @@ SUB Example_GetRegionData (BYVAL hdc AS HDC)
    GdipGetRegionData(pathRegion, STRPTR(strBuffer), bufferSize, @sizeFilled)
 
    ' // Fill the region with a semitransparent blue brush.
-   DIM solidBrush AS GdiPlusSOlidBrush = ARGB_RED
+   DIM solidBrush AS GdiPlusSolidBrush = ARGB_RED
    GdipFillRegion(graphics, solidBrush, pathRegion)
 
 END SUB
@@ -96,20 +96,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_GetRegionData(hdc)
+   Example_GetRegionData(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

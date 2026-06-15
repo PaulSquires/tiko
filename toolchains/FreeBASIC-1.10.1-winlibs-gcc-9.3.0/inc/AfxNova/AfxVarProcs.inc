@@ -27,6 +27,7 @@
 #pragma once
 #include once "win/shtypes.bi"
 #include once "crt/limits.bi"
+#INCLUDE ONCE "AfxNova/AfxWin.inc"
 #include once "AfxNova/DWSTRING.inc"
 USING AfxNova
 

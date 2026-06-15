@@ -1,6 +1,5 @@
 '#TEMPLATE DDT Dialog - Task Dialog
-'#RESOURCE "Resource.rc"
-' AfxEnableVisualStyles can't be used. This example needs a manifest in a resource file.
+#cmdline "Resource.rc"
 #define UNICODE
 #define _WIN32_WINNT &h0602
 #include once "AfxNova/DDT.inc"

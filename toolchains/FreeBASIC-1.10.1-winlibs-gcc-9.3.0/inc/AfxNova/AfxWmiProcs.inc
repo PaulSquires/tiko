@@ -87,23 +87,7 @@ PRIVATE FUNCTION AfxGetDiskDriveSerialNumber (BYREF wszServerName AS WSTRING = "
    IF pServices.ServicesPtr = NULL THEN RETURN ""
    pServices.ExecQuery("SELECT SerialNumber FROM Win32_DiskDrive")
    pServices.GetNamedProperties
-   RETURN pServices.PropValue("SerialNumber").ToStr
-END FUNCTION
-' ========================================================================================
-
-' ========================================================================================
-' Retrieves the address width of the processor. On a 32-bit operating system, the value is
-' 32 and on a 64-bit operating system it is 64. This PRIVATE FUNCTION can be used to determine if
-' the processor is 32 or 64 bit.
-' ========================================================================================
-PRIVATE FUNCTION AfxGetAddressWidth (BYREF wszServerName AS WSTRING = ".") AS USHORT
-   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
-   DIM nError AS DWORD = GetLastError
-   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
-   IF pServices.ServicesPtr = NULL THEN RETURN 0
-   pServices.ExecQuery("SELECT AddressWidth FROM Win32_Processor")
-   pServices.GetNamedProperties
-   RETURN VAL(pServices.PropValue("AddressWidth"))
+   RETURN pServices.PropValue("SerialNumber")
 END FUNCTION
 ' ========================================================================================
 
@@ -120,22 +104,6 @@ PRIVATE FUNCTION AfxGetSystemType (BYREF wszServerName AS WSTRING = ".") AS DWST
    pServices.ExecQuery("SELECT SystemType FROM Win32_ComputerSystem")
    pServices.GetNamedProperties
    RETURN pServices.PropValue("SystemType")
-END FUNCTION
-' ========================================================================================
-
-' ========================================================================================
-' Retrieves the architecture of the operating system, as opposed to the processor.
-' Example: "64 bits".
-' Not available in Windows Server 2003, Windows 2000, Windows NT 4.0, Windows XP, and Windows Me/98/95.
-' ========================================================================================
-PRIVATE FUNCTION AfxGetOSArchitecture (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
-   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
-   DIM nError AS DWORD = GetLastError
-   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
-   IF pServices.ServicesPtr = NULL THEN RETURN ""
-   pServices.ExecQuery("SELECT OSArchitecture FROM Win32_OperatingSystem")
-   pServices.GetNamedProperties
-   RETURN pServices.PropValue("OSArchitecture").ToStr
 END FUNCTION
 ' ========================================================================================
 
@@ -176,22 +144,7 @@ PRIVATE FUNCTION AfxGetBootDevice (BYREF wszServerName AS WSTRING = ".") AS DWST
    IF pServices.ServicesPtr = NULL THEN RETURN ""
    pServices.ExecQuery("SELECT BootDevice FROM Win32_OperatingSystem")
    pServices.GetNamedProperties
-   RETURN pServices.PropValue("BootDevice").ToStr
-END FUNCTION
-' ========================================================================================
-
-' ========================================================================================
-' Build number of an operating system. It can be used for more precise version information
-' than product release version numbers. Example: "7601".
-' ========================================================================================
-PRIVATE FUNCTION AfxGetOSBuildNumber (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
-   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
-   DIM nError AS DWORD = GetLastError
-   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
-   IF pServices.ServicesPtr = NULL THEN RETURN ""
-   pServices.ExecQuery("SELECT BuildNumber FROM Win32_OperatingSystem")
-   pServices.GetNamedProperties
-   RETURN pServices.PropValue("BuildNumber").ToStr
+   RETURN pServices.PropValue("BootDevice")
 END FUNCTION
 ' ========================================================================================
 
@@ -206,7 +159,7 @@ PRIVATE FUNCTION AfxGetOSBuildType (BYREF wszServerName AS WSTRING = ".") AS DWS
    IF pServices.ServicesPtr = NULL THEN RETURN ""
    pServices.ExecQuery("SELECT BuildType FROM Win32_OperatingSystem")
    pServices.GetNamedProperties
-   RETURN pServices.PropValue("BuildType").ToStr
+   RETURN pServices.PropValue("BuildType")
 END FUNCTION
 ' ========================================================================================
 
@@ -224,72 +177,7 @@ PRIVATE FUNCTION AfxGetOSCaption (BYREF wszServerName AS WSTRING = ".") AS DWSTR
    IF pServices.ServicesPtr = NULL THEN RETURN ""
    pServices.ExecQuery("SELECT Caption FROM Win32_OperatingSystem")
    pServices.GetNamedProperties
-   RETURN pServices.PropValue("Caption").ToStr
-END FUNCTION
-' ========================================================================================
-
-' ========================================================================================
-' Code page value an operating system uses. A code page contains a character table that an
-' operating system uses to translate strings for different languages. The American National
-' Standards Institute (ANSI) lists values that represent defined code pages. If an operating
-' system does not use an ANSI code page, this member is set to 0 (zero). The CodeSet string
-' can use a maximum of six characters to define the code page value.
-' Example: "1255"
-' ========================================================================================
-PRIVATE FUNCTION AfxGetOSCodeSet (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
-   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
-   DIM nError AS DWORD = GetLastError
-   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
-   IF pServices.ServicesPtr = NULL THEN RETURN ""
-   pServices.ExecQuery("SELECT CodeSet FROM Win32_OperatingSystem")
-   pServices.GetNamedProperties
-   RETURN pServices.PropValue("CodeSet").ToStr
-END FUNCTION
-' ========================================================================================
-
-' ========================================================================================
-' Code for the country/region that an operating system uses. Values are based on international
-' phone dialing prefixes—also referred to as IBM country/region codes. This property can
-' use a maximum of six characters to define the country/region code value.
-' Example: "1" (United States)
-' ========================================================================================
-PRIVATE FUNCTION AfxGetOSCountryCode (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
-   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
-   DIM nError AS DWORD = GetLastError
-   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
-   IF pServices.ServicesPtr = NULL THEN RETURN ""
-   pServices.ExecQuery("SELECT CountryCode FROM Win32_OperatingSystem")
-   pServices.GetNamedProperties
-   RETURN pServices.PropValue("CountryCode").ToStr
-END FUNCTION
-' ========================================================================================
-
-' ========================================================================================
-' String that indicates the latest service pack installed on a computer. If no service pack
-' is installed, the string is NULL. Example: "Service Pack 3".
-' ========================================================================================
-PRIVATE FUNCTION AfxGetOSCSDVersion (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
-   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
-   DIM nError AS DWORD = GetLastError
-   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
-   IF pServices.ServicesPtr = NULL THEN RETURN ""
-   pServices.ExecQuery("SELECT CSDVersion FROM Win32_OperatingSystem")
-   pServices.GetNamedProperties
-   RETURN pServices.PropValue("CSDVersion").ToStr
-END FUNCTION
-' ========================================================================================
-
-' ========================================================================================
-' Name of the scoping computer system.
-' ========================================================================================
-PRIVATE FUNCTION AfxGetOSCSName (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
-   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
-   DIM nError AS DWORD = GetLastError
-   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
-   IF pServices.ServicesPtr = NULL THEN RETURN ""
-   pServices.ExecQuery("SELECT CSName FROM Win32_OperatingSystem")
-   pServices.GetNamedProperties
-   RETURN pServices.PropValue("CSName").ToStr
+   RETURN pServices.PropValue("Caption")
 END FUNCTION
 ' ========================================================================================
 
@@ -309,23 +197,6 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Language identifier used by the operating system. A language identifier is a standard
-' international numeric abbreviation for a country/region. Each language has a unique
-' language identifier (LANGID), a 16-bit value that consists of a primary language
-' identifier and a secondary language identifier.
-' ========================================================================================
-PRIVATE FUNCTION AfxGetOSLocale (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
-   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
-   DIM nError AS DWORD = GetLastError
-   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
-   IF pServices.ServicesPtr = NULL THEN RETURN ""
-   pServices.ExecQuery("SELECT Locale FROM Win32_OperatingSystem")
-   pServices.GetNamedProperties
-   RETURN pServices.PropValue("Locale")
-END FUNCTION
-' ========================================================================================
-
-' ========================================================================================
 ' Name of the registered user of the operating system. Example: "Ben Smith".
 ' ========================================================================================
 PRIVATE FUNCTION AfxGetOSRegisteredUser (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
@@ -336,48 +207,6 @@ PRIVATE FUNCTION AfxGetOSRegisteredUser (BYREF wszServerName AS WSTRING = ".") A
    pServices.ExecQuery("SELECT RegisteredUser FROM Win32_OperatingSystem")
    pServices.GetNamedProperties
    RETURN pServices.PropValue("RegisteredUser")
-END FUNCTION
-' ========================================================================================
-
-' ========================================================================================
-' System directory of the operating system. Example: "C:\Windows\system32".
-' ========================================================================================
-PRIVATE FUNCTION AfxGetOSSystemDirectory (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
-   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
-   DIM nError AS DWORD = GetLastError
-   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
-   IF pServices.ServicesPtr = NULL THEN RETURN ""
-   pServices.ExecQuery("SELECT SystemDirectory FROM Win32_OperatingSystem")
-   pServices.GetNamedProperties
-   RETURN pServices.PropValue("SystemDirectory")
-END FUNCTION
-' ========================================================================================
-
-' ========================================================================================
-' Letter of the disk drive on which the operating system resides. Example: "C:".
-' ========================================================================================
-PRIVATE FUNCTION AfxGetOSSystemDrive (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
-   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
-   DIM nError AS DWORD = GetLastError
-   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
-   IF pServices.ServicesPtr = NULL THEN RETURN ""
-   pServices.ExecQuery("SELECT SystemDrive FROM Win32_OperatingSystem")
-   pServices.GetNamedProperties
-   RETURN pServices.PropValue("SystemDrive")
-END FUNCTION
-' ========================================================================================
-
-' ========================================================================================
-' Version number of the operating system. Example: "6.1.7601".
-' ========================================================================================
-PRIVATE FUNCTION AfxGetOSVersion (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
-   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
-   DIM nError AS DWORD = GetLastError
-   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
-   IF pServices.ServicesPtr = NULL THEN RETURN ""
-   pServices.ExecQuery("SELECT Version FROM Win32_OperatingSystem")
-   pServices.GetNamedProperties
-   RETURN pServices.PropValue("Version")
 END FUNCTION
 ' ========================================================================================
 
@@ -421,20 +250,6 @@ PRIVATE FUNCTION AfxGetOSLastBootUpTime (BYREF wszServerName AS WSTRING = ".") A
    pServices.ExecQuery("SELECT LastBootUpTime FROM Win32_OperatingSystem")
    pServices.GetNamedProperties
    RETURN pServices.PropValue("LastBootUpTime")
-END FUNCTION
-' ========================================================================================
-
-' ========================================================================================
-' Operating system version of the local date and time-of-day.
-' ========================================================================================
-PRIVATE FUNCTION AfxGetOSLocalDateTime (BYREF wszServerName AS WSTRING = ".") AS DWSTRING
-   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
-   DIM nError AS DWORD = GetLastError
-   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
-   IF pServices.ServicesPtr = NULL THEN RETURN ""
-   pServices.ExecQuery("SELECT LocalDateTime FROM Win32_OperatingSystem")
-   pServices.GetNamedProperties
-   RETURN pServices.PropValue("LocalDateTime")
 END FUNCTION
 ' ========================================================================================
 
@@ -555,21 +370,6 @@ END FUNCTION
 ' ========================================================================================
 
 ' ========================================================================================
-' Language version of the operating system installed. The following list lists the possible
-' values. Example: 2055 (&h0807) (German - Switzerland).
-' ========================================================================================
-PRIVATE FUNCTION AfxGetOSLanguage (BYREF wszServerName AS WSTRING = ".") AS ULONG
-   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\cimv2"
-   DIM nError AS DWORD = GetLastError
-   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
-   IF pServices.ServicesPtr = NULL THEN RETURN 0
-   pServices.ExecQuery("SELECT OSLanguage FROM Win32_OperatingSystem")
-   pServices.GetNamedProperties
-   RETURN VAL(pServices.PropValue("OSLanguage"))
-END FUNCTION
-' ========================================================================================
-
-' ========================================================================================
 ' Number, in kilobytes, of virtual memory. For example, this may be calculated by adding
 ' the amount of total RAM to the amount of paging space, that is, adding the amount of
 ' memory in or aggregated by the computer system to the property, SizeStoredInPagingFiles.
@@ -613,5 +413,34 @@ PRIVATE FUNCTION AfxGetNetworkAdapterMACAddress (BYREF wszServerName AS WSTRING 
    pServices.ExecQuery("SELECT MACAddress FROM Win32_NetworkAdapterConfiguration")
    pServices.GetNamedProperties
    RETURN pServices.PropValue("MACAddress")
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Gets the physical sector size of the physical disk, in bytes. For example: for 4K native
+' and 512-byte emulated disks, the value of this property should be 4096.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetPhysicalDiskSectorSize (BYREF wszServerName AS WSTRING = ".") AS UINT64
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\Microsoft\Windows\Storage"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT PhysicalSectorSize FROM MSFT_PhysicalDisk")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("PhysicalSectorSize"))
+END FUNCTION
+' ========================================================================================
+
+' ========================================================================================
+' Gets the total physical storage size of the disk, in bytes.
+' ========================================================================================
+PRIVATE FUNCTION AfxGetPhysicalDiskSize (BYREF wszServerName AS WSTRING = ".") AS UINT64
+   DIM pServices AS CWmiServices = $"winmgmts:{impersonationLevel=impersonate}!\\" & wszServerName & $"\root\Microsoft\Windows\Storage"
+   DIM nError AS DWORD = GetLastError
+   IF nError THEN AfxMsg(__FUNCTION__ & CHR(13,10) & "Error: &h" & HEX(nError, 8) & CHR(13,10) & AfxWmiGetErrorCodeText(nError))
+   IF pServices.ServicesPtr = NULL THEN RETURN 0
+   pServices.ExecQuery("SELECT Size FROM MSFT_PhysicalDisk")
+   pServices.GetNamedProperties
+   RETURN VAL(pServices.PropValue("Size"))
 END FUNCTION
 ' ========================================================================================

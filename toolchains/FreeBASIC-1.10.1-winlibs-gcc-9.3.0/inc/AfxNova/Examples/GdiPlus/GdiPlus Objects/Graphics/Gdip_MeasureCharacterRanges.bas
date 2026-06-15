@@ -65,14 +65,18 @@ SUB Example_MeasureCharacterRanges (BYVAL hdc AS HDC)
    GdipSetStringFormatMeasurableCharacterRanges(stringFormat, 3, @charRanges(0))
 
    ' // Allocate regions
-   DIM regions(0 TO 2) AS GdiPlusRegion
+   DIM regions(2) AS GdiPlusRegion PTR
+   FOR i AS LONG = 0 TO 2
+      GdipCreateRegion(@regions(i))
+   NEXT
 
    ' // Text to draw
    DIM text AS WSTRING * 128 = "The quick, brown fox easily jumps over the lazy dog."
 
    ' // Measure and draw for layoutRectA
    DIM layoutRectA AS GpRectF = (20.0, 20.0, 130.0, 130.0)
-   GdipMeasureCharacterRanges(graphics, @text, -1, font, @layoutRectA, stringFormat, 3, @regions(0))
+?   GdipMeasureCharacterRanges(graphics, @text, -1, font, @layoutRectA, stringFormat, 3, @regions(0))
+
    GdipDrawString(graphics, @text, -1, font, @layoutRectA, stringFormat, blueBrush)
    GdipDrawRectangle(graphics, blackPen, layoutRectA.X, layoutRectA.Y, layoutRectA.Width, layoutRectA.Height)
    FOR i AS LONG = 0 TO 2
@@ -128,20 +132,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_MeasureCharacterRanges(hdc)
+   Example_MeasureCharacterRanges(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

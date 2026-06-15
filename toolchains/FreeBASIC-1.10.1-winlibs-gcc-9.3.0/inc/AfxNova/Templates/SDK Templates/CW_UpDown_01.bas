@@ -97,22 +97,6 @@ FUNCTION WndProc (BYVAL hwnd AS HWND, BYVAL uMsg AS UINT, BYVAL wParam AS WPARAM
          END SELECT
          RETURN 0
 
-'      CASE WM_NOTIFY
-'         ' // Process notification messages
-'         DIM ptnmhdr AS NMHDR PTR = CAST(NMHDR PTR, lParam)
-'         SELECT CASE ptnmhdr->idFrom
-'            CASE IDC_UPDOWN
-'               IF ptnmhdr->code = UDN_DELTAPOS THEN
-'                  ' Put your code here, e.g.
-'                  DIM ptnmud AS NMUPDOWN PTR = CAST(NMUPDOWN PTR, lParam)
-'                  'ptnmud->iPos : Up-down control's current position.
-'print ptnmud->iPos; "---"
-'                  ' ptnmud->iDelta : proposed change in the up-down control's position.
-'                  ' Return nonzero to prevent the change in the control's position, or zero to allow the change.
-'               END IF
-'               EXIT FUNCTION
-'         END SELECT
-
       CASE WM_NOTIFY
          ' // Process notification messages
          DIM updown AS NMUPDOWN

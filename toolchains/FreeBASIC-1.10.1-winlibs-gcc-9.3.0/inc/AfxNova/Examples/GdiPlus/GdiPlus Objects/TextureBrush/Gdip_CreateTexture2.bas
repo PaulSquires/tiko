@@ -42,7 +42,7 @@ SUB Example_CreateTexture2 (BYVAL hdc AS HDC)
    image.SetResolution(graphics)
 
    ' // Create a texture brush, and set its wrap mode.
-   DIM textureBrush AS GdiPlusTextureBrush = GdiPlusTextureBrush(*image, WrapModeTile, 5, 5, 55, 55)
+   DIM textureBrush AS GdiPlusTextureBrush = GdiPlusTextureBrush(*image, WrapModeTile, 5.0, 5.0, 55.0, 55.0)
    ' // Fill a rectangle with the etxture brush
    GdipFillRectangle(graphics, textureBrush, 20, 20, 360, 210)
 
@@ -76,20 +76,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_CreateTexture2(hdc)
+   Example_CreateTexture2(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

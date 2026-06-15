@@ -58,8 +58,7 @@ SUB Example_PathIterNextMarker (BYVAL hdc AS HDC)
    DIM iterator AS GdiPlusPathIterator = *path
 
    ' Create font and brush for drawing text
-   DIM fontFamily AS GdiPlusFontFamily ="Arial"
-   DIM font AS GdiPlusFont = GdiPlusFont(*fontFamily, AfxGdipPointsToPixels(12, TRUE), FontStyleRegular, UnitPixel)
+   DIM font AS GdiPlusFont = GdiPlusFont("Arial", 12, TRUE)
    DIM brush AS GdiPlusSolidBrush = ARGB_BLACK
 
    ' Iterate through markers
@@ -72,8 +71,7 @@ SUB Example_PathIterNextMarker (BYVAL hdc AS HDC)
       IF resultCount = 0 THEN EXIT DO
       DIM info AS STRING
       info = "Marker " & markerIndex & ": Start=" & startIdx & ", End=" & endIdx
-      DIM layout AS GpRectF = (10.0, yOffset, 300.0, 20.0)
-      GdipDrawString(graphics, info, -1, font, @layout, NULL, brush)
+      graphics.DrawString(info, font, brush, 10, yOffset, 300, 50)
       yOffset += 20.0
       markerIndex += 1
    LOOP
@@ -108,20 +106,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_PathIterNextMarker(hdc)
+   Example_PathIterNextMarker(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

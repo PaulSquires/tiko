@@ -9,7 +9,7 @@
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-'#CONSOLE ON
+#cmdline "-s console"
 #INCLUDE ONCE "AfxNova/CGdiPlus.inc"
 USING AfxNova
 

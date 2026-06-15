@@ -165,7 +165,7 @@ FUNCTION WndProc (BYVAL hwnd AS HWND, BYVAL uMsg AS UINT, BYVAL wParam AS WPARAM
             ' // Retrieve the text of the selected item
             DIM wszText AS WSTRING * 260
             TreeView_GetItemText(hTreeView, hItem, @wszText, 260)
-            MessageBox hwnd, wszText, "Message", MB_OK
+            MessageBoxW hwnd, wszText, "Message", MB_OK
             RETURN 0
          END IF
 

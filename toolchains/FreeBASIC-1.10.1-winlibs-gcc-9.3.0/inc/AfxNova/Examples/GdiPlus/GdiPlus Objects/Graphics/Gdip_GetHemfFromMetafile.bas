@@ -35,13 +35,15 @@ DECLARE FUNCTION WndProc (BYVAL hwnd AS HWND, BYVAL uMsg AS UINT, BYVAL wParam A
 ' ========================================================================================
 SUB Example_GetHemfFromMetafile (BYVAL hdc AS HDC)
 
-   DIM Status AS GpStatus
+   ' // Initialize GDI+
+   DIM pObjs AS GdiPlusObjects
 
    ' // Define frame rectangle
    DIM rcfFrame AS GpRectF = (0.0, 0.0, 300.0, 200.0)
    DIM description AS WSTRING * 64 = "Metafile for export"
 
    ' // Record metafile
+   DIM Status AS GpStatus
    DIM metafile AS GpMetafile PTR
    status = GdipRecordMetafile(hdc, EmfTypeEmfPlusDual, @rcfFrame, MetafileFrameUnitPixel, @description, @metafile)
    IF status <> 0 THEN
@@ -103,20 +105,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_GetHemfFromMetafile(hdc)
+   Example_GetHemfFromMetafile(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

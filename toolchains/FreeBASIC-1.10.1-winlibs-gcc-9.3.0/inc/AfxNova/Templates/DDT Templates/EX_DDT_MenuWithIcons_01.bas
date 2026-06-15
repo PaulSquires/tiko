@@ -1,5 +1,5 @@
 '#TEMPLATE DDT - Menu with icons
-'#RESOURCE "EX_DDT_Menu_Icons_01.rc"
+#cmdline "EX_DDT_Menu_Icons_01.rc"
 #define UNICODE
 #define _WIN32_WINNT &h0602
 #INCLUDE ONCE "AfxNova/AfxGdiPlus.inc"
@@ -103,6 +103,10 @@ FUNCTION DlgProc (BYVAL hDlg AS HWND, BYVAL uMsg AS DWORD, BYVAL wParam AS DWORD
          END SELECT
 
       CASE WM_CLOSE
+         ' // Destroy the bitmaps used in the menu
+         DIM hMenu AS HMENU = MenuGetHandle(hDlg)
+         MenuDestroyBitmaps(hMenu)
+         MenuDestroy(hMenu)
          ' // End the application
          DialogEnd(hDlg)
 

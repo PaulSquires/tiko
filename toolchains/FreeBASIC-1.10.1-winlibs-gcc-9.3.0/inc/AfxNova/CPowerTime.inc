@@ -403,7 +403,7 @@ END FUNCTION
 PRIVATE FUNCTION CPowerTime.DayOfWeekString (BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM wszDateStr AS WSTRING * 260
    DIM st AS SYSTEMTIME = this.GetAsSystemTime
-   GetDateFormatW(lcid, NULL, @st, "dddd", wszDateStr, SIZEOF(wszDateStr))
+   GetDateFormatW(lcid, NULL, @st, "dddd", wszDateStr, SIZEOF(wszDateStr)\2)
    RETURN wszDateStr
 END FUNCTION
 ' ========================================================================================
@@ -920,7 +920,7 @@ END FUNCTION
 PRIVATE FUNCTION CPowerTime.MonthString (BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM wszDateStr AS WSTRING * 260
    DIM st AS SYSTEMTIME = this.GetAsSystemTime
-   GetDateFormatW(lcid, NULL, @st, "MMMM", wszDateStr, SIZEOF(wszDateStr))
+   GetDateFormatW(lcid, NULL, @st, "MMMM", wszDateStr, SIZEOF(wszDateStr)\2)
    RETURN wszDateStr
 END FUNCTION
 ' ========================================================================================
@@ -931,7 +931,7 @@ END FUNCTION
 PRIVATE FUNCTION CPowerTime.DateString (BYREF wszMask AS WSTRING, BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM st AS SYSTEMTIME = this.GetAsSystemTime
    DIM wszDateStr AS WSTRING * 260
-   GetDateFormatW(lcid, NULL, @st, wszMask, wszDateStr, SIZEOF(wszDateStr))
+   GetDateFormatW(lcid, NULL, @st, wszMask, wszDateStr, SIZEOF(wszDateStr)\2)
    RETURN wszDateStr
 END FUNCTION
 ' ========================================================================================
@@ -942,7 +942,7 @@ END FUNCTION
 PRIVATE FUNCTION CPowerTime.TimeString (BYREF wszMask AS WSTRING, BYVAL lcid AS LCID = LOCALE_USER_DEFAULT) AS DWSTRING
    DIM st AS SYSTEMTIME = this.GetAsSystemTime
    DIM wszDateStr AS WSTRING * 260
-   GetTimeFormatW(lcid, NULL, @st, wszMask, wszDateStr, SIZEOF(wszDateStr))
+   GetTimeFormatW(lcid, NULL, @st, wszMask, wszDateStr, SIZEOF(wszDateStr)\2)
    RETURN wszDateStr
 END FUNCTION
 ' ========================================================================================

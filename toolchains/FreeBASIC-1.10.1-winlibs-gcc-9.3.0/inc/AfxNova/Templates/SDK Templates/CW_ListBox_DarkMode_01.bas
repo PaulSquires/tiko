@@ -1,6 +1,6 @@
 ' ########################################################################################
 ' Microsoft Windows
-' File: CW_ListBox_01.bas
+' File: CW_ListBox_DarkMode_01.bas
 ' Contents: ListBox control
 ' Compiler: FreeBasic 32 & 64 bit
 ' Copyright (c) 2025 José Roca. Freeware. Use at your own risk.
@@ -9,7 +9,7 @@
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 ' ########################################################################################
 
-#define UNICODE
+#define UNICODE   ' ListBox_AddString needs the unicode flag
 #define _WIN32_WINNT &h0602
 #INCLUDE ONCE "AfxNova/CWindow.inc"
 USING AfxNova

@@ -45,7 +45,7 @@ SUB Example_IsVisibleClipEmpty (BYVAL hdc AS HDC)
    ' If not empty, draw a rectangle
    IF isVisibleEmpty = FALSE THEN
       DIM pen AS GdiPlusPen = GdiPlusPen(ARGB_BLACK, 3.0, UnitPixel)
-      GdipDrawRectangle(graphics, pen, 0, 0, 100, 100)
+      GdipDrawRectangle(graphics, pen, 10, 10, 100, 100)
    END IF
 
 END SUB
@@ -78,20 +78,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Anchor the control
    pWindow.AnchorControl(pGraphCtx.hWindow, AFX_ANCHOR_HEIGHT_WIDTH)
    
-   ' // Get the memory device context of the graphic control
-   DIM hdc AS HDC = pGraphCtx.GetMemDc
-
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_IsVisibleClipEmpty(hdc)
+   Example_IsVisibleClipEmpty(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================

@@ -3,7 +3,7 @@
 ' File: Gdip_CreateStringFormat.bas
 ' Contents: GDI+ Flat API - GdipCreateStringFormat example
 ' Compiler: FreeBasic 32 & 64 bit
-' Copyright (c) 2025 José Roca. Freeware. Use at your own risk.
+' Copyright (c) 2026 José Roca. Freeware. Use at your own risk.
 ' THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
 ' EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
 ' MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
@@ -38,8 +38,7 @@ SUB Example_CreateStringFormat (BYVAL hdc AS HDC)
    graphics.ScaleTransform
 
    ' // Create the font
-   DIM fontFamily AS GdiPlusFontFamily ="Times New Roman"
-   DIM font AS GdiPlusFont = GdiPlusFont(*fontFamily, AfxGdipPointsToPixels(16, TRUE), FontStyleRegular, UnitPixel)
+   DIM font AS GdiPlusFont = GdiPlusFont("Times New Roman", 16, TRUE)
 
    ' // Create a StringFormat object
    DIM format AS GdiPlusStringFormat = GdiPlusStringFormat(0, LANG_NEUTRAL)
@@ -49,16 +48,14 @@ SUB Example_CreateStringFormat (BYVAL hdc AS HDC)
    DIM solidBrush AS GdiPlusSolidBrush = ARGB_BLACK
 
    ' // Draw the string
-   DIM wszText AS WSTRING * 64 = "Sample text"
-   DIM rcf AS GpRectF = (30, 30, 200, 25)
-   GdipDrawString(graphics, wszText, LEN(wszText), font, @rcf, format, solidBrush)
+   graphics.DrawString("Sample text", font, solidBrush, 30, 30)
 
    ' // Create a Pen
    DIM pen AS GdiPlusPen = GdiPlusPen(ARGB_BLACK, 3, UnitPixel)
    GdipScalePenTransform(pen, graphics.dpiRatioX, graphics.dpiRatioY, MatrixOrderPrepend)
 
    ' // Draw a rectangle
-   GdipDrawRectangle(graphics, *pen, rcf.x, rcf.y, rcf.Width, rcf.Height)
+   GdipDrawRectangle(graphics, pen, 30, 30, 200, 25)
 
 END SUB
 ' ========================================================================================
@@ -93,17 +90,11 @@ FUNCTION wWinMain (BYVAL hInstance AS HINSTANCE, _
    ' // Get the memory device context of the graphic control
    DIM hdc AS HDC = pGraphCtx.GetMemDc
 
-   ' // Initialize GDI+
-   DIM token AS ULONG_PTR = AfxGdipInit
-
    ' // Draw the graphics
-   Example_CreateStringFormat(hdc)
+   Example_CreateStringFormat(pGraphCtx.GetMemDc)
 
    ' // Displays the window and dispatches the Windows messages
    FUNCTION = pWindow.DoEvents(nCmdShow)
-
-   ' // Shutdown GDI+
-   AfxGdipShutdown token
 
 END FUNCTION
 ' ========================================================================================
