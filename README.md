@@ -17,14 +17,15 @@ Features:
 - 64 bit version.
 - High DPI aware for any monitor resolution.
 - Language localization. Simple create language file based on English.lang file.
-- Localized for 5 languages:
-- - English, French, Spanish, German, Norwegian
+- Localized for 6 languages:
+- - English, French, Spanish, German, Norwegian, Chinese Simplified
 - Projects and non-project based editing.
 - Easy integration of Console or GUI based code.
 - Incremental compiling of code defined as a "module".
 - Easy including of Windows Resource files simply by specifying which source code file is the resource.
 - Seamless integration of the FreeBasic Compiler (both 32 bit and 64 bit).
 - Codetip popups and auto completion.
+- Basic Debugger integration with GDB.
 
 Tiko is the replacement for the WinFBE Editor https://github.com/PaulSquires/WinFBE project which will soon be deprecated. 
 
@@ -40,7 +41,7 @@ Tiko is the replacement for the WinFBE Editor https://github.com/PaulSquires/Win
 
 
 tiko editor - Programmer's Code Editor for the FreeBASIC Compiler
-Copyright (C) 2016-2025 Paul Squires, PlanetSquires Software
+Copyright (C) 2016-2026 Paul Squires, PlanetSquires Software
 
 The tiko editor is licensed under the GNU GPLv3 or later.
 
