@@ -20,6 +20,7 @@
 #include once "frmOptionsLocal.bi"
 #include once "frmOptionsKeywords.bi"
 #include once "frmOptionsKeywordsWinApi.bi"
+#include once "frmOptionsKeywordsExtra.bi"
 #include once "frmMain.bi"
 
 #include once "clsConfig.bi"
@@ -130,6 +131,8 @@ function frmOptions_SaveEditorOptions() as long
         gConfig.FBKeywords = AfxGetWindowText(hTextBox)
         hTextBox = GetDlgItem(HWND_FRMOPTIONSKEYWORDSWINAPI, IDC_FRMOPTIONSKEYWORDSWINAPI_TXTKEYWORDS)
         gConfig.WinApiKeywords = AfxGetWindowText(hTextBox)
+        hTextBox = GetDlgItem(HWND_FRMOPTIONSKEYWORDSEXTRA, IDC_FRMOPTIONSKEYWORDSEXTRA_TXTKEYWORDS)
+        gConfig.ExtraKeywords = AfxGetWindowText(hTextBox)
         gConfig.SaveKeywords
     end if
     
@@ -278,6 +281,9 @@ function frmOptions_OnNotify( _
                     case 7
                         AfxSetWindowText( hLabel, " " & L(435,"Windows Api Keywords") )
                         hForm = HWND_FRMOPTIONSKEYWORDSWINAPI
+                    case 8
+                        AfxSetWindowText( hLabel, " " & L(439,"Extra Keywords") )
+                        hForm = HWND_FRMOPTIONSKEYWORDSEXTRA
                 end select
                     
                 ' Save the most recently opened tree branch 
@@ -416,7 +422,7 @@ function frmOptions_Show( byval hWndParent as HWND ) as LRESULT
     gConfig.LoadConfigFile()
 
     ' Configure the TreeView
-    dim hItems(7) as HTREEITEM 
+    dim hItems(8) as HTREEITEM 
     hItems(0) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(226,"General Options"),      0)
     hItems(1) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(110,"Code Editor"),          1)
     hItems(2) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(107,"Advanced Code Editor"), 2)
@@ -425,6 +431,7 @@ function frmOptions_Show( byval hWndParent as HWND ) as LRESULT
     hItems(5) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(129,"Localization"),         5)
     hItems(6) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(177,"FreeBASIC Keywords"),   6)
     hItems(7) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(435,"Windows API Keywords"), 7)
+    hItems(8) = TreeView_AppendItem (hwndTreeview, TVI_ROOT, L(439,"Extra Keywords"),       8)
 
     ' Load all of the child dialogs
     frmOptionsGeneral_Show( pWindow->hWindow )
@@ -435,6 +442,7 @@ function frmOptions_Show( byval hWndParent as HWND ) as LRESULT
     frmOptionsLocal_Show( pWindow->hWindow )
     frmOptionsKeywords_Show( pWindow->hWindow )
     frmOptionsKeywordsWinApi_Show( pWindow->hWindow )
+    frmOptionsKeywordsExtra_Show( pWindow->hWindow )
 
     ' Select the most previously open tree branch or first item "Code Editor" by default.
     TreeView_SelectItem( hWndTreeview, hItems(OptionsDialogLastOpened) )
@@ -456,6 +464,7 @@ function frmOptions_Show( byval hWndParent as HWND ) as LRESULT
     pWindow = AfxCWindowPtr(HWND_FRMOPTIONSLOCAL):     if pWindow then delete(pWindow)
     pWindow = AfxCWindowPtr(HWND_FRMOPTIONSKEYWORDS):  if pWindow then delete(pWindow)
     pWindow = AfxCWindowPtr(HWND_FRMOPTIONSKEYWORDSWINAPI):  if pWindow then delete(pWindow)
+    pWindow = AfxCWindowPtr(HWND_FRMOPTIONSKEYWORDSEXTRA):   if pWindow then delete(pWindow)
 
 end function
 

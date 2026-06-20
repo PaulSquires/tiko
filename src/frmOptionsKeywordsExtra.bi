@@ -13,17 +13,7 @@
 
 #pragma once
 
-type PANEL_MENU_TYPE
-    wszCaption      as DWSTRING
-    wszTooltip      as DWSTRING
-    id              as long
-    rc              as RECT   
-    isPrevHot       as boolean
-end type
+#Define IDC_FRMOPTIONSKEYWORDSEXTRA_TXTKEYWORDS     1001
 
-' Values for each panel menu button are set in frmPanelMenu_PositionWindows
-dim shared gPanelMenu(0 to 8) as PANEL_MENU_TYPE
-
-declare function frmPanelMenu_PositionWindows() as LRESULT
-declare function frmPanelMenu_Show( byval hWndParent as HWnd ) as LRESULT
+declare function frmOptionsKeywordsExtra_Show( byval hWndParent as HWND ) as LRESULT
 

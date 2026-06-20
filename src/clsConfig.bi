@@ -68,6 +68,7 @@ type clsConfig
         ConfigFilename            as DWSTRING 
         FBKeywordsFilename        as DWSTRING 
         WinApiKeywordsFilename    as DWSTRING 
+        ExtraKeywordsFilename     as DWSTRING 
         FBKeywordsDefaultFilename as DWSTRING 
         FBCodetipsFilename        as DWSTRING
         WinAPICodetipsFilename    as DWSTRING 
@@ -87,6 +88,7 @@ type clsConfig
         ExplorerPositionRight     as long = false
         FBKeywords                as string
         WinApiKeywords            as string
+        ExtraKeywords             as string
         bKeywordsDirty            as boolean = true       ' not saved to file
         AskExit                   as long = false         ' use long so true/False string not written to file
         AutoSaveFiles             as long = false

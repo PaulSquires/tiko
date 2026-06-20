@@ -70,6 +70,11 @@ type EDITOR_HANDLES_TYPE
     KeywordBold2 as boolean
     KeywordItalic2 as boolean
     KeywordUnderline2 as boolean
+    ForeColorKeyword3 as COLORREF
+    BackColorKeyword3 as COLORREF
+    KeywordBold3 as boolean
+    KeywordItalic3 as boolean
+    KeywordUnderline3 as boolean
     ForeColorFoldmargin as COLORREF
     ForeColorFoldsymbol as COLORREF
     BackColorFoldsymbol as COLORREF
@@ -103,6 +108,12 @@ type EDITOR_HANDLES_TYPE
     BackColorScrollBar as COLORREF
     ForeColorScrollBar as COLORREF
     Divider as COLORREF
+    ForeColorBookmark as COLORREF
+    BackColorBookmark as COLORREF
+    ForeColorBreakpoint as COLORREF
+    BackColorBreakpoint as COLORREF
+    ForeColorDebugLine as COLORREF
+    BackColorDebugLine as COLORREF
 end type
 dim shared ghEditor as EDITOR_HANDLES_TYPE
 
@@ -393,6 +404,12 @@ function LoadThemeFile() as boolean
     ghEditor.KeywordBold2 = pTheme->bold
     ghEditor.KeywordItalic2 = pTheme->italic
     ghEditor.KeywordUnderline2 = pTheme->underline
+    pTheme = getThemePtr("editor.keyword3")
+    ghEditor.BackColorKeyword3 = pTheme->background
+    ghEditor.ForeColorKeyword3 = pTheme->foreground
+    ghEditor.KeywordBold3 = pTheme->bold
+    ghEditor.KeywordItalic3 = pTheme->italic
+    ghEditor.KeywordUnderline3 = pTheme->underline
     pTheme = getThemePtr("editor.numbers")
     ghEditor.BackColorNumbers = pTheme->background
     ghEditor.ForeColorNumbers = pTheme->foreground
@@ -431,6 +448,15 @@ function LoadThemeFile() as boolean
     ghEditor.BackColorScrollBar = pTheme->background
     pTheme = getThemePtr("editor.divider")
     ghEditor.Divider = pTheme->foreground
+    pTheme = getThemePtr("editor.bookmark")
+    ghEditor.ForeColorBookmark = pTheme->foreground
+    ghEditor.BackColorBookmark = pTheme->background
+    pTheme = getThemePtr("editor.breakpoint")
+    ghEditor.ForeColorBreakpoint = pTheme->foreground
+    ghEditor.BackColorBreakpoint = pTheme->background
+    pTheme = getThemePtr("editor.debugline")
+    ghEditor.ForeColorDebugline = pTheme->foreground
+    ghEditor.BackColorDebugline = pTheme->background
 
     pTheme = getThemePtr("panel.panel")
     pTheme = getThemePtr("panel.text")

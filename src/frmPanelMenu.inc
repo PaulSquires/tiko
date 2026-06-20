@@ -81,24 +81,38 @@ function frmPanelMenu_PositionWindows() as LRESULT
     
     ' Build & Execute
     nLeft = nRight - nButtonWidth
-    gPanelMenu(6).wszCaption = wszIconBuildExecute
-    gPanelMenu(6).id = IDM_BUILDEXECUTE
-    gPanelMenu(6).rc = type(nLeft, nTop, nLeft + nButtonWidth, nTop + nButtonHeight)
-    gPanelMenu(6).wszTooltip = frmPanelMenu_FormatTooltip(IDM_BUILDEXECUTE)
+    gPanelMenu(8).wszCaption = wszIconBuildExecute
+    gPanelMenu(8).id = IDM_BUILDEXECUTE
+    gPanelMenu(8).rc = type(nLeft, nTop, nLeft + nButtonWidth, nTop + nButtonHeight)
+    gPanelMenu(8).wszTooltip = frmPanelMenu_FormatTooltip(IDM_BUILDEXECUTE)
+
+    ' Compile
+    nLeft -= nButtonWidth
+    gPanelMenu(7).wszCaption = wszIconCompile
+    gPanelMenu(7).id = IDM_COMPILE
+    gPanelMenu(7).rc = type(nLeft, nTop, nLeft + nButtonWidth, nTop + nButtonHeight)
+    gPanelMenu(7).wszTooltip = frmPanelMenu_FormatTooltip(IDM_COMPILE)
 
     ' Debug
     nLeft -= nButtonWidth
-    gPanelMenu(5).wszCaption = wszIconDebug
-    gPanelMenu(5).id = IDM_DEBUG_STARTDEBUGGING
-    gPanelMenu(5).rc = type(nLeft, nTop, nLeft + nButtonWidth, nTop + nButtonHeight)
-    gPanelMenu(5).wszTooltip = frmPanelMenu_FormatTooltip(IDM_DEBUG_STARTDEBUGGING)
-    
-    ' Compile
+    gPanelMenu(6).wszCaption = wszIconDebug
+    gPanelMenu(6).id = IDM_DEBUG_STARTDEBUGGING
+    gPanelMenu(6).rc = type(nLeft, nTop, nLeft + nButtonWidth, nTop + nButtonHeight)
+    gPanelMenu(6).wszTooltip = frmPanelMenu_FormatTooltip(IDM_DEBUG_STARTDEBUGGING)
+
+    ' Save
     nLeft -= nButtonWidth
-    gPanelMenu(4).wszCaption = wszIconCompile
-    gPanelMenu(4).id = IDM_COMPILE
+    gPanelMenu(5).wszCaption = wszIconSave
+    gPanelMenu(5).id = IDM_FILESAVEALL
+    gPanelMenu(5).rc = type(nLeft, nTop, nLeft + nButtonWidth, nTop + nButtonHeight)
+    gPanelMenu(5).wszTooltip = frmPanelMenu_FormatTooltip(IDM_FILESAVEALL)
+
+    ' Search/Find
+    nLeft -= nButtonWidth
+    gPanelMenu(4).wszCaption = wszIconFind
+    gPanelMenu(4).id = IDM_FIND
     gPanelMenu(4).rc = type(nLeft, nTop, nLeft + nButtonWidth, nTop + nButtonHeight)
-    gPanelMenu(4).wszTooltip = frmPanelMenu_FormatTooltip(IDM_COMPILE)
+    gPanelMenu(4).wszTooltip = frmPanelMenu_FormatTooltip(IDM_FIND)
 
     function = 0
 end function

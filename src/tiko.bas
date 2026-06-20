@@ -117,6 +117,7 @@ dim shared gTTabCtl as clsTopTabCtl
 #include once "frmOptionsLocal.inc"
 #include once "frmOptionsKeywords.inc"
 #include once "frmOptionsKeywordsWinApi.inc"
+#include once "frmOptionsKeywordsExtra.inc"
 #include once "frmOptions.inc"
 #include once "frmGoto.inc"
 #include once "frmHelpViewer.inc"
