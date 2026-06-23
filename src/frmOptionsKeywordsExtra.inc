@@ -11,13 +11,13 @@
 '    MERCHANTABILITY or FITNESS for A PARTICULAR PURPOSE.  See the
 '    GNU General Public License for more details.
 
-#include once "frmOptionsKeywordsWinApi.bi"
+#include once "frmOptionsKeywordsExtra.bi"
 
 
 ' ========================================================================================
-' Process WM_COMMAND message for window/dialog: frmOptionsKeywordsWinApi
+' Process WM_COMMAND message for window/dialog: frmOptionsKeywordsExtra
 ' ========================================================================================
-function frmOptionsKeywordsWinApi_OnCommand( _
+function frmOptionsKeywordsExtra_OnCommand( _
             byval hwnd as HWND, _
             byval id as long, _
             byval hwndCtl as HWND, _
@@ -25,7 +25,7 @@ function frmOptionsKeywordsWinApi_OnCommand( _
             ) as LRESULT
 
     select case id
-        case IDC_FRMOPTIONSKEYWORDSWINAPI_TXTKEYWORDS
+        case IDC_FRMOPTIONSKEYWORDSEXTRA_TXTKEYWORDS
             If codeNotify = EN_CHANGE then 
                 ' The EN_CHANGE notification code is not sent when the ES_MULTILINE style is used and the text is sent through WM_SETTEXT. 
                 ' Set the flag in gConfig to indicate that the keywords need to be saved to disk should
@@ -39,10 +39,10 @@ end function
 
 
 ' ========================================================================================
-' Process WM_DESTROY message for window/dialog: frmOptionsKeywordsWinApi
+' Process WM_DESTROY message for window/dialog: frmOptionsKeywordsExtra
 ' ========================================================================================
-function frmOptionsKeywordsWinApi_OnDestroy( byval hwnd as HWND ) as LRESULT
-    Dim as HFONT hFont = AfxGetWindowFont(GetDlgItem(hwnd, IDC_FRMOPTIONSKEYWORDSWINAPI_TXTKEYWORDS))
+function frmOptionsKeywordsExtra_OnDestroy( byval hwnd as HWND ) as LRESULT
+    Dim as HFONT hFont = AfxGetWindowFont(GetDlgItem(hwnd, IDC_FRMOPTIONSKEYWORDSEXTRA_TXTKEYWORDS))
     DeleteFont(hFont)
     function = 0
 end function
@@ -52,7 +52,7 @@ end function
 ' Subclass the multiline textbox to catch the ESCAPE key that is normally eaten by
 ' the textbox control when in multiline mode.
 ' ========================================================================================
-function frmOptionsKeywordsWinApiTextBox_SubclassProc ( _
+function frmOptionsKeywordsExtraTextBox_SubclassProc ( _
             byval hWin   as HWND, _                 ' // Control window handle
             byval uMsg   as UINT, _                 ' // Type of message
             byval _wParam as WPARAM, _               ' // First message parameter
@@ -70,7 +70,7 @@ function frmOptionsKeywordsWinApiTextBox_SubclassProc ( _
         
         Case WM_DESTROY
             ' REQUIRED: Remove control subclassing
-            RemoveWindowSubclass( hWin, @frmOptionsKeywordsWinApiTextBox_SubclassProc, uIdSubclass )
+            RemoveWindowSubclass( hWin, @frmOptionsKeywordsExtraTextBox_SubclassProc, uIdSubclass )
     end select
     
     ' For messages that we don't deal with
@@ -80,9 +80,9 @@ end function
 
 
 ' ========================================================================================
-' frmOptionsKeywordsWinApi Window procedure
+' frmOptionsKeywordsExtra Window procedure
 ' ========================================================================================
-function frmOptionsKeywordsWinApi_WndProc( _
+function frmOptionsKeywordsExtra_WndProc( _
             byval hwnd   as HWND, _
             byval uMsg   as UINT, _
             byval wParam as WPARAM, _
@@ -90,8 +90,8 @@ function frmOptionsKeywordsWinApi_WndProc( _
             ) as LRESULT
 
     select case uMsg
-        HANDLE_MSG (hwnd, WM_COMMAND, frmOptionsKeywordsWinApi_OnCommand)
-        HANDLE_MSG (hwnd, WM_DESTROY, frmOptionsKeywordsWinApi_OnDestroy)
+        HANDLE_MSG (hwnd, WM_COMMAND, frmOptionsKeywordsExtra_OnCommand)
+        HANDLE_MSG (hwnd, WM_DESTROY, frmOptionsKeywordsExtra_OnDestroy)
     end select
 
     function = DefWindowProc( hwnd, uMsg, wParam, lParam )
@@ -100,26 +100,26 @@ end function
 
 
 ' ========================================================================================
-' frmOptionsKeywordsWinApi_Show
+' frmOptionsKeywordsExtra_Show
 ' ========================================================================================
-function frmOptionsKeywordsWinApi_Show( byval hwndParent as HWND ) as LRESULT
+function frmOptionsKeywordsExtra_Show( byval hwndParent as HWND ) as LRESULT
 
     '  Create the main window and child controls
     dim pWindow as CWindow ptr = new CWindow
     pWindow->DPI = AfxCWindowPtr(hwndParent)->DPI
 
-    HWND_FRMOPTIONSKEYWORDSWINAPI = pWindow->Create( hwndParent, "", _
-        @frmOptionsKeywordsWinApi_WndProc, 0, 0, 0, 0, _
+    HWND_FRMOPTIONSKEYWORDSEXTRA = pWindow->Create( hwndParent, "", _
+        @frmOptionsKeywordsExtra_WndProc, 0, 0, 0, 0, _
         WS_CHILD or WS_CLIPSIBLINGS or WS_CLIPCHILDREN, _
         WS_EX_CONTROLPARENT or WS_EX_LEFT or WS_EX_LTRREADING )
     ' Height and width of this child form is set in frmOptions_OnNotify when the treeview option is selected.
     
     dim as HWND hTextBox = _
-    pWindow->AddControl("TEXTBOX", , IDC_FRMOPTIONSKEYWORDSWINAPI_TXTKEYWORDS, "", 0, 0, 386, 345, _
+    pWindow->AddControl("TEXTBOX", , IDC_FRMOPTIONSKEYWORDSEXTRA_TXTKEYWORDS, "", 0, 0, 386, 345, _
         WS_CHILD or WS_VISIBLE or WS_VSCROLL or WS_TABSTOP or ES_LEFT or _
         ES_MULTILINE or ES_AUTOVSCROLL or ES_WANTRETURN, _
         WS_EX_CLIENTEDGE or WS_EX_LEFT or WS_EX_LTRREADING)
-    pWindow->SetControlSubclass(hTextBox, @frmOptionsKeywordsWinApiTextBox_SubclassProc, IDC_FRMOPTIONSKEYWORDSWINAPI_TXTKEYWORDS, @pWindow)
+    pWindow->SetControlSubclass(hTextBox, @frmOptionsKeywordsExtraTextBox_SubclassProc, IDC_FRMOPTIONSKEYWORDSEXTRA_TXTKEYWORDS, @pWindow)
         
     SendMessage( hTextBox, EM_SETLIMITTEXT, (1024 * 100), 0 )    ' max 100K text   
     
@@ -127,7 +127,7 @@ function frmOptionsKeywordsWinApi_Show( byval hwndParent as HWND ) as LRESULT
     AfxSetWindowFont( hTextBox, hFont, true )
 
     gConfig.bKeywordsDirty = false
-    AfxSetWindowText( hTextBox, wstr(gConfig.WinApiKeywords) )
+    AfxSetWindowText( hTextBox, wstr(gConfig.ExtraKeywords) )
     
     function = 0
     

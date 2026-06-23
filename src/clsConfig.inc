@@ -37,6 +37,7 @@ constructor clsConfig
     ConfigFilename            = exe_path & "settings\settings.ini" 
     FBKeywordsFilename        = exe_path & "settings\keywords\freebasic_keywords.txt" 
     WinApiKeywordsFilename    = exe_path & "settings\keywords\winapi_keywords.txt" 
+    ExtraKeywordsFilename     = exe_path & "settings\keywords\extra_keywords.txt" 
     FBKeywordsDefaultFilename = exe_path & "settings\keywords\freebasic_keywords_default.txt" 
     FBCodetipsFilename        = exe_path & "settings\keywords\codetips.ini" 
     WinAPICodetipsFilename    = exe_path & "settings\keywords\codetips_winapi.ini" 
@@ -60,13 +61,21 @@ function clsConfig.LoadKeywords() as long
     if AfxFileExists(this.FBKeywordsFilename) = false then exit function
 
     dim pStream as CTextStream
-    if pStream.Open(this.FBKeywordsFilename) <> S_OK then exit function
-    this.FBKeywords = pStream.ReadAll
-    pStream.Close
+    if pStream.Open(this.FBKeywordsFilename) = S_OK then 
+        this.FBKeywords = pStream.ReadAll
+        pStream.Close
+    end if
 
-    if pStream.Open(this.WinApiKeywordsFilename) <> S_OK then exit function
-    this.WinApiKeywords = pStream.ReadAll
-    pStream.Close
+    if pStream.Open(this.WinApiKeywordsFilename) = S_OK then 
+        this.WinApiKeywords = pStream.ReadAll
+        pStream.Close
+    end if
+
+    if pStream.Open(this.ExtraKeywordsFilename) = S_OK then 
+        this.ExtraKeywords = pStream.ReadAll
+        pStream.Close
+    end if
+
     function = 0
 end function
 
@@ -74,12 +83,18 @@ end function
 ''
 function clsConfig.SaveKeywords() as long
     dim pStream as CTextStream
-    if pStream.Create(this.FBKeywordsFilename) <> S_OK then exit function
-    pStream.WriteLine this.FBKeywords
-    pStream.Close
-    if pStream.Create(this.WinApiKeywordsFilename) <> S_OK then exit function
-    pStream.WriteLine this.WinApiKeywords
-    pStream.Close
+    if pStream.Create(this.FBKeywordsFilename) = S_OK then
+        pStream.WriteLine this.FBKeywords
+        pStream.Close
+    end if
+    if pStream.Create(this.WinApiKeywordsFilename) = S_OK then 
+        pStream.WriteLine this.WinApiKeywords
+        pStream.Close
+    end if
+    if pStream.Create(this.ExtraKeywordsFilename) = S_OK then 
+        pStream.WriteLine this.ExtraKeywords
+        pStream.Close
+    end if
     function = 0
 end function
     

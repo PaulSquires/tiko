@@ -466,7 +466,7 @@ function frmPanel_WndProc( _
             dim as long nWidth = (rc.right - rc.left + nDiff)
             ' make sure width does not go below a specific size otherwise the user will not
             ' be able to grab the panel edge to resize and the panel menu will squish together
-            nWidth = max( nWidth, pWindow->ScaleX(190) )
+            nWidth = max( nWidth, pWindow->ScaleX(236) ) 
             SetWindowPos( HWND_FRMPANEL, 0, 0, 0, nWidth, rc.Bottom - rc.Top, SWP_NOMOVE or SWP_NOZORDER )
             RedrawWindow( HWND_FRMPANEL, null, null, RDW_INVALIDATE or RDW_UPDATENOW or RDW_ALLCHILDREN)                
             frmMain_PositionWindows()

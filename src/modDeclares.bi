@@ -174,7 +174,7 @@ dim shared as HWND HWND_FRMHELPVIEWER, HWND_FRMHELPVIEWER_LEFTPANEL, HWND_FRMHEL
 dim shared as HWND HWND_FRMHELPVIEWER_VSCROLLBAR
 dim shared as HWND HWND_FRMOPTIONS, HWND_FRMOPTIONSGENERAL, HWND_FRMOPTIONSEDITOR, HWND_FRMOPTIONSEDITOR2
 dim shared as HWND HWND_FRMOPTIONSCOLORS, HWND_FRMOPTIONSCOMPILER, HWND_FRMOPTIONSLOCAL
-dim shared as HWND HWND_FRMOPTIONSKEYWORDS, HWND_FRMOPTIONSKEYWORDSWINAPI
+dim shared as HWND HWND_FRMOPTIONSKEYWORDS, HWND_FRMOPTIONSKEYWORDSWINAPI, HWND_FRMOPTIONSKEYWORDSEXTRA
 dim shared as HWND HWND_FRMFINDREPLACE, HWND_FRMFINDINFILES, HWND_FRMFINDREPLACE_SHADOW
 dim shared as HWND HWND_FRMBUILDCONFIG, HWND_FRMUSERTOOLS, HWND_FRMABOUT
 dim shared as HWND HWND_FRMKEYBOARD, HWND_FRMKEYBOARD_LISTVIEW, HWND_FRMKEYBOARDEDIT
@@ -314,7 +314,8 @@ dim shared as wstring * 10 _
     wszIconCompile, wszIconBuildExecute, wszIconDebug, _
     wszIconSplitEditor, wszIconSplitLeftRight, wszIconSplitTopBottom, wszIconThemes, _
     wszIconSettings, wszIconCheckBoxEmpty, wszIconCheckBoxMarked, _
-    wszIconContinue, wszIconStop, wszIconStepNext, wszIconStepOver, wszIconStepOut, wszIconRunToCursor          
+    wszIconContinue, wszIconStop, wszIconStepNext, wszIconStepOver, wszIconStepOut, wszIconRunToCursor, _
+    wszIconSave, wszIconFind         
 
 
 ' Braille spinner patterns - large clockwise rotation
@@ -362,8 +363,12 @@ dim shared spinner(0 to 7) as wstring * 2 => { _
     wszIconThemes            = !"\uE771"   
     wszIconCheckBoxEmpty     = !"\uE739"
     wszIconCheckBoxMarked    = !"\uE73A"
+    wszIconSave              = !"\uE74E"      ' Save (diskette)
+    wszIconFind              = !"\uE721"      ' Search (magnifying glass)
     ' Debugger Icons
-    wszIconDebug             = !"\uE62A"     ' form with magnifier
+    'wszIconDebug             = !"\uE62A"     ' form with magnifier
+    'wszIconDebug             = !"\uE623"     ' next solid
+    wszIconDebug             = !"\uE893"     ' next outline
     wszIconContinue          = !"\uF5B0"     ' play solid
     wszIconStop              = !"\uEE95"     ' stop solid
     wszIconStepNext          = !"\uF0AF"     ' right arrow

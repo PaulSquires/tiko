@@ -1586,16 +1586,18 @@ function clsDocument.ApplyProperties() as long
 
         ' define bookmark marker (white circle)
         SciMsg( pSci(i), SCI_MARKERDEFINE, MARKER_BOOKMARK, SC_MARK_VERTICALBOOKMARK )
+        SciMsg( pSci(i), SCI_MARKERSETFORE, MARKER_BOOKMARK, ghEditor.ForeColorBookmark)
+        SciMsg( pSci(i), SCI_MARKERSETBACK, MARKER_BOOKMARK, ghEditor.BackColorBookmark )
         
         ' define breakpoint marker (red circle)
         SciMsg( pSci(i), SCI_MARKERDEFINE, MARKER_BREAKPOINT, SC_MARK_CIRCLE )
-        SciMsg( pSci(i), SCI_MARKERSETFORE, MARKER_BREAKPOINT, BGR(196, 68, 80) )
-        SciMsg( pSci(i), SCI_MARKERSETBACK, MARKER_BREAKPOINT, BGR(196, 68, 80) )
+        SciMsg( pSci(i), SCI_MARKERSETFORE, MARKER_BREAKPOINT, ghEditor.ForeColorBreakpoint )
+        SciMsg( pSci(i), SCI_MARKERSETBACK, MARKER_BREAKPOINT, ghEditor.BackColorBreakpoint )
 
         ' define debugger cuurent line marker (yellow arrow)
         SciMsg( pSci(i), SCI_MARKERDEFINE, MARKER_DEBUGGER_CURLINE, SC_MARK_SHORTARROW )
-        SciMsg( pSci(i), SCI_MARKERSETFORE, MARKER_DEBUGGER_CURLINE, BGR(247, 217, 151) )
-        SciMsg( pSci(i), SCI_MARKERSETBACK, MARKER_DEBUGGER_CURLINE, BGR(247, 217, 151) )
+        SciMsg( pSci(i), SCI_MARKERSETFORE, MARKER_DEBUGGER_CURLINE, ghEditor.ForeColorDebugLine )
+        SciMsg( pSci(i), SCI_MARKERSETBACK, MARKER_DEBUGGER_CURLINE, ghEditor.BackColorDebugLine )
         ''
         ''  MARGIN 0: Line Numbering (defaults to width 0)
         nPixels = SciMsg( pSci(i), SCI_TEXTWIDTH, 0, cast(LPARAM, @"_99999"))
@@ -1738,6 +1740,11 @@ function clsDocument.ApplyProperties() as long
             if len(gConfig.WinApiKeywords) then
                 SciMsg( pSci(i), SCI_SETKEYWORDS, 1, cast(LPARAM, strptr(gConfig.WinApiKeywords)) )
             end if
+
+            ' Set Extra Keywords
+            if len(gConfig.ExtraKeywords) then
+                SciMsg( pSci(i), SCI_SETKEYWORDS, 2, cast(LPARAM, strptr(gConfig.ExtraKeywords)) )
+            end if
             
             if gConfig.SyntaxHighlighting then
             ' Set the Default text colors
@@ -1776,6 +1783,14 @@ function clsDocument.ApplyProperties() as long
             SciMsg( pSci(i), SCI_STYLESETBOLD, SCE_B_KEYWORD2, ghEditor.KeywordBold2 )
             SciMsg( pSci(i), SCI_STYLESETITALIC, SCE_B_KEYWORD2, ghEditor.KeywordItalic2 )
             SciMsg( pSci(i), SCI_STYLESETUNDERLINE, SCE_B_KEYWORD2, ghEditor.KeywordUnderline2 )
+
+            ' Set the Keywords style (Extra Keywords)
+            SciMsg( pSci(i), SCI_STYLESETFORE, SCE_B_KEYWORD3, ghEditor.ForeColorKeyword3 )
+            SciMsg( pSci(i), SCI_STYLESETBACK, SCE_B_KEYWORD3, ghEditor.BackColorKeyword3 )
+            SciMsg( pSci(i), SCI_STYLESETCASE, SCE_B_KEYWORD3, nFontcase )
+            SciMsg( pSci(i), SCI_STYLESETBOLD, SCE_B_KEYWORD3, ghEditor.KeywordBold3 )
+            SciMsg( pSci(i), SCI_STYLESETITALIC, SCE_B_KEYWORD3, ghEditor.KeywordItalic3 )
+            SciMsg( pSci(i), SCI_STYLESETUNDERLINE, SCE_B_KEYWORD3, ghEditor.KeywordUnderline3 )
 
             ' Set the Numbers style
             SciMsg( pSci(i), SCI_STYLESETFORE, SCE_B_NUMBER, ghEditor.ForeColorNumbers )

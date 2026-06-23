@@ -44,6 +44,11 @@ editor.keyword2.background: %LIGHT_BLACK
 editor.keyword2.bold: false
 editor.keyword2.italic: false
 editor.keyword2.underline: false
+editor.keyword3.foreground: 179,48,142         # Extra Keywords (pink)
+editor.keyword3.background: %LIGHT_BLACK
+editor.keyword3.bold: false
+editor.keyword3.italic: false
+editor.keyword3.underline: false
 editor.foldmargin.foreground: %LIGHT_BLACK
 editor.foldsymbol.foreground: 99,109,131
 editor.foldsymbol.background: %LIGHT_BLACK
@@ -78,6 +83,12 @@ editor.occurrence.foreground: 53,70,107
 editor.scrollbar.foreground: 75,83,97
 editor.scrollbar.background: %LIGHT_BLACK
 editor.divider.foreground: 64,67,73
+editor.bookmark.foreground: %WHITE             
+editor.bookmark.background: %WHITE             
+editor.breakpoint.foreground: 196,68,80        # crimson
+editor.breakpoint.background: 196,68,80        # crimson
+editor.debugline.foreground: 151,217,247       # yellow
+editor.debugline.background: 151,217,247       # yellow
 
 # panel holds Explorer, FunctionList, Bookmarks
 panel.panel.background: %EVENING_BLACK
