@@ -35,7 +35,7 @@ function OnCommand_SearchGotoCompileError( byval bMoveNext as boolean ) as long
     if nCurSel < 0 then nCurSel = nCount - 1 
 
     ListView_SelectItem( hLV, nCurSel )
-    SetDocumentErrorPosition( hLV, gCompile.CompileID )
+    SetDocumentErrorPosition( hLV )
 
     function = 0
 end function

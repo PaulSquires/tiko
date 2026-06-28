@@ -66,7 +66,7 @@ declare function LV_GetItemText( byval hWndControl as HWND, byval iRow as long, 
 declare function LV_SetItemText( byval hWndControl as HWND, byval iRow as long, byval iColumn as long, byval pwszText as wstring ptr, byval nTextMax as long ) as long
 declare function LoadLocalizationFile( byref wszFileName as DWSTRING, byval IsEnglish as boolean = false ) as boolean
 declare function GetProcessImageName( byval pe32w as PROCESSENTRY32W ptr, byval pwszExeName as wstring ptr ) as long
-declare function IsProcessRunning( byval pwszExeFileName as wstring ptr ) as boolean
+declare function IsProcessRunning( byval wszExeFileName as DWSTRING ) as boolean
 declare function GetRunExecutableFilename() as DWSTRING
 declare function GetListBoxEmptyClientArea( byval hListBox as HWND ) as RECT
 declare function frmListView_SelectItem( byval hLV as HWND, byval nLineNum as long ) as long

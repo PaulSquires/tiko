@@ -218,7 +218,7 @@ function frmMain_OnCommand( _
             OpenMRUSessionFile( hwnd, id )
 
         case IDM_USERTOOLSBASE to (IDM_USERTOOLSBASE + ubound(gConfig.Tools))
-            frmUserTools_ExecuteUserTool( id - IDM_USERTOOLSBASE )
+            frmUserTools_ExecuteUserTool( null, id - IDM_USERTOOLSBASE )
 
         case IDM_BUILDCONFIGBASE to (IDM_BUILDCONFIGBASE + ubound(gConfig.Builds))
             ' Make sure that the incoming Tool Number is valid

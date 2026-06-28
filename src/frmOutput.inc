@@ -1019,7 +1019,7 @@ function frmOutput_WndProc( _
             case HWND_FRMOUTPUT_LVRESULTS, _
                  HWND_FRMOUTPUT_LVSEARCH, _
                  HWND_FRMOUTPUT_LVTODO
-                SetDocumentErrorPosition( hLV, gCompile.CompileID )    
+                SetDocumentErrorPosition( hLV )    
         end select
         
     case MSG_USER_RICHEDIT_SELECTALL

@@ -41,6 +41,7 @@ type clsApp
         wszCommandLine             as DWSTRING             ' non-project commandline (not saved to file)
         wszLastOpenFolder          as DWSTRING             ' remembers the last opened folder for the Open Dialog
         wszQuickRunFilename        as DWSTRING
+        IsQuickRun                 as boolean           ' Set in modCompile and used in SetDocumentErrorPosition()
         
         bShowSpinner               as boolean           ' Display the loading/compiling spinner
         SpinnerCurrentFrame        as long = 0          ' The index of the icon to use when timer fires.

@@ -1491,7 +1491,7 @@ function frmMain_WndProc( _
             ' Only invoke any User Tools that have action for startup
             for y as long = lbound(gConfig.Tools) to ubound(gConfig.Tools)
                 if gConfig.Tools(y).Action = USERTOOL_ACTION_EDITORSTARTUP then
-                    frmUserTools_ExecuteUserTool(y)
+                    frmUserTools_ExecuteUserTool(null, y )
                 end if   
             next
 

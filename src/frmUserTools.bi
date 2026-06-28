@@ -13,6 +13,8 @@
 
 #pragma once
 
+#include "modCompile.bi"
+
 #DEFINE IDC_FRMUSERTOOLS_LSTTOOLS                   1000
 #DEFINE IDC_FRMUSERTOOLS_CMDINSERT                  1001
 #DEFINE IDC_FRMUSERTOOLS_CMDDELETE                  1002
@@ -52,7 +54,7 @@ const USERTOOL_ACTION_EDITORSTARTUP = 3
 
 common shared as HACCEL ghAccelUserTools
 
-declare function frmUserTools_ExecuteUserTool( byval nToolNum as long ) as long            
+declare function frmUserTools_ExecuteUserTool( byval pCompile as COMPILE_TYPE ptr, byval nToolNum as long ) as long            
 declare function frmUserTools_CreateAcceleratorTable() as long
 declare function frmUserTools_Show( byval hWndParent As HWND ) as LRESULT
 declare function updateUserToolsMenuItems() as long

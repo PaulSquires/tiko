@@ -1712,8 +1712,8 @@ function findprocessid( byval processname as wstring ptr ) as dword
     return 0
 end function
 
-function IsProcessRunning( byval pwszExeFileName as wstring ptr ) as boolean
-    dim wszExeFileName as wstring * MAX_PATH = AfxStrPathname("NAMEX", *pwszExeFileName)
+function IsProcessRunning( byval wszExeFileName as DWSTRING ) as boolean
+    wszExeFileName = AfxStrPathname("NAMEX", wszExeFileName)
     if ucase(wszExeFileName) = "TIKO.EXE" then return false
     dim as dword pid = findprocessid( wszExeFileName )
     dim as HANDLE hprocess = OpenProcess(SYNCHRONIZE, FALSE, pid)

@@ -18,31 +18,37 @@
 ''  Handle information related to the currnet compile process 
 ''
 type COMPILE_TYPE
-    MainFilename        as wstring * MAX_PATH   ' main source file (full path and file.ext)
-    MainName            as wstring * MAX_PATH   ' main source file (Name only, no extension)
-    MainFolder          as wstring * MAX_PATH   ' main source folder 
-    ResourceFile        as wstring * MAX_PATH   ' full path and file.ext to resource file (if applicable) 
-    TempResourceFile    as wstring * MAX_PATH   ' full path and file.ext to temporary resource file (if applicable) 
-    OutputFilename      as wstring * MAX_PATH   ' resulting exe/dll/lib name 
-    CompilerPath        as wstring * MAX_PATH   ' full path and file.ext to fbc.exe
-    ObjFolder           as wstring * MAX_PATH   ' *.o for all modules (set depending on 32/64 bit) (full path)
-    ObjFolderShort      as wstring * MAX_PATH   ' ".\" & APPEXTENSION & "\"
-    ObjID               as wstring * MAX_PATH   ' "32" or "64" appended to object name
-    LinkModules         as DWSTRING                ' From code embedded #LINKMODULES directive
-    CompileFlags        as wstring * 2048
-    CompileIncludes     as wstring * 2048       ' Additional user defined include paths
-    wszFullCommandLine  as DWSTRING                ' Command line sent to the FB compiler
-    wszFullLogFile      as DWSTRING                ' Full log file returned from the FB compiler
-    wszOutputMsg        as DWSTRING                ' Additional info during compile process (time/filesize)
-    RunAfterCompile     as boolean
-    SystemTime          aS SYSTEMTIME           ' System time when compile finished
-    StartTime           as double
-    EndTime             as double
-    CompileID           as long                 ' Type of compile (wID). Needed in case frmOutput listview later clicked on.
+    MainFilename           as DWSTRING   ' main source file (full path and file.ext)
+    MainName               as DWSTRING   ' main source file (Name only, no extension)
+    MainFolder             as DWSTRING   ' main source folder 
+    ResourceFile           as DWSTRING   ' full path and file.ext to resource file (if applicable) 
+    TempResourceFile       as DWSTRING   ' full path and file.ext to temporary resource file (if applicable) 
+    OutputFilename         as DWSTRING   ' resulting exe/dll/lib name 
+    CompilerPath           as DWSTRING   ' full path and file.ext to fbc.exe
+    ObjFolder              as DWSTRING   ' *.o for all modules (set depending on 32/64 bit) (full path)
+    ObjFolderShort         as DWSTRING   ' ".\" & APPEXTENSION & "\"
+    ObjID                  as DWSTRING   ' "32" or "64" appended to object name
+    LinkModules            as DWSTRING   ' From code embedded #LINKMODULES directive
+    CompileFlags           as DWSTRING
+    CompileIncludes        as DWSTRING   ' Additional user defined include paths
+    wszFullCommandLine     as DWSTRING   ' Command line sent to the FB compiler
+    wszFullLogFile         as DWSTRING   ' Full log file returned from the FB compiler
+    wszOutputMsg           as DWSTRING   ' Additional info during compile process (time/filesize)
+    RunAfterCompile        as boolean
+    SystemTime             aS SYSTEMTIME ' System time when compile finished
+    StartTime              as double
+    EndTime                as double
+    CompileID              as long       ' Type of compile (wID). Needed in case frmOutput listview later clicked on.
     bCompileThreadComplete as boolean
+    bCompile32             as boolean    ' flag indicating 32-bit compile process
+    bCompile64             as boolean    ' flag indicating 64-bit compile process
+    pDocMain               as clsDocument ptr  ' pointer to main document to be compiler
+    hCurSave               as HCURSOR    ' Cursor saved/restored during compile process
+    wszStatusBarMessage    as DWSTRING   ' Success/Fail statusbar message
 end type
 
 type CompileThreadParams
+    pCompile            as COMPILE_TYPE ptr
     wszExe              as DWSTRING
     wszCmdLine          as DWSTRING
     sConsoleText        as string 

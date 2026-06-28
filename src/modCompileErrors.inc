@@ -186,12 +186,12 @@ end function
 sub compile_thread( byval userdata as any ptr )
     dim as CompileThreadParams ptr ctp = cast(CompileThreadParams ptr, userdata)
     
+    ' Create a compile process and redirect the output to a text file.
     dim as string sConsoleText = ctp->sConsoleText
-    
     RedirConsoleToFile( ctp->wszExe, ctp->wszCmdLine, sConsoleText )
-            
     ctp->sConsoleText = sConsoleText
-    gCompile.bCompileThreadComplete = true
+            
+    ctp->pCompile->bCompileThreadComplete = true
 end sub
 
 
@@ -252,10 +252,7 @@ end function
 ' (2) Search Results
 ' (3) TODO
 ' ========================================================================================
-function SetDocumentErrorPosition( _
-            byval hLV as HWND, _
-            byval wID as long _
-            ) as long
+function SetDocumentErrorPosition ( byval hLV as HWND ) as long
 
     dim wszErrorLine as wstring * MAX_PATH
     dim wszErrorFile as wstring * MAX_PATH
@@ -272,7 +269,7 @@ function SetDocumentErrorPosition( _
 
     ' if we are doing a QuickRun then it must be on the currently loaded
     ' and active file in the editor, therefore simply use that pDoc.
-    if wID = IDM_QUICKRUN then
+    if gApp.IsQuickRun then
         pDoc = gTTabCtl.GetActiveDocumentPtr()
         if pDoc then wszErrorFile = pDoc->DiskFilename 
     end if
@@ -285,22 +282,20 @@ end function
 
 ''
 ''
-function SetLogFileTextbox() as long
+function SetLogFileTextbox( byval pCompile as COMPILE_TYPE ptr ) as long
     
     ' Construct the text that will be displayed:
     ' - FBC version, exe name, file size, compile time
     ' - raw log file output
     ' - compile command line used
-    dim as DWSTRING wszText
     
-    if len(gCompile.wszOutputMsg) then 
-        gCompile.wszOutputMsg = gCompile.wszOutputMsg + vbcrlf
-    end if
-    wszText = _
-        gCompile.wszOutputMsg + _
+    if len(pCompile->wszOutputMsg) then pCompile->wszOutputMsg += vbcrlf
+    
+    dim as DWSTRING wszText = _
+        pCompile->wszOutputMsg + _
         L(178,"Command Line") + ": " + vbcrlf + _
-        gCompile.wszFullCommandLine + vbcrlf + vbcrlf + _
-        gCompile.wszFullLogFile 
+        pCompile->wszFullCommandLine + vbcrlf + vbcrlf + _
+        pCompile->wszFullLogFile 
                 
     AfxSetWindowText( GetDlgItem( HWND_FRMOUTPUT, IDC_FRMOUTPUT_TXTLOGFILE), wszText )
 
@@ -311,17 +306,16 @@ end function
 
 ''
 ''
-function ParseLogForError( _
+function ParseLogForError ( _
+            byval pCompile as COMPILE_TYPE ptr, _
             byref wsLogSt as DWSTRING, _
             byval bAllowSuccessMessage as boolean, _
-            byval wID as long, _
-            byval fCompile64 as boolean, _
             byval fCompilingObjFiles as boolean _
             ) as boolean
     
     ' returns true if error has been detected. This signals to the calling code
     ' that we can break out of performing any further compiles (eg. modules).
-    dim wszTemp as wstring * MAX_PATH 
+    dim wszTemp as DWSTRING
 
     dim as long Parenthesis_Start, Parenthesis_End, Error_Start       
     dim as long i, NumLines, nextLine, r, nCount, nListViewLine
@@ -341,13 +335,13 @@ function ParseLogForError( _
     ' to compile using the FB 64 bit compiler on a 32-bit version of Windows. for this
     ' reason we will do a manual check here rather than relying on detecting the error
     ' through the log file string.
-    if fCompile64 then   ' trying to compile a 64-bit program
+    if pCompile->bCompile64 then   ' trying to compile a 64-bit program
         if AfxWindowsBitness() <> 64 then  ' Windows is not 64 bit
-            wsLogSt = "This version of the FreeBASIC compiler is not compatible with the version " & _
-                    "of Windows you're running. Check your computer's system information to see " & _
-                    "whether you need a x86 (32-bit) or x64 (64-bit) version of the program, and " & _
-                    "then contact the software publisher."  
-            gCompile.wszFullLogFile = wsLogSt
+            wsLogSt = "This version of the FreeBASIC compiler is not compatible with the version "   & _
+                      "of Windows you're running. Check your computer's system information to see "  & _
+                      "whether you need a x86 (32-bit) or x64 (64-bit) version of the program, and " & _
+                      "then contact the software publisher."  
+            pCompile->wszFullLogFile = wsLogSt
         end if
     end if
 
@@ -398,31 +392,35 @@ function ParseLogForError( _
             (left(wst_ucase, 34) = "VERY SORRY, BUT GORC HAD A PROBLEM") then
             wszText = "" & chr(9) & "0" & chr(9) & "" & chr(9) & "compiling resource FAILED: Error Code 1 (refer to log file)"
             frmListView_AddString( hLV, wszText )
-            NumErrors = NumErrors + 1
+            NumErrors += 1
         elseif (left(wst_ucase, 5) = "ERROR") then
             wszText = "" & chr(9) & "0" & chr(9) & "" & chr(9) & "compiling FAILED: Error Code 1 (refer to log file)"
             frmListView_AddString( hLV, wszText )
-            NumErrors = NumErrors + 1
+            NumErrors += 1
         elseif (left(wst_ucase, 19) = "COMPILING C FAILED:") then
             wszText = "" & chr(9) & "0" & chr(9) & "" & chr(9) & "compiling C FAILED: Error Code 1 (refer to log file)"
             frmListView_AddString( hLV, wszText )
-            NumErrors = NumErrors + 1
+            NumErrors += 1
         end if
         
         if instr(wst_ucase, "LINKING FAILED:") then 
             wszText = "" & chr(9) & "0" & chr(9) & "" & chr(9) & wst & " (refer to log file)"
             frmListView_AddString( hLV, wszText )
-            NumErrors = NumErrors + 1
+            NumErrors += 1
         end if
-    
     
         ' Check for the "linking: " line because that line identifies the actual output filename being created
         if left(wst_ucase, 9) = "LINKING: " then 
             i = instr(wst, " -o ")
             if i then
-            wszTemp = mid(wst, i+4)
-            i = instr(wszTemp, wDQ & " ")
-            if i then gCompile.OutputFilename = AfxStrRemove(left(wszTemp, i), wDQ)
+                wszTemp = mid(wst, i + 4)
+                i = instr(wszTemp, wDQ & " ")
+                if i then pCompile->OutputFilename = AfxStrRemove(left(wszTemp, i), wDQ)
+                ' if pCompile->OutputFilename is a relative filename then convert it to full filename.
+                pCompile->OutputFilename = AfxStrReplace( pCompile->OutputFilename, "/", "\" )
+                if AfxPathIsRelative( pCompile->OutputFilename ) then 
+                    pCompile->OutputFilename = AfxPathCombine( pCompile->MainFolder, pCompile->OutputFilename )
+                end if
             end if      
         end if
         
@@ -477,19 +475,19 @@ function ParseLogForError( _
                     frmListView_AddString( hLV, wszText )
                     
                     if IsWarning then 
-                        NumWarnings = NumWarnings + 1
+                        NumWarnings += 1
                     elseif IsError then
                         if nFirstErrorLine = -1 then
                             nFirstErrorLine = NumWarnings + NumErrors
                         end if
-                        NumErrors = NumErrors + 1
+                        NumErrors += 1
                     end if            
                 end if
 
             else
                 wszText = "" & chr(9) & "" & chr(9) & "" & chr(9) & wst
                 frmListView_AddString( hLV, wszText )
-                NumDirectives = NumDirectives + 1
+                NumDirectives += 1
             end if
 
         end if
@@ -501,15 +499,15 @@ function ParseLogForError( _
     ' did not contain the required FB copyright notice. Something must have went wrong, like trying
     ' to call the 64 bit compiler using a 32 bit operating system. Show the message to the user via
     ' the Output window (log file).
-    if fGoodCompile = false then NumErrors = NumErrors + 1
+    if fGoodCompile = false then NumErrors += 1
 
     dim as DWSTRING wszIconCompileMsg
 
     ' if the EXE output file was never created then throw an error
     if fCompilingObjFiles = false then
         if (NumWarnings = 0) andalso (NumErrors = 0) then
-            if Filelen(gCompile.OutputFilename) = 0 then 
-                NumErrors = NumErrors + 1
+            if AfxGetFileSize(pCompile->OutputFilename) = 0 then 
+                NumErrors += 1
             end if
         end if
     end if
@@ -517,12 +515,15 @@ function ParseLogForError( _
     ' In all cases where warnings and/or errors exist, we will show the Compiler Results listview
     if (NumWarnings > 0) orelse (NumErrors > 0) orelse (NumDirectives > 0) then
     
-        wszIconCompileMsg = L(193, "Errors")   & " " & NumErrors   & "  " & _
-                        L(192, "Warnings") & " " & NumWarnings & _
-                        "  [" & _
-                        AfxLocalDateStr( "yyyy-MM-dd" ) & "  " & _
-                        AfxLocalTimeStr( "hh:mm:ss" ) & "]"
-        gCompile.wszOutputMsg = L(229,"Failed Compile")  & " (" & wszIconCompileMsg & ")" & vbcrlf
+        wszIconCompileMsg = _
+                L(193, "Errors")   & " " & NumErrors   & "  " & _
+                L(192, "Warnings") & " " & NumWarnings & _
+                "  [" & _
+                AfxLocalDateStr( "yyyy-MM-dd" ) & "  " & _
+                AfxLocalTimeStr( "hh:mm:ss" ) & _
+                "]"
+        pCompile->wszOutputMsg = L(229,"Failed Compile")  & " (" & wszIconCompileMsg & ")" & vbcrlf
+        pCompile->wszStatusBarMessage = wszIconCompileMsg
         SetCompileStatusBarMessage( wszIconCompileMsg, ghIconBad )
        
         ' only beep on errors
@@ -533,15 +534,15 @@ function ParseLogForError( _
         
         ' if fGoodCompile is false then something unusual occurred so better show the log file by default
         if fGoodCompile = false then
-            frmOutput_PositionWindows
+            frmOutput_PositionWindows()
         end if
       
         ' if the Search Results, TODO, Notes tab is active then reposition to 
         ' the first tab for error listview
         select case gOutputTabsCurSel 
             case 1, 2, 3, 4
-            gOutputTabsCurSel = 0
-            frmOutput_PositionWindows
+                gOutputTabsCurSel = 0
+                frmOutput_PositionWindows()
         end select
         
         ' Only retore the Output window if Errors exist. Warnings only will not trigger
@@ -552,44 +553,46 @@ function ParseLogForError( _
         if NumErrors > 0 then frmOutput_RestorePanel()
         
         ' Set to error line position only after all windows have been shown and resized
-        SetDocumentErrorPosition(hLV, wID)
+        SetDocumentErrorPosition( hLV )
     end if
     
     if (NumErrors = 0) andalso (bAllowSuccessMessage = true) then 
         ' we are not compiling modules
-        dim as long nFileSize = AfxGetFileSize(gCompile.OutputFilename)
-        wszIconCompileMsg = L(193, "Errors") & " " & NumErrors & "  " & _
-                        L(192, "Warnings") & " " & NumWarnings & _
-                        "  [ " & AfxStrPathname("NAMEX", gCompile.OutputFilename) & "  " & _
-                        rtrim(AfxStrFormatKBSize(nFileSize)) & " (" & _
-                        wstr(nFileSize) & " " & L(199,"bytes") & ") ]"
+        dim as long nFileSize = AfxGetFileSize(pCompile->OutputFilename)
+        wszIconCompileMsg = _
+                L(193, "Errors") & " " & NumErrors & "  " & _
+                L(192, "Warnings") & " " & NumWarnings & _
+                "  [ " & AfxStrPathname("NAMEX", pCompile->OutputFilename) & "  " & _
+                rtrim(AfxStrFormatKBSize(nFileSize)) & " (" & _
+                wstr(nFileSize) & " " & L(199,"bytes") & ") ]"
+        pCompile->wszStatusBarMessage = wszIconCompileMsg         
         SetCompileStatusBarMessage( wszIconCompileMsg, ghIconGood )
         
         if gConfig.DisableCompileBeep = false then MessageBeep(MB_OK)
        
-        gCompile.wszOutputMsg = _   ' this gets output to the Output window
+        pCompile->wszOutputMsg = _   ' this gets output to the Output window
             L(228,"Successful Compile")  & " (" & _
             L(193,"Errors")              & " " & NumErrors & " " & _
             L(192,"Warnings")            & " " & NumWarnings & ")" & vbcrlf & vbcrlf & _
-            L(194,"Primary Source:")     & " " & gCompile.MainFilename & vbCrLf & _
-            L(195,"Target Compilation:") & " " & gCompile.OutputFilename & " (" & _
+            L(194,"Primary Source:")     & " " & pCompile->MainFilename & vbCrLf & _
+            L(195,"Target Compilation:") & " " & pCompile->OutputFilename & " (" & _
                                     rtrim(AfxStrFormatKBSize(nFileSize)) & ", " & _
-                                    nFileSize & " " & L(199,"bytes") & ")" & vbcrlf & _
-            L(196,"Compile Time:")       & " " & format(gCompile.EndTime-gCompile.StartTime, "###0.0") & _
+                                    str(nFileSize) & " " & L(199,"bytes") & ")" & vbcrlf & _
+            L(196,"Compile Time:")       & " " & format(pCompile->EndTime-pCompile->StartTime, "###0.0") & _
                                     " " & L(198,"seconds") & " (" & _
-                                    AfxSystemTimeToDateStr( gCompile.SystemTime, "yyyy-MM-dd" ) & " " & _
-                                    AfxSystemTimeToTimeStr( gCompile.SystemTime, "hh:mm:ss" ) & ")" & vbcrlf
+                                    AfxSystemTimeToDateStr( pCompile->SystemTime, "yyyy-MM-dd" ) & " " & _
+                                    AfxSystemTimeToTimeStr( pCompile->SystemTime, "hh:mm:ss" ) & ")" & vbcrlf
     end if
 
 
     ' Update the log file text box in the frmOutput window
-    SetLogFileTextbox
+    SetLogFileTextbox( pCompile )
 
     ' if Errors have occurred then return true. We will allow processing
     ' to continue if only Warnings occurred.
     ' There were errors then do not allow running the EXE (warnings are okay)
     if NumErrors > 0 then 
-        gCompile.RunAfterCompile = false 
+        pCompile->RunAfterCompile = false 
         return true
     end if
 

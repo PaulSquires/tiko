@@ -66,7 +66,7 @@ end function
 ' ========================================================================================
 ' Prepare and Execute a user tool
 ' ========================================================================================
-function frmUserTools_ExecuteUserTool( byval nToolNum as long ) as long            
+function frmUserTools_ExecuteUserTool( byval pCompile as COMPILE_TYPE ptr, byval nToolNum as long ) as long            
             
     dim ShExecInfo  as SHELLEXECUTEINFOW  
     dim pDocMain    as clsDocument ptr 
@@ -119,7 +119,7 @@ function frmUserTools_ExecuteUserTool( byval nToolNum as long ) as long
 
         dim as long idxBuild = frmBuildConfig_getActiveBuildIndex()
         if (idxBuild > -1) andalso (pDocMain <> 0) then
-            wszExeName = gCompile.OutputFilename
+            if pCompile <> null then wszExeName = pCompile->OutputFilename
             if len(wszExeName) = 0 then
                 wszExeName = AfxStrPathname("PATH", pDocMain->DiskFilename) + _
                                 AfxStrPathname("NAME", pDocMain->DiskFilename) + _

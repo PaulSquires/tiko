@@ -13,13 +13,12 @@
 
 #pragma once
 
-declare function SetDocumentErrorPosition( byval hLV as HWnd, byval wID as long ) as long
-declare function SetLogFileTextbox() as long
+declare function SetDocumentErrorPosition( byval hLV as HWnd ) as long
+declare function SetLogFileTextbox( byval pCompile as COMPILE_TYPE ptr ) as long
 declare function ParseLogForError( _
+            byval pCompile as COMPILE_TYPE ptr, _
             byref wsLogSt as DWSTRING, _
             byval bAllowSuccessMessage as boolean, _
-            byval wID as long, _
-            byval fCompile64 as boolean, _
             byval fCompilingObjFiles as boolean _
             ) as boolean
 declare function ResetScintillaCursors() as long
