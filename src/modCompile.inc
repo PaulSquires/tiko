@@ -382,7 +382,6 @@ function code_CompileModules( byval pCompile as COMPILE_TYPE ptr ) as boolean
                 if ParseLogForError( pCompile, sConsoleText, false, true ) then
                     SetCursor( pCompile->hCurSave )
                     ResetScintillaCursors()
-                    code_CleanUp( pCompile )
                     return false
                 end if
             end if
