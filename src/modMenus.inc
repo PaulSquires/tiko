@@ -227,6 +227,14 @@ function frmMain_CompileTopMenuStates() as long
     EnableTopMenuItem( IDM_REBUILDALL, fEnabled )
     EnableTopMenuItem( IDM_COMMANDLINE, fEnabled )
 
+    if gApp.IsProjectActive then
+        ' Enable the "Compile Module" menu item only if the current active file is a Module
+        dim as clsDocument ptr pDoc = gTTabCtl.GetActiveDocumentPtr()
+        if (pDoc <> null) andalso (pDoc->ProjectFileType = FILETYPE_MODULE) then
+            EnableTopMenuItem( IDM_COMPILEMODULE, fEnabled )
+        end if
+    end if
+
     ' QuickRun should be enabled for non-Projects
     if gApp.IsProjectActive = false then 
         if gTTabCtl.GetItemCount then EnableTopMenuItem( IDM_QUICKRUN, true )

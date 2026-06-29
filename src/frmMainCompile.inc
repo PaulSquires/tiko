@@ -20,7 +20,7 @@
 function OnCommand_CompileCommon( byval id as long ) as LRESULT
 
     select case id
-        case IDM_BUILDEXECUTE, IDM_COMPILE, IDM_REBUILDALL, IDM_QUICKRUN
+        case IDM_BUILDEXECUTE, IDM_COMPILE, IDM_REBUILDALL, IDM_QUICKRUN, IDM_COMPILEMODULE
             code_Compile( id )
         
         case IDM_RUNEXE

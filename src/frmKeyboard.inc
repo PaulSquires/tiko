@@ -196,6 +196,7 @@ function frmKeyboard_CreateDefaultKeyBindings() as long
     frmKeyBoard_AddKeyBinding( "Compile", IDM_BUILDEXECUTE, "IDM_BUILDEXECUTE", "Build and Execute", "F5", "", false )
     frmKeyBoard_AddKeyBinding( "Compile", IDM_COMPILE, "IDM_COMPILE", "Compile the project or the current active file", "Ctrl+F5", "", false )
     frmKeyBoard_AddKeyBinding( "Compile", IDM_REBUILDALL, "IDM_REBUILDALL", "Rebuild all", "Ctrl+Alt+F5", "", false )
+    frmKeyBoard_AddKeyBinding( "Compile", IDM_COMPILEMODULE, "IDM_COMPILEMODULE", "Compile Module", "Ctrl+F7", "", false )
     frmKeyBoard_AddKeyBinding( "Compile", IDM_QUICKRUN, "IDM_QUICKRUN", "Quick Run current active file", "Ctrl+Shift+F5", "", false )
     frmKeyBoard_AddKeyBinding( "Compile", IDM_RUNEXE, "IDM_RUNEXE", "Run executable", "Shift+F5", "", false )
     frmKeyBoard_AddKeyBinding( "Compile", IDM_COMMANDLINE, "IDM_COMMANDLINE", "Command line", "", "", false )

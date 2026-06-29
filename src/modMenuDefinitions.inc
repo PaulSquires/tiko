@@ -165,6 +165,7 @@ Function getMenuText( byval idMenu as long ) As DWSTRING
         case IDM_QUICKRUN: wszText = L(285,"Quick Run")
         case IDM_RUNEXE: wszText = L(67,"Run Executable")
         case IDM_COMMANDLINE: wszText = L(68,"Command Line") & "..."
+        case IDM_COMPILEMODULE: wszText = L(81,"Compile Module")
 
         case IDM_DEBUG_STARTDEBUGGING
             if gApp.IsDebuggerActive then
@@ -372,6 +373,7 @@ function buildTopMenuDefinitions() as long
     setTopMenuItem( IDC_MENUBAR_COMPILE, IDM_BUILDEXECUTE, 0, false, false )
     setTopMenuItem( IDC_MENUBAR_COMPILE, IDM_COMPILE, 0, false, false )
     setTopMenuItem( IDC_MENUBAR_COMPILE, IDM_REBUILDALL, 0, false, false )
+    setTopMenuItem( IDC_MENUBAR_COMPILE, IDM_COMPILEMODULE, 0, false, false )
     setTopMenuItem( IDC_MENUBAR_COMPILE, 0, 0, false, true )
     setTopMenuItem( IDC_MENUBAR_COMPILE, IDM_QUICKRUN, 0, false, false )
     setTopMenuItem( IDC_MENUBAR_COMPILE, IDM_RUNEXE, 0, false, false )

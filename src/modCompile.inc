@@ -291,6 +291,12 @@ function code_CompileModules( byval pCompile as COMPILE_TYPE ptr ) as boolean
 
     if gApp.IsProjectActive = false then return true
     
+    ' if only compiling this one module (null if all)
+    dim pDocModule as clsDocument ptr
+    if pCompile->CompileID = IDM_COMPILEMODULE then
+        pDocModule = gTTabCtl.GetActiveDocumentPtr()
+    end if
+    
     dim as DWSTRING wDQ = wStr(34)
     
     ' Determine if we are switching from Release builds to Debug builds. This means
@@ -324,65 +330,76 @@ function code_CompileModules( byval pCompile as COMPILE_TYPE ptr ) as boolean
     
     dim as long nFileCount   ' used to calculate when to fire an AfxDoEvents
     
+    dim as boolean bOneModuleOnly = iif( pDocModule <> null, true, false )
+    dim as boolean bBypass = false
+    
     dim as clsDocument ptr pDoc = gApp.pDocList
     do until pDoc = null
         if pDoc->ProjectFileType = FILETYPE_MODULE then
-            ' Get the base name of the file for constructing the object filename
-            dim as DWSTRING wszTemp 
-            wszTemp = pCompile->ObjFolderShort & AfxStrPathname("NAME", pDoc->DiskFilename) & pCompile->ObjID
             
-            ' Compare the source code file datetime to the object. if the source code
-            ' date time is greater then we need to recompile it, otherwise we will simply
-            ' link to the existing object file.
-            dim as boolean bRebuildModule = false
-           
-            dim as FILETIME ft1 = AfxGetFileLastWriteTime(pDoc->DiskFilename) ' source file
-            dim as FILETIME ft2 = AfxGetFileLastWriteTime(wszTemp)  ' object file
+            bBypass = false
+            if (bOneModuleOnly = true) andalso (pDoc <> pDocModule) then
+                bBypass = true
+            end if
+        
+            if bBypass = false then
+                ' Get the base name of the file for constructing the object filename
+                dim as DWSTRING wszTemp 
+                wszTemp = pCompile->ObjFolderShort & AfxStrPathname("NAME", pDoc->DiskFilename) & pCompile->ObjID
+                
+                ' Compare the source code file datetime to the object. if the source code
+                ' date time is greater then we need to recompile it, otherwise we will simply
+                ' link to the existing object file.
+                dim as boolean bRebuildModule = false
+               
+                dim as FILETIME ft1 = AfxGetFileLastWriteTime(pDoc->DiskFilename) ' source file
+                dim as FILETIME ft2 = AfxGetFileLastWriteTime(wszTemp)  ' object file
 
-            if (AfxFileTimeToVariantTime(ft1) > AfxFileTimeToVariantTime(ft2)) then bRebuildModule = true
-            
-            ' If rebuild is false then we still need to check any embedded #include files that
-            ' may have changed since the document was parsed.
-            dim pDocInclude as clsDocument ptr = pDoc->pDocIncludeList
-            do until pDocInclude = null
-                ft1 = AfxGetFileLastWriteTime(pDocInclude->DiskFilename) ' current include file datetime
-                if AfxFileTimeToVariantTime(ft1) > AfxFileTimeToVariantTime(pDocInclude->DateFileTime) then 
-                    bRebuildModule = true
-                end if    
-                pDocInclude->DateFileTime = ft1
-                pDocInclude = pDocInclude->pDocNext
-            loop
-            
-            if (bRebuildModule = true) orelse _
-                    (bForceRebuild = true) orelse _
-                    (pCompile->CompileID = IDM_REBUILDALL)  then
+                if (AfxFileTimeToVariantTime(ft1) > AfxFileTimeToVariantTime(ft2)) then bRebuildModule = true
                 
-                nFileCount = nFileCount + 1
-                if (nFileCount mod 5) = 0 then AfxDoEvents
+                ' If rebuild is false then we still need to check any embedded #include files that
+                ' may have changed since the document was parsed.
+                dim pDocInclude as clsDocument ptr = pDoc->pDocIncludeList
+                do until pDocInclude = null
+                    ft1 = AfxGetFileLastWriteTime(pDocInclude->DiskFilename) ' current include file datetime
+                    if AfxFileTimeToVariantTime(ft1) > AfxFileTimeToVariantTime(pDocInclude->DateFileTime) then 
+                        bRebuildModule = true
+                    end if    
+                    pDocInclude->DateFileTime = ft1
+                    pDocInclude = pDocInclude->pDocNext
+                loop
                 
-                ' Prepend with # so that spinner shows
-                dim as DWSTRING wst = L(203, "Compiling") + "... " + AfxStrPathname("NAMEX", pDoc->DiskFilename) 
-                SetCompileStatusBarMessage( wst, 0 )
-                
-                dim as DWSTRING wszCommand = pCompile->CompilerPath
-                dim as DWSTRING wszParams = _
-                        g_flag & e_flag & ex_flag & exx_flag &  _
-                        pCompile->CompileIncludes + " " + _
-                        " -c -b " + wDQ + pDoc->DiskFilename + wDQ + _
-                        " -v -o " + wDQ + wszTemp + wDQ 
-                        
-                dim as string sConsoleText
-                RedirConsoleToFile( wszCommand, wszParams, sConsoleText )
-                
-                pCompile->wszFullCommandLine = wszCommand & " " & wszParams
-                pCompile->wszFullLogFile = sConsoleText
+                if (bRebuildModule = true) orelse _
+                        (bForceRebuild = true) orelse _
+                        (pCompile->CompileID = IDM_REBUILDALL) then
+                    
+                    nFileCount = nFileCount + 1
+                    if (nFileCount mod 5) = 0 then AfxDoEvents
+                    
+                    ' Prepend with # so that spinner shows
+                    dim as DWSTRING wst = L(203, "Compiling") + "... " + AfxStrPathname("NAMEX", pDoc->DiskFilename) 
+                    SetCompileStatusBarMessage( wst, 0 )
+                    
+                    dim as DWSTRING wszCommand = pCompile->CompilerPath
+                    dim as DWSTRING wszParams = _
+                            g_flag & e_flag & ex_flag & exx_flag &  _
+                            pCompile->CompileIncludes + " " + _
+                            " -c -b " + wDQ + pDoc->DiskFilename + wDQ + _
+                            " -v -o " + wDQ + wszTemp + wDQ 
+                            
+                    dim as string sConsoleText
+                    RedirConsoleToFile( wszCommand, wszParams, sConsoleText )
+                    
+                    pCompile->wszFullCommandLine = wszCommand & " " & wszParams
+                    pCompile->wszFullLogFile = sConsoleText
 
-                ' Need to check to see if any errors occurred while compiling this object file. 
-                ' If yes, then stop processing object files and display the error.
-                if ParseLogForError( pCompile, sConsoleText, false, true ) then
-                    SetCursor( pCompile->hCurSave )
-                    ResetScintillaCursors()
-                    return false
+                    ' Need to check to see if any errors occurred while compiling this object file. 
+                    ' If yes, then stop processing object files and display the error.
+                    if ParseLogForError( pCompile, sConsoleText, false, true ) then
+                        SetCursor( pCompile->hCurSave )
+                        ResetScintillaCursors()
+                        return false
+                    end if
                 end if
             end if
         
@@ -560,7 +577,8 @@ function code_Compile( byval wID as long ) as boolean
     
 
     ' if this is a project then we need to compile all of the modules first
-    ' in order to create the necessary *.o object files
+    ' in order to create the necessary *.o object files. We also handle compiling
+    ' just a single Module.
     if code_CompileModules( pCompile ) = false then
         code_Cleanup( pCompile )
         return false        
