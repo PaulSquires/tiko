@@ -291,7 +291,7 @@ function code_CompileModules( byval pCompile as COMPILE_TYPE ptr ) as boolean
 
     if gApp.IsProjectActive = false then return true
     
-    dim as DWSTRING wDQ = wStr(34)
+    dim as DWSTRING wDQ = wchr(34)
     
     ' Determine if we are switching from Release builds to Debug builds. This means
     ' that any existing obj's would be invalid and will be forced to rebuild.
