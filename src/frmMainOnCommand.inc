@@ -333,7 +333,7 @@ function frmMain_OnCommand( _
             OpenMRUProjectFile( hwnd, id )
 
         ''  COMPILE MENU          
-        case IDM_BUILDEXECUTE, IDM_COMPILE, IDM_REBUILDALL, IDM_QUICKRUN, _
+        case IDM_BUILDEXECUTE, IDM_COMPILE, IDM_REBUILDALL, IDM_COMPILEMODULE, IDM_QUICKRUN, _
             IDM_RUNEXE, IDM_COMMANDLINE
             OnCommand_CompileCommon( id )
 

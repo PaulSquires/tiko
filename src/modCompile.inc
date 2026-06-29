@@ -42,6 +42,9 @@ function code_Initialize() as COMPILE_TYPE ptr
     dim pCompile as COMPILE_TYPE ptr = new COMPILE_TYPE
     if pCompile = null then return null
 
+    ' Save the mouse cursor so that it can be restored after compiling.
+    pCompile->hCurSave = GetCursor()
+
     return pCompile
 end function
 
@@ -52,6 +55,10 @@ end function
 function code_Cleanup( byval pCompile as COMPILE_TYPE ptr ) as boolean
     SetCompileStatusBarMessage( pCompile->wszStatusBarMessage, 0 )
     gApp.IsCompiling = false
+    
+    ' Restore the mouse cursors
+    SetCursor( pCompile->hCurSave )
+    ResetScintillaCursors()
 
     if pCompile then 
         delete( pCompile )
@@ -342,19 +349,19 @@ function code_CompileModules( byval pCompile as COMPILE_TYPE ptr ) as boolean
             if (bOneModuleOnly = true) andalso (pDoc <> pDocModule) then
                 bBypass = true
             end if
-        
+
             if bBypass = false then
                 ' Get the base name of the file for constructing the object filename
-                dim as DWSTRING wszTemp 
-                wszTemp = pCompile->ObjFolderShort & AfxStrPathname("NAME", pDoc->DiskFilename) & pCompile->ObjID
-                
+                pCompile->ObjectFilename = _
+                    pCompile->ObjFolderShort & AfxStrPathname("NAME", pDoc->DiskFilename) & pCompile->ObjID
+
                 ' Compare the source code file datetime to the object. if the source code
                 ' date time is greater then we need to recompile it, otherwise we will simply
                 ' link to the existing object file.
                 dim as boolean bRebuildModule = false
                
                 dim as FILETIME ft1 = AfxGetFileLastWriteTime(pDoc->DiskFilename) ' source file
-                dim as FILETIME ft2 = AfxGetFileLastWriteTime(wszTemp)  ' object file
+                dim as FILETIME ft2 = AfxGetFileLastWriteTime(pCompile->ObjectFilename)  ' object file
 
                 if (AfxFileTimeToVariantTime(ft1) > AfxFileTimeToVariantTime(ft2)) then bRebuildModule = true
                 
@@ -386,20 +393,33 @@ function code_CompileModules( byval pCompile as COMPILE_TYPE ptr ) as boolean
                             g_flag & e_flag & ex_flag & exx_flag &  _
                             pCompile->CompileIncludes + " " + _
                             " -c -b " + wDQ + pDoc->DiskFilename + wDQ + _
-                            " -v -o " + wDQ + wszTemp + wDQ 
+                            " -v -o " + wDQ + pCompile->ObjectFilename + wDQ 
                             
                     dim as string sConsoleText
                     RedirConsoleToFile( wszCommand, wszParams, sConsoleText )
                     
                     pCompile->wszFullCommandLine = wszCommand & " " & wszParams
                     pCompile->wszFullLogFile = sConsoleText
+                    
+                    ' If creating just a single compiled Module then obviously there is no linking step so the deeper dive
+                    ' to find the true OutputFilename never happens and will still be set to the default for the project
+                    ' which is most likely an EXE based on the Main file name.
+                    if bOneModuleOnly then
+                        pCompile->OutputFilename = pCompile->ObjectFilename
+                    end if
 
                     ' Need to check to see if any errors occurred while compiling this object file. 
-                    ' If yes, then stop processing object files and display the error.
-                    if ParseLogForError( pCompile, sConsoleText, false, true ) then
-                        SetCursor( pCompile->hCurSave )
-                        ResetScintillaCursors()
+                    ' If yes, then stop processing object files and display the error. Allow a "success" 
+                    ' message to be generated if we are just compiling one Module.
+                    if ParseLogForError( pCompile, sConsoleText, bOneModuleOnly, true ) = true then
                         return false
+                    else
+                        ' If no error but we are only compiling one Module then we will also stop
+                        ' here, but also set the StatusBar message to display the details of the 
+                        ' Module that was just compiled.
+                        if bOneModuleOnly then
+                            return false    
+                        end if
                     end if
                 end if
             end if
@@ -563,7 +583,6 @@ function code_Compile( byval wID as long ) as boolean
     ' Finally, we can now start to do the compiling! 
     
     ' Indicate via mouse cursor to user to wait for compile process to end.
-    pCompile->hCurSave = GetCursor()
     SetCursor( LoadCursor(0, IDC_WAIT) )
     dim as clsDocument ptr pDoc = gTTabCtl.GetActiveDocumentPtr()
     if pDoc then SciExec( pDoc->hWindow(0), SCI_SETCURSOR, SC_CURSORWAIT, 0 )
@@ -649,13 +668,6 @@ function code_Compile( byval wID as long ) as boolean
     dim as string sConsoleText = ctp.sConsoleText
                 
 
-    ' Attempt to fix the random problem whereby the spinning mouse wait cursor is not reset
-    ' to an arrow. It seems to happen in random cases whereby an error is thrown and a new 
-    ' document is loaded to position to the error line. Very hard to reproduce. We will manually
-    ' reset all Scintilla cursors here for all open documents. Maybe this will help.
-    SetCursor( pCompile->hCurSave )
-    ResetScintillaCursors()
-    
     pCompile->EndTime = timer
     pCompile->SystemTime = AfxSystemSystemTime 
 

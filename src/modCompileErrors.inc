@@ -410,6 +410,9 @@ function ParseLogForError ( _
         end if
     
         ' Check for the "linking: " line because that line identifies the actual output filename being created
+        ' If creating just a single compiled Module then obviously there is no linking step so this deeper dive
+        ' to find the true OutputFilename never happens and will still be set to the default for the project
+        ' which is most likely an EXE based on the Main file name.
         if left(wst_ucase, 9) = "LINKING: " then 
             i = instr(wst, " -o ")
             if i then
@@ -503,7 +506,7 @@ function ParseLogForError ( _
 
     dim as DWSTRING wszIconCompileMsg
 
-    ' if the EXE output file was never created then throw an error
+    ' if the EXE/DLL/Object output file was never created then throw an error
     if fCompilingObjFiles = false then
         if (NumWarnings = 0) andalso (NumErrors = 0) then
             if AfxGetFileSize(pCompile->OutputFilename) = 0 then 
@@ -555,7 +558,7 @@ function ParseLogForError ( _
         ' Set to error line position only after all windows have been shown and resized
         SetDocumentErrorPosition( hLV )
     end if
-    
+
     if (NumErrors = 0) andalso (bAllowSuccessMessage = true) then 
         ' we are not compiling modules
         dim as long nFileSize = AfxGetFileSize(pCompile->OutputFilename)
@@ -567,7 +570,7 @@ function ParseLogForError ( _
                 wstr(nFileSize) & " " & L(199,"bytes") & ") ]"
         pCompile->wszStatusBarMessage = wszIconCompileMsg         
         SetCompileStatusBarMessage( wszIconCompileMsg, ghIconGood )
-        
+
         if gConfig.DisableCompileBeep = false then MessageBeep(MB_OK)
        
         pCompile->wszOutputMsg = _   ' this gets output to the Output window

@@ -43,6 +43,7 @@ type COMPILE_TYPE
     bCompile32             as boolean    ' flag indicating 32-bit compile process
     bCompile64             as boolean    ' flag indicating 64-bit compile process
     pDocMain               as clsDocument ptr  ' pointer to main document to be compiler
+    ObjectFilename         as DWSTRING   ' Set when compiling a Module and used afterwards to construct StatusBar message
     hCurSave               as HCURSOR    ' Cursor saved/restored during compile process
     wszStatusBarMessage    as DWSTRING   ' Success/Fail statusbar message
 end type
