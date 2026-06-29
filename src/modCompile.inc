@@ -291,12 +291,6 @@ function code_CompileModules( byval pCompile as COMPILE_TYPE ptr ) as boolean
 
     if gApp.IsProjectActive = false then return true
     
-    ' if only compiling this one module (null if all)
-    dim pDocModule as clsDocument ptr
-    if pCompile->CompileID = IDM_COMPILEMODULE then
-        pDocModule = gTTabCtl.GetActiveDocumentPtr()
-    end if
-    
     dim as DWSTRING wDQ = wStr(34)
     
     ' Determine if we are switching from Release builds to Debug builds. This means
@@ -306,6 +300,13 @@ function code_CompileModules( byval pCompile as COMPILE_TYPE ptr ) as boolean
     dim as boolean bForceRebuild = false
     dim as boolean bDebugFileExists = AfxFileExists( wszDebugFilename )
 
+    ' if only compiling this one module (null if all)
+    dim pDocModule as clsDocument ptr
+    if pCompile->CompileID = IDM_COMPILEMODULE then
+        pDocModule = gTTabCtl.GetActiveDocumentPtr()
+        bForceRebuild = true   ' always force a rebuild of a single Module.
+    end if
+    
     if pCompile->CompileID = IDM_DEBUG_STARTDEBUGGING then
         ' Debug build
         bForceRebuild = iif( bDebugFileExists, false, true )
