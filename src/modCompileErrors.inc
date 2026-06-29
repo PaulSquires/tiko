@@ -327,6 +327,8 @@ function ParseLogForError ( _
 
     wDQ = wchr(34) ' unicode double quotes
 
+    pCompile->EndTime = timer
+
     hLV = HWND_FRMOUTPUT_LVRESULTS
     frmListView_DeleteAllItems( hLV )
     
@@ -573,6 +575,23 @@ function ParseLogForError ( _
 
         if gConfig.DisableCompileBeep = false then MessageBeep(MB_OK)
        
+'        dim as double ElapsedTime = (pCompile->EndTime-pCompile->StartTime) * 1000
+'        dim as DWSTRING wszElapsedTime 
+'        dim as DWSTRING wszTimeUnits = L(198,"seconds")
+'        if ElapsedTime < 1000 then  
+'            ' less than a second so display milliseconds
+'            wszElapsedTime = format(ElapsedTime, "0.000")
+'            'wszTimeUnits = L(197,"milliseconds")
+'        else
+'            ' over 1000 milliseconds so display using seconds
+'            wszElapsedTime = format(ElapsedTime / 1000, "0.0")
+'        end if
+        
+        dim as double ElapsedTime = (pCompile->EndTime-pCompile->StartTime) 
+        dim as DWSTRING wszElapsedTime = _
+            iif( ElapsedTime > 1, format(ElapsedTime, "0.0"), format(ElapsedTime, "0.000") )
+        dim as DWSTRING wszTimeUnits = L(198,"seconds")
+
         pCompile->wszOutputMsg = _   ' this gets output to the Output window
             L(228,"Successful Compile")  & " (" & _
             L(193,"Errors")              & " " & NumErrors & " " & _
@@ -581,10 +600,10 @@ function ParseLogForError ( _
             L(195,"Target Compilation:") & " " & pCompile->OutputFilename & " (" & _
                                     rtrim(AfxStrFormatKBSize(nFileSize)) & ", " & _
                                     str(nFileSize) & " " & L(199,"bytes") & ")" & vbcrlf & _
-            L(196,"Compile Time:")       & " " & format(pCompile->EndTime-pCompile->StartTime, "###0.0") & _
-                                    " " & L(198,"seconds") & " (" & _
-                                    AfxSystemTimeToDateStr( pCompile->SystemTime, "yyyy-MM-dd" ) & " " & _
-                                    AfxSystemTimeToTimeStr( pCompile->SystemTime, "hh:mm:ss" ) & ")" & vbcrlf
+            L(196,"Compile Time:")       & " " & wszElapsedTime & _
+                                    " " & wszTimeUnits & " (" & _
+                                    AfxLocalDateStr( "yyyy-MM-dd" ) & " " & _
+                                    AfxLocalTimeStr( "hh:mm:ss" ) & ")" & vbcrlf
     end if
 
 

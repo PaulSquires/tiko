@@ -102,7 +102,7 @@ function frmProjectOptions_SaveProjectOptions( byval hwnd as HWND ) as BOOLEAN
     gApp.ProjectOther32     = AfxGetWindowText(GetDlgItem(hwnd, IDC_FRMPROJECTOPTIONS_TXTOPTIONS32))
     gApp.ProjectOther64     = AfxGetWindowText(GetDlgItem(hwnd, IDC_FRMPROJECTOPTIONS_TXTOPTIONS64))
     gApp.ProjectManifest    = Button_GetCheck(GetDlgItem(hwnd, IDC_FRMPROJECTOPTIONS_CHKMANIFEST))
-    gApp.ProjectBuild       = frmBuildConfig_GetselectedBuildGUID()
+    gApp.ProjectBuild       = frmBuildConfig_GetSelectedBuildGUID()
     gApp.ProjectNotes       = ""
     gApp.ProjectCommandLine = ""
     

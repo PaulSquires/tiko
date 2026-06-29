@@ -35,7 +35,6 @@ type COMPILE_TYPE
     wszFullLogFile         as DWSTRING   ' Full log file returned from the FB compiler
     wszOutputMsg           as DWSTRING   ' Additional info during compile process (time/filesize)
     RunAfterCompile        as boolean
-    SystemTime             aS SYSTEMTIME ' System time when compile finished
     StartTime              as double
     EndTime                as double
     CompileID              as long       ' Type of compile (wID). Needed in case frmOutput listview later clicked on.

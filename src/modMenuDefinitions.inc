@@ -146,7 +146,7 @@ Function getMenuText( byval idMenu as long ) As DWSTRING
         case IDM_VIEWTODO: wszText = L(263,"TODO")
         case IDM_VIEWNOTES: wszText = L(264,"Notes")
 
-        case IDM_PROJECTNEW: wszText = L(180,"New Project")
+        case IDM_PROJECTNEW: wszText = L(180,"New Project") & "..."
         case IDM_PROJECTOPEN: wszText = L(182,"Open Project") & "..." 
         case IDM_MRUPROJECT: wszText = L(219,"Recent Projects")
         case IDM_MRUPROJECTBASE to IDM_MRUPROJECTBASE + 9

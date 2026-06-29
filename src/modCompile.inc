@@ -391,7 +391,7 @@ function code_CompileModules( byval pCompile as COMPILE_TYPE ptr ) as boolean
                     dim as DWSTRING wszCommand = pCompile->CompilerPath
                     dim as DWSTRING wszParams = _
                             g_flag & e_flag & ex_flag & exx_flag &  _
-                            pCompile->CompileIncludes + " " + _
+                            pCompile->CompileFlags + " " + _
                             " -c -b " + wDQ + pDoc->DiskFilename + wDQ + _
                             " -v -o " + wDQ + pCompile->ObjectFilename + wDQ 
                             
@@ -667,9 +667,6 @@ function code_Compile( byval wID as long ) as boolean
     pCompile->wszFullLogFile = ctp.sConsoleText
     dim as string sConsoleText = ctp.sConsoleText
                 
-
-    pCompile->EndTime = timer
-    pCompile->SystemTime = AfxSystemSystemTime 
 
     ' if this was a QuickRun then delete the temporary code file that was created.
     if pCompile->CompileID = IDM_QUICKRUN then 
