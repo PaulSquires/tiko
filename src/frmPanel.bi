@@ -14,13 +14,6 @@
 #pragma once
 
 
-type PANEL_BUTTON_TYPE
-    wszCaption   as DWSTRING
-    hActionChild as HWND
-    rc           as RECT
-end type
-dim shared gPanelButton(any) as PANEL_BUTTON_TYPE
-
 type PANEL_TYPE
     hActiveChild    as HWND
     wszHeader       as DWSTRING

@@ -173,29 +173,8 @@ function frmPanel_PositionWindows() as LRESULT
     dim as Rect rc
     GetClientRect( HWND_FRMPANEL, @rc )
     
-    ' Make the right side of the client area 1 pixel smaller so that
-    ' we can display the right side vertical border.
-    rc.right = rc.right - pWindow->ScaleX(1)
-
     dim as long nPanelMenuHeight = pWindow->ScaleY(TOPTABS_HEIGHT)
-    dim as long nPanelHeaderHeight = pWindow->ScaleY(46)
-
-    redim gPanelButton(1) as PANEL_BUTTON_TYPE
-    
-    gPanelButton(1).rc.left = rc.left
-    gPanelButton(1).rc.right = rc.right
-    gPanelButton(1).rc.bottom = rc.bottom
-    gPanelButton(1).rc.top = rc.bottom - nPanelMenuHeight
-
-    gPanelButton(0).rc.left = rc.left
-    gPanelButton(0).rc.right = rc.right
-    gPanelButton(0).rc.bottom = gPanelButton(1).rc.top 
-    gPanelButton(0).rc.top = gPanelButton(1).rc.top - nPanelMenuHeight
-
-    if gApp.GetDocumentCount = 0 then
-        SetRectEmpty( @gPanelButton(0).rc )
-        SetRectEmpty( @gPanelButton(1).rc )
-    end if
+    dim as long nPanelHeaderHeight = pWindow->ScaleY(46)   ' EXPLORER, FUNCTIONS, BOOKMARKS
 
     ' show/hide of the child window is done separately in order to prevent blank client area from 
     ' painting before the lists are loaded. Allow a 3 pixel right border between listbox and
@@ -209,7 +188,8 @@ function frmPanel_PositionWindows() as LRESULT
 
     nTop = rc.top + nPanelMenuHeight + nPanelHeaderHeight
     nWidth = nWidth - pWindow->ScaleX(3)   
-    nHeight = gPanelButton(0).rc.top - nTop
+'    nHeight = gPanelButton(0).rc.top - nTop
+    nHeight = rc.bottom - nTop
 
     ' Position the panel menu
     SetWindowPos( HWND_FRMPANEL_MENU, 0, nLeft, 0, nWidth, nPanelMenuHeight, SWP_SHOWWINDOW or SWP_NOZORDER )
@@ -232,11 +212,6 @@ function frmPanel_PositionWindows() as LRESULT
             ShowWindow( HWND_FRMEXPLORER, SW_SHOW )
             gPanelVScroll.hListBox = HWND_FRMEXPLORER_LISTBOX
 
-            gPanelButton(0).wszCaption = ucase( L(223,"Function List") )
-            gPanelButton(0).hActionChild = HWND_FRMFUNCTIONS
-            gPanelButton(1).wszCaption = ucase( L(188,"Bookmarks") )
-            gPanelButton(1).hActionChild = HWND_FRMBOOKMARKS
-        
         case HWND_FRMBOOKMARKS
             ShowWindow( HWND_FRMEXPLORER, SW_HIDE )
             ShowWindow( HWND_FRMFUNCTIONS, SW_HIDE )
@@ -245,11 +220,6 @@ function frmPanel_PositionWindows() as LRESULT
             ShowWindow( HWND_FRMBOOKMARKS, SW_SHOW )
             gPanelVScroll.hListBox = HWND_FRMBOOKMARKS_LISTBOX
         
-            gPanelButton(0).wszCaption = L(247,"EXPLORER")
-            gPanelButton(0).hActionChild = HWND_FRMEXPLORER
-            gPanelButton(1).wszCaption = ucase( L(223,"Function List") )
-            gPanelButton(1).hActionChild = HWND_FRMFUNCTIONS
-
         case HWND_FRMFUNCTIONS
             ShowWindow( HWND_FRMEXPLORER, SW_HIDE )
             ShowWindow( HWND_FRMBOOKMARKS, SW_HIDE )
@@ -258,10 +228,6 @@ function frmPanel_PositionWindows() as LRESULT
             ShowWindow( HWND_FRMFUNCTIONS, SW_SHOW )
             gPanelVScroll.hListBox = HWND_FRMFUNCTIONS_LISTBOX
 
-            gPanelButton(0).wszCaption = L(247,"EXPLORER")
-            gPanelButton(0).hActionChild = HWND_FRMEXPLORER
-            gPanelButton(1).wszCaption = ucase( L(188,"Bookmarks") )
-            gPanelButton(1).hActionChild = HWND_FRMBOOKMARKS
     end select
 
     SetWindowPos( HWND_FRMPANEL_VSCROLLBAR, 0, _
@@ -334,6 +300,9 @@ end function
 ' ========================================================================================
 function frmPanel_OnPaint( byval hwnd as HWND ) as LRESULT
             
+    dim pWindow as CWindow ptr = AfxCWindowPtr(HWND_FRMPANEL)
+    if pWindow = 0 then exit function
+
     dim as clsDoubleBuffer b
     
     b.BeginDoubleBuffer(hwnd)
@@ -359,20 +328,8 @@ function frmPanel_OnPaint( byval hwnd as HWND ) as LRESULT
     b.PaintLine( 2, gPanel.rcDividerLine.left, gPanel.rcDividerLine.top, _
                     gPanel.rcDividerLine.right, gPanel.rcDividerLine.bottom )
 
-    ' Draw the bottom two Panel buttons
-    for i as long = lbound(gPanelButton) to ubound(gPanelButton)
-        dim as RECT rc = gPanelButton(i).rc
-        b.SetPenColor( ghTopTabs.Divider )
-        b.SetForeColors( ghPanel.ForeColorButton, ghPanel.ForeColorButtonHot )
-        b.SetBackColors( ghPanel.BackColorButton, ghPanel.BackColorButtonHot)
-
-        b.SetFont( GUIFONT_9 )
-        b.PaintBorderRect( @rc, true )
-        b.PaintText( gPanelButton(i).wszCaption, @rc, DT_CENTER, true )
-    next   
-
     ' Right side vertical border line
-    b.SetPenColor( ghTopTabs.BackColorHot )
+    b.SetPenColor( ghEditor.Divider )
     b.PaintLine( 1, b.rcClient.right, b.rcClient.top, _
                     b.rcClient.right, b.rcClient.bottom )
 
@@ -393,7 +350,7 @@ function frmPanel_WndProc( _
             byval lParam as LPARAM _
             ) as LRESULT
 
-    static as boolean isPrevHotAction, isPrevHotButton0, isPrevHotButton1
+    static as boolean isPrevHotAction
     
     static as DWSTRING wszPrevTooltip
     static as HWND hTooltip 
@@ -430,24 +387,12 @@ function frmPanel_WndProc( _
         ' Repaint the gPanelMenuRect to ensure Hot highlighting
         dim as boolean isHotAction, isHotButton0, isHotButton1 
         isHotAction = isMouseOverRECT( hwnd, gPanel.rcActionMenu )
-        isHotButton0 = isMouseOverRECT( hwnd, gPanelButton(0).rc )
-        isHotButton1 = isMouseOverRECT( hwnd, gPanelButton(1).rc )
 
         if isHotAction <> isPrevHotAction then   
             AfxRedrawWindow( hwnd )
             isPrevHotAction = isHotAction
         end if   
             
-        if isHotButton0 <> isPrevHotButton0 then   
-            AfxRedrawWindow( hwnd )
-            isPrevHotButton0 = isHotButton0
-        end if   
-
-        if isHotButton1 <> isPrevHotButton1 then   
-            AfxRedrawWindow( hwnd )
-            isPrevHotButton1 = isHotButton1
-        end if
-
         ' PANELS LEFT/RIGHT SPLITTER
         dim as point pt
         dim as Rect rc
@@ -534,22 +479,10 @@ function frmPanel_WndProc( _
             Return true   ' prevent further processing that leads to WM_CONTEXTMENU
         end if
         
-        if isMouseOverRECT( hwnd, gPanelButton(0).rc ) then
-            gPanel.hActiveChild = gPanelButton(0).hActionChild
-            frmPanel_PositionWindows()
-        end if
-        
-        if isMouseOverRECT( hwnd, gPanelButton(1).rc ) then
-            gPanel.hActiveChild = gPanelButton(1).hActionChild
-            frmPanel_PositionWindows()
-        end if
-
 
      case WM_MOUSELEAVE
         wszPrevTooltip = ""
         isPrevHotAction = false
-        isPrevHotButton0 = false
-        isPrevHotButton1 = false
         AfxRedrawWindow(hwnd)
 
 

@@ -329,6 +329,9 @@ function frmStatusBar_WndProc( _
             end if   
         next
                                 
+        b.SetPenColor( ghEditor.Divider )
+        b.PaintLine( 1, b.rcClient.left, b.rcClient.top, b.rcClient.right, b.rcClient.top )
+
         b.EndDoubleBuffer()
 
         return 0
