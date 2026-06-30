@@ -172,6 +172,10 @@ function frmPanel_PositionWindows() as LRESULT
     ' Get the entire client area
     dim as Rect rc
     GetClientRect( HWND_FRMPANEL, @rc )
+    
+    ' Make the right side of the client area 1 pixel smaller so that
+    ' we can display the right side vertical border.
+    rc.right = rc.right - pWindow->ScaleX(1)
 
     dim as long nPanelMenuHeight = pWindow->ScaleY(TOPTABS_HEIGHT)
     dim as long nPanelHeaderHeight = pWindow->ScaleY(46)
@@ -366,6 +370,11 @@ function frmPanel_OnPaint( byval hwnd as HWND ) as LRESULT
         b.PaintBorderRect( @rc, true )
         b.PaintText( gPanelButton(i).wszCaption, @rc, DT_CENTER, true )
     next   
+
+    ' Right side vertical border line
+    b.SetPenColor( ghTopTabs.BackColorHot )
+    b.PaintLine( 1, b.rcClient.right, b.rcClient.top, _
+                    b.rcClient.right, b.rcClient.bottom )
 
     b.EndDoubleBuffer()
 

@@ -73,6 +73,8 @@ function clsDoubleBuffer.SetFont( byval FontIndex as long ) as long
         select case FontIndex
             case GUIFONT_9:     _hFont(GUIFONT_9)     = pWindow->CreateFont(GUIFONT, 9, FW_NORMAL) 
             case GUIFONT_10:    _hFont(GUIFONT_10)    = pWindow->CreateFont(GUIFONT, 10, FW_NORMAL)
+'            case INFOFONT_10:   _hFont(INFOFONT_10)   = pWindow->CreateFont(gConfig.EditorFontname, 10, FW_NORMAL)
+            case INFOFONT_10:   _hFont(INFOFONT_10)   = pWindow->CreateFont(gConfig.EditorFontname, val(gConfig.EditorFontsize), FW_NORMAL)
             case SYMBOLFONT_9:  _hFont(SYMBOLFONT_9)  = pWindow->CreateFont(SYMBOLFONT, 9, FW_NORMAL)
             case SYMBOLFONT_10: _hFont(SYMBOLFONT_10) = pWindow->CreateFont(SYMBOLFONT, 10, FW_NORMAL)
             case SYMBOLFONT_12: _hFont(SYMBOLFONT_12) = pWindow->CreateFont(SYMBOLFONT, 12, FW_NORMAL)
