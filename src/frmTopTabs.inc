@@ -12,6 +12,9 @@
 '    GNU General Public License for more details.
 
 
+#include once "frmStatusBar.bi"
+#include once "frmPanelMenu.bi"
+
 
 ' ========================================================================================
 ' Show or hide the drop down shadow that will display below the top tabs control. The
@@ -87,10 +90,13 @@ function frmTopTabs_PositionWindows() as LRESULT
     
     ' Get the entire client area
     dim as Rect rc: GetClientRect( HWND_FRMMAIN_TOPTABS, @rc )
+    gTTabCtl.rcInfo = rc
+    
     ' The "Tab" portion of the control displays the filename and close button wherease
     ' the "Info" portion is located immediately below the row of tabs.
     rc.bottom = rc.top + pWindow->ScaleY(TOPTABS_HEIGHT)
-    
+    gTTabCtl.rcInfo.top = pWindow->ScaleY(TOPTABS_HEIGHT)
+            
     ' Calculate the RECT positions for all of the top tabs
     dim pDoc as clsDocument ptr 
     dim as long nTextWidth = 0
@@ -108,7 +114,8 @@ function frmTopTabs_PositionWindows() as LRESULT
     dim as long PrevTabsButtonHeight = 20
     dim as long SplitButtonWidth = 20
     dim as long SplitButtonHeight = 20
-    
+    dim as long nPadding = 10   ' 5 left 5 right
+
     ' calculate the right hand side Action area panel that holds the
     ' more actions "..." button.
     gTTabCtl.rcActionPanel = rc
@@ -140,6 +147,23 @@ function frmTopTabs_PositionWindows() as LRESULT
     gTTabCtl.rcActionButton.bottom = gTTabCtl.rcActionButton.top + pWindow->ScaleY( ActionButtonHeight )
     gTTabCtl.rcActionButton.right = gTTabCtl.rcActionButton.left + pWindow->ScaleY( ActionButtonWidth )
 
+    ' Info area under the row of tabs 
+    vmargin = (TOPTABS_INFO_HEIGHT - ActionButtonHeight) / 2
+    gTTabCtl.rcFindButton = gTTabCtl.rcInfo
+    gTTabCtl.rcFindButton.left = gTTabCtl.rcPrevTabs.left 
+    gTTabCtl.rcFindButton.top += pWindow->ScaleY(vmargin)
+    gTTabCtl.rcFindButton.bottom = gTTabCtl.rcFindButton.top + pWindow->ScaleY( PrevTabsButtonHeight )
+    gTTabCtl.rcFindButton.right = gTTabCtl.rcPrevTabs.right 
+    
+    gTTabCtl.rcDiskFilename = gTTabCtl.rcInfo
+    gTTabCtl.rcDiskFilename.left += pWindow->ScaleX(15)
+    gTTabCtl.rcDiskFilename.right = gTTabCtl.rcFindButton.left
+    
+    gTTabCtl.rcFileTypeButton = gTTabCtl.rcFindButton
+    gTTabCtl.rcFileTypeButton.left = gTTabCtl.rcFindButton.right + pWindow->ScaleX(6)
+    gTTabCtl.rcFileTypeButton.right = gTTabCtl.rcFileTypeButton.left + _
+            pWindow->ScaleX( getTextWidth(HWND_FRMMAIN_TOPTABS, gSBPanels(FILETYPE_PANEL).wszText, GUIFONT_9) + (nPadding * 2))
+    
     for i as long = lbound(gTTabCtl.tabs) to ubound(gTTabCtl.tabs) 
         pDoc = gTTabCtl.tabs(i).pDoc
         if pDoc then
@@ -309,28 +333,6 @@ end function
 
 
 ' ========================================================================================
-' frmTopTabsShadow_WndProc Window procedure
-' ========================================================================================
-function frmTopTabsShadow_WndProc( _
-            byval hwnd   as HWND, _
-            byval uMsg   as UINT, _
-            byval wParam as WPARAM, _
-            byval lParam as LPARAM _
-            ) as LRESULT
-
-'    select Case uMsg
-'        case WM_NCDESTROY
-'            dim pWindow as CWindow ptr = AfxCWindowPtr(hwnd)
-'            if pWindow = 0 then delete(pWindow)
-'            HWND_FRMMAIN_TOPTABS_SHADOW = 0
-'    end select      
-
-    ' for messages that we don't deal with
-    function = DefWindowProc(hwnd, uMsg, wParam, lParam)
-
-end function
-
-' ========================================================================================
 ' frmTopTabs Window procedure
 ' ========================================================================================
 function frmTopTabs_WndProc( _
@@ -353,12 +355,14 @@ function frmTopTabs_WndProc( _
         dim pWindow as CWindow ptr = AfxCWindowPtr(hwnd)
         if pWindow = 0 then delete(pWindow)
         HWND_FRMMAIN_TOPTABS = 0
-'        DestroyWindow( HWND_FRMMAIN_TOPTABS_SHADOW )
         
     case WM_ERASEBKGND
         return true
 
     case WM_MOUSEMOVE
+        dim pWindow as CWindow ptr = AfxCWindowPtr(HWND_FRMMAIN_TOPTABS)
+        if pWindow = 0 then exit function
+
         dim tme as TrackMouseEvent
         tme.cbSize = sizeof(TrackMouseEvent)
         tme.dwFlags = TME_HOVER or TME_LEAVE
@@ -376,6 +380,22 @@ function frmTopTabs_WndProc( _
         curr_idxHot = getHotTabHitTest( hwnd )
         AfxRedrawWindow( hwnd )
         
+        ' Normally, WM_MOUSELEAVE will hide any active tooltip but our tabcontrol includes
+        ' both the tab area and an info panel underneath. If the mouse enters the info panel
+        ' area then we need to destroy any visible tooltip.
+        if isMouseOverRECT( hwnd, gTTabCtl.rcInfo ) then
+            ' Do not destroy if over the Find or FileType buttons
+            if isMouseOverRECT( hwnd, gTTabCtl.rcFindButton ) then
+            elseif isMouseOverRECT( hwnd, gTTabCtl.rcFileTypeButton ) then
+            else
+                if IsWindowVisible(hTooltip) then 
+                    wszPrevTooltip = ""
+                    DestroyWindow(hToolTip)
+                end if
+            end if
+        end if
+        
+        
         if gApp.bDragTabActive then
             if gTTabCtl.IsSafeIndex(curr_idxHot) = false then exit function
             ' Only activate tab drag if we have moved delta 5px xpos from original position
@@ -391,7 +411,7 @@ function frmTopTabs_WndProc( _
             end if    
         end if
         
-        
+           
     case WM_MOUSELEAVE
         wszPrevTooltip = ""
         ' this will reset all tabs isHot to false and curr_idxHot to -1
@@ -412,6 +432,8 @@ function frmTopTabs_WndProc( _
             wszTooltip  = L(432, "Scroll Tabs Right")
         elseif isMouseOverRECT(hwnd, gTTabCtl.rcActionButton) then
             wszTooltip  = L(430, "Tab List")
+        elseif isMouseOverRECT(hwnd, gTTabCtl.rcFindButton) then
+            wszTooltip  = frmPanelMenu_FormatTooltip( IDM_FIND )
 
         elseif isMouseOverRECT(hwnd, gTTabCtl.rcSplitEditor) then
             ' If CTRL is pressed then use the top/bottom split, otherwise
@@ -444,6 +466,7 @@ function frmTopTabs_WndProc( _
         elseif isMouseOverRECT(hwnd, gTTabCtl.rcActionButton) then
         elseif isMouseOverRECT(hwnd, gTTabCtl.rcSplitEditor) then
         elseif isMouseOverRECT(hwnd, gTTabCtl.rcActionPanel) then
+        elseif isMouseOverRECT(hwnd, gTTabCtl.rcFindButton) then
         else
             ' Create the popup menu
             curr_idxHot = getHotTabHitTest( hwnd )
@@ -463,6 +486,7 @@ function frmTopTabs_WndProc( _
         elseif isMouseOverRECT(hwnd, gTTabCtl.rcActionButton) then
         elseif isMouseOverRECT(hwnd, gTTabCtl.rcSplitEditor) then
         elseif isMouseOverRECT(hwnd, gTTabCtl.rcActionPanel) then
+        elseif isMouseOverRECT(hwnd, gTTabCtl.rcFindButton) then
         else ' regular tab
             curr_idxHot = getHotTabHitTest( hwnd )
             if gTTabCtl.IsSafeIndex(curr_idxHot) = false then exit function
@@ -527,6 +551,9 @@ function frmTopTabs_WndProc( _
             else    
                 PostMessage( HWND_FRMMAIN, WM_COMMAND, MAKEWPARAM(IDM_SPLITLEFTRIGHT, 0), 0 )
             end if
+
+        elseif isMouseOverRECT(hwnd, gTTabCtl.rcFindButton) then
+            PostMessage( HWND_FRMMAIN, WM_COMMAND, MAKEWPARAM(IDM_FIND, 0), 0 )
             
         elseif isMouseOverRECT(hwnd, gTTabCtl.rcActionPanel) then
         else
@@ -544,9 +571,6 @@ function frmTopTabs_WndProc( _
         end if
 
     case WM_PAINT
-        dim pWindow as CWindow ptr = AfxCWindowPtr(HWND_FRMMAIN_TOPTABS)
-        if pWindow = 0 then exit function
-
         dim as clsDoubleBuffer b
         
         b.BeginDoubleBuffer(hwnd)
@@ -559,14 +583,12 @@ function frmTopTabs_WndProc( _
         b.PaintClientRect()
 
         ' Paint the tab info area (top and bottom lines)
-        dim as RECT rcInfo = b.rcClient
-        rcInfo.top = pWindow->ScaleY(TOPTABS_HEIGHT)
         b.SetForeColors( ghTopTabs.ForeColorHot, ghTopTabs.ForeColorHot )
         b.SetBackColors( ghTopTabs.BackColorHot, ghTopTabs.BackColorHot )
-        b.PaintRect( @rcInfo )
+        b.PaintRect( @gTTabCtl.rcInfo )
         b.SetPenColor( ghEditor.Divider )
-        b.PaintLine( 1, rcInfo.left, rcInfo.top, rcInfo.right, rcInfo.top )
-        b.PaintLine( 1, rcInfo.left, rcInfo.bottom, rcInfo.right, rcInfo.bottom )
+        b.PaintLine( 1, gTTabCtl.rcInfo.left, gTTabCtl.rcInfo.top, gTTabCtl.rcInfo.right, gTTabCtl.rcInfo.top )
+        b.PaintLine( 1, gTTabCtl.rcInfo.left, gTTabCtl.rcInfo.bottom, gTTabCtl.rcInfo.right, gTTabCtl.rcInfo.bottom )
 
         ' All of the rc calculations have already been done in frmTopTabs_PostionWindows
         if gTTabCtl.FirstDisplayTab > ubound(gTTabCtl.tabs) then gTTabCtl.FirstDisplayTab = lbound(gTTabCtl.tabs)
@@ -620,10 +642,6 @@ function frmTopTabs_WndProc( _
             end if
             
             if (i = gTTabCtl.CurSel) then
-                ' If this is the active tab then display the filename in the info area.
-                ' Indent the left margin a bit
-                rcInfo.left += pWindow->ScaleX(15)
-                 
                 ' Determine if it is in a subfolder and if it is, then display the relative file name.
                 dim as DWSTRING wszFilename = gTTabCtl.tabs(i).wszText
                 if gApp.IsProjectActive then
@@ -634,11 +652,18 @@ function frmTopTabs_WndProc( _
                         wszFilename = AfxStrRemove( gTTabCtl.tabs(i).pDoc->DiskFilename, wszMainFolder )
                     end if
                 end if
-                
+                b.SetForeColors( ghTopTabs.ForeColorHot, ghTopTabs.ForeColorHot )
+                b.SetBackColors( ghTopTabs.BackColorHot, ghTopTabs.BackColor )
                 b.SetFont( INFOFONT_10 )
-'                b.SetForeColors( ghTopTabs.ForeColorHot, ghTopTabs.ForeColorHot )
-'                b.SetBackColors( ghTopTabs.BackColorHot, ghTopTabs.BackColorHot )
-                b.PaintText( wszFilename, @rcInfo, DT_LEFT )
+                b.PaintText( wszFilename, @gTTabCtl.rcDiskFilename, DT_LEFT )
+
+                b.SetFont( SYMBOLFONT_10 )
+                b.PaintRoundRect( @gTTabCtl.rcFindButton, true )
+                b.PaintText( wszIconFind, @gTTabCtl.rcFindButton, DT_CENTER, true )
+
+                b.SetFont( GUIFONT_10 )
+                b.PaintRect( @gTTabCtl.rcFileTypeButton, true )
+                b.PaintText( gSBPanels(FILETYPE_PANEL).wszText, @gTTabCtl.rcFileTypeButton, DT_CENTER, true )
             end if
                 
             ' Do the calculation of the LastDisplayTab here because we need to
@@ -674,13 +699,6 @@ function frmTopTabs_WndProc( _
             ' Draw the Action button "..."
             b.PaintRoundRect( @gTTabCtl.rcActionButton, true )
             b.PaintText( wszIconMoreActions, @gTTabCtl.rcActionButton, DT_CENTER, true )
-
-'            ' Draw the line that divides the tab control from code edit window.
-'            ' Draw the righthand side black divider
-'            b.SetPenColor( ghEditor.Divider )
-'            b.PaintLine( 1, b.rcClient.left, b.rcClient.bottom - pWindow->ScaleY(1), _
-'                            b.rcClientWidth, b.rcClient.bottom - pWindow->ScaleY(1) )
-            
         end if
     
         b.EndDoubleBuffer()
@@ -712,16 +730,6 @@ function frmTopTabs_Show( byval hwndParent as HWND ) as LRESULT
     ' Disable background erasing by only assigning the one style
     pWindow->ClassStyle = CS_DBLCLKS
 
-'    ' create semi-transparent window offset under our tabcontrol in order to simulate a shadow.
-'    pWindow = New CPanelWindow
-'    HWND_FRMMAIN_TOPTABS_SHADOW = pWindow->Create( HWND_FRMMAIN, _
-'        @frmTopTabsShadow_WndProc, 0, 0, 0, pWindow->ScaleY(1), _
-'        WS_POPUP or WS_CLIPSIBLINGS or WS_CLIPCHILDREN, WS_EX_LAYERED or WS_EX_NOACTIVATE )
-'    pWindow->ClassStyle = CS_DBLCLKS
-'    pWindow->Brush = GetSysColorBrush(COLOR_WINDOWTEXT + 1)   ' black background
-'    ' 0 totally transparent, 255 totally opaque
-'    SetLayeredWindowAttributes( HWND_FRMMAIN_TOPTABS_SHADOW, GetSysColor(COLOR_WINDOWTEXT + 1) , 100, LWA_ALPHA ) 
-    
     frmTopTabs_PositionWindows()
     function = 0
     

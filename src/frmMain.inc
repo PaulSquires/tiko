@@ -121,9 +121,6 @@ function frmMain_SetStatusbar() as long
             wszText = wszText + " (" + str(endPos - startPos) + " selected)"
         end if 
 
-        ' Should we display the "shadow" under the tabcontrol
-        frmTopTabs_ShowShadow()
-
         ' Update the vertical scrollbar
         frmEditorVScroll_calcVThumbRect(pDoc)
         AfxRedrawWindow( iif( hEdit = pDoc->hWindow(0), HWND_FRMEDITOR_VSCROLLBAR(0), HWND_FRMEDITOR_VSCROLLBAR(1)) )

@@ -43,6 +43,12 @@ type clsTopTabCtl
         rcPrevTabs       as RECT
         rcNextTabs       as RECT
         rcSplitEditor    as RECT
+        rcInfo           as RECT        ' client coordinates (the info panel under the row of tabs)
+        rcDiskFilename   as RECT
+        rcFindButton     as RECT
+        rcFileTypeButton as RECT        ' Main, Modulesm Normal, etc
+        wszFileType      as DWSTRING
+
         tabs(any)        as TOPTABS_TYPE
         
         declare function IsSafeIndex( byval idx as long ) as boolean
