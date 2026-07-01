@@ -408,17 +408,8 @@ function getTextWidth( _
     dim pWindow as CWindow ptr = AfxCWindowPtr(hwnd)
     if pWindow = 0 then exit function
     
-    dim as HFONT _hFont
+    dim as HFONT _hFont = ghFont(FontIndex)
     dim as HFONT oldFont 
-    select case FontIndex
-        case GUIFONT_9:     _hFont = pWindow->CreateFont(GUIFONT, 9, FW_NORMAL) 
-        case GUIFONT_10:    _hFont = pWindow->CreateFont(GUIFONT, 10, FW_NORMAL)
-        case INFOFONT_10:   _hFont = pWindow->CreateFont(gConfig.EditorFontname, val(gConfig.EditorFontsize), FW_NORMAL)
-        case SYMBOLFONT_9:  _hFont = pWindow->CreateFont(SYMBOLFONT, 9, FW_NORMAL)
-        case SYMBOLFONT_10: _hFont = pWindow->CreateFont(SYMBOLFONT, 10, FW_NORMAL)
-        case SYMBOLFONT_12: _hFont = pWindow->CreateFont(SYMBOLFONT, 12, FW_NORMAL)
-        case else: exit function    
-    end select
     
     dim as HDC hDC = GetDC(hwnd)
     
@@ -429,7 +420,6 @@ function getTextWidth( _
     RestoreDC(hDC, -1)
     
     ReleaseDC(hwnd, hDC)
-    if _hFont then DeleteObject(_hFont)
     
     function = pWindow->UnScaleX(size.cx)
 

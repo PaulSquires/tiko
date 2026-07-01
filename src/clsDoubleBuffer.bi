@@ -13,16 +13,6 @@
 
 #pragma once
 
-#DEFINE GUIFONT     wstr("Segoe UI")
-#DEFINE SYMBOLFONT  wstr("Segoe Fluent Icons")
-
-#DEFINE GUIFONT_9      0
-#DEFINE GUIFONT_10     1
-#DEFINE INFOFONT_10    2
-#DEFINE SYMBOLFONT_9   3
-#DEFINE SYMBOLFONT_10  4
-#DEFINE SYMBOLFONT_12  5
-#DEFINE MAXFONTS       5
 
 type clsDoubleBuffer
     private: 
@@ -37,7 +27,6 @@ type clsDoubleBuffer
         _forecolorhot    as COLORREF
         _backcolor       as COLORREF
         _backcolorhot    as COLORREF
-        _hFont(MAXFONTS) as HFONT
         _FontIndex       as long = GUIFONT_10
         _UsePaint        as boolean       ' use Begin/EndPaint. Used when WM_PAINT or WM_DRAWITEM
 

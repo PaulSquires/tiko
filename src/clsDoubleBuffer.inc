@@ -45,9 +45,6 @@ end function
 function clsDoubleBuffer.EndDoubleBuffer() as long
     BitBlt( _hDC, _rc.left, _rc.top, _rc.right - _rc.left, _rc.bottom - _rc.top, _memDC, 0, 0, SRCCOPY )
     RestoreDC( _memDC, -1 )
-    for i as integer = lbound(_hFont) to ubound(_hFont)
-        DeleteObject(_hFont(i)): _hFont(i) = 0
-    next
     if _hbit  then DeleteObject( _hbit )
     if _memDC then DeleteDC( _memDC )
     if _UsePaint then EndPaint( _hwnd, @_ps )
@@ -67,18 +64,9 @@ function clsDoubleBuffer.rcClientHeight() as long
 end function
 
 function clsDoubleBuffer.SetFont( byval FontIndex as long ) as long
-    if (FontIndex < lbound(_hFont)) orelse (FontIndex > ubound(_hFont)) then exit function
+    if (FontIndex < lbound(ghFont)) orelse (FontIndex > ubound(ghFont)) then exit function
     dim pWindow as CWindow ptr = AfxCWindowPtr(HWND_FRMMAIN)
-    if (pWindow <> 0) andalso (_hFont(FontIndex) = 0) then 
-        select case FontIndex
-            case GUIFONT_9:     _hFont(GUIFONT_9)     = pWindow->CreateFont(GUIFONT, 9, FW_NORMAL) 
-            case GUIFONT_10:    _hFont(GUIFONT_10)    = pWindow->CreateFont(GUIFONT, 10, FW_NORMAL)
-            case INFOFONT_10:   _hFont(INFOFONT_10)   = pWindow->CreateFont(gConfig.EditorFontname, val(gConfig.EditorFontsize), FW_NORMAL)
-            case SYMBOLFONT_9:  _hFont(SYMBOLFONT_9)  = pWindow->CreateFont(SYMBOLFONT, 9, FW_NORMAL)
-            case SYMBOLFONT_10: _hFont(SYMBOLFONT_10) = pWindow->CreateFont(SYMBOLFONT, 10, FW_NORMAL)
-            case SYMBOLFONT_12: _hFont(SYMBOLFONT_12) = pWindow->CreateFont(SYMBOLFONT, 12, FW_NORMAL)
-        end select
-    end if
+    if (pWindow = 0) orelse (ghFont(FontIndex) = 0) then exit function
     _FontIndex = FontIndex
     return 0
 end function
@@ -171,7 +159,7 @@ function clsDoubleBuffer.PaintText( _
     dim as COLORREF oldforecolor = SetTextColor( _memDC, forecolor )
     SetBkMode(_memDC, TRANSPARENT)
     
-    dim as HFONT hOldFont = SelectObject( _memDC, _hFont(_FontIndex) ) 
+    dim as HFONT hOldFont = SelectObject( _memDC, ghFont(_FontIndex) ) 
 
     wsStyle = wsStyle or DT_NOPREFIX or DT_VCENTER or DT_SINGLELINE
     DrawText( _memDC, wszText, -1, cast(lpRect, rc), wsStyle )

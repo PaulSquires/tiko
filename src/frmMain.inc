@@ -1536,6 +1536,13 @@ function frmMain_Show( byval hWndParent as HWND ) as LRESULT
     '  Create the main window and child controls
     dim pWindow as CWindow ptr = new CWindow(APPCLASSNAME)
     
+    ghFont(GUIFONT_9)     = pWindow->CreateFont(GUIFONT, 9, FW_NORMAL) 
+    ghFont(GUIFONT_10)    = pWindow->CreateFont(GUIFONT, 10, FW_NORMAL)
+    ghFont(INFOFONT_10)   = pWindow->CreateFont("Consolas", 11, FW_NORMAL)
+    ghFont(SYMBOLFONT_9)  = pWindow->CreateFont(SYMBOLFONT, 9, FW_NORMAL)
+    ghFont(SYMBOLFONT_10) = pWindow->CreateFont(SYMBOLFONT, 10, FW_NORMAL)
+    ghFont(SYMBOLFONT_12) = pWindow->CreateFont(SYMBOLFONT, 12, FW_NORMAL)
+
     HWND_FRMMAIN = pWindow->Create( null, APPNAME, @frmMain_WndProc )
     
     ' Load the currently selected theme (this needs a valid pWindow HWND_FRMMAIN to exists)
@@ -1676,6 +1683,11 @@ function frmMain_Show( byval hWndParent as HWND ) as LRESULT
     loop  ' message loop
     
     function = uMsg.wParam
+
+
+    for i as long = 0 to MAXFONTS
+        if ghFont(i) then DeleteObject(ghFont(i))
+    next
 
     if ghAccelUserTools then DestroyAcceleratorTable( ghAccelUserTools )
     if ghAccelBuildConfigurations then DestroyAcceleratorTable( ghAccelBuildConfigurations )
