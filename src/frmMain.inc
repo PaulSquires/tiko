@@ -719,7 +719,7 @@ end function
 ' ========================================================================================
 function frmMain_PositionWindows() as LRESULT
     dim as HWND hEdit
-    dim as long nHeightTabControl, nLeft, nTop
+    dim as long nHeightTabControl, nHeightTabInfoControl, nLeft, nTop
     dim as RECT rc
 
     dim pWindow as CWindow ptr = AfxCWindowPtr( HWND_FRMMAIN )
@@ -767,7 +767,9 @@ function frmMain_PositionWindows() as LRESULT
     ' if items exist in the top tabcontrol then show the tab control and account for its height
     if gTTabCtl.GetItemCount = 0 then
         ShowWindow( HWND_FRMMAIN_TOPTABS, SW_HIDE )
+        ShowWindow( HWND_FRMMAIN_TOPTABSINFO, SW_HIDE )
         nHeightTabControl = 0
+        nHeightTabInfoControl = 0
         ' If Find/Replace is open then close it
         if IsWindowVisible( HWND_FRMFINDREPLACE ) then
             DestroyWindow( HWND_FRMFINDREPLACE )
@@ -778,7 +780,12 @@ function frmMain_PositionWindows() as LRESULT
                     nLeft, nTop, _
                     rc.Right - nWidthPanel, nHeightTabControl, _
                     SWP_SHOWWINDOW or SWP_NOZORDER )
-        frmTopTabs_PositionWindows()
+        nHeightTabInfoControl = AfxGetWindowHeight(HWND_FRMMAIN_TOPTABSINFO)
+        SetWindowPos( HWND_FRMMAIN_TOPTABSINFO, 0, _
+                    nLeft, nTop + nHeightTabControl, _
+                    rc.Right - nWidthPanel, nHeightTabInfoControl, _
+                    SWP_SHOWWINDOW or SWP_NOZORDER )
+        frmTopTabs_PositionWindows()   ' also calls to frmTopTabsInfo_PositionWindows
     end if
     
 
@@ -803,7 +810,7 @@ function frmMain_PositionWindows() as LRESULT
         
         ' Reduce the height of the client area by the size of the statusbar and menubar.
         rcDoc.left   = nLeft
-        rcDoc.top    = nTop + nHeightTabControl 
+        rcDoc.top    = nTop + nHeightTabControl + nHeightTabInfoControl 
         rcDoc.right  = rc.right
         rcDoc.bottom = rc.bottom - nHeightStatusBar - nHeightOutput
         if gConfig.ExplorerPositionRight then rcDoc.right = rc.right - nWidthPanel
@@ -1369,9 +1376,6 @@ function frmMain_WndProc( _
             if IsWindowVisible( HWND_FRMFINDREPLACE ) then  
                 frmFindReplace_PositionMainWindow()
             end if
-            if IsWindowVisible( HWND_FRMMAIN_TOPTABS ) then
-                frmTopTabs_ShowShadow()
-            end if
                 
         case WM_TIMER
             ' Handle any Spinner (used when compiling)
@@ -1557,6 +1561,7 @@ function frmMain_Show( byval hWndParent as HWND ) as LRESULT
 
     ' Create the main application top tabs control
     frmTopTabs_Show( HWND_FRMMAIN )
+    frmTopTabsInfo_Show( HWND_FRMMAIN )
 
     ' Create the main application statusbar
     frmStatusBar_Show( HWND_FRMMAIN )

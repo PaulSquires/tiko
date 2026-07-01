@@ -39,10 +39,6 @@ end function
 ' frmFindReplace_PositionWindows
 ' ========================================================================================
 function frmFindReplace_PositionWindows() as LRESULT
-    ' make sure that the shadows under the top tabs are showing and if the main form
-    ' has moved, that the shadows move with it. 
-    frmTopTabs_ShowShadow
-
     if IsWindow( HWND_FRMFINDREPLACE ) = 0 then exit function
 
     dim pWindow as CWindow ptr = AfxCWindowPtr( HWND_FRMFINDREPLACE )

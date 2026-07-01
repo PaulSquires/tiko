@@ -95,6 +95,7 @@ dim shared gTTabCtl as clsTopTabCtl
 #include once "frmAbout.inc" 
 #include once "frmPopupMenu.inc"
 #include once "frmTopTabs.inc"
+#include once "frmTopTabsInfo.inc"
 #include once "frmMenuBar.inc"
 #include once "frmStatusBar.inc"
 #include once "frmEditorHScroll.inc" 
