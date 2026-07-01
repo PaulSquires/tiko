@@ -1451,7 +1451,7 @@ function frmMain_WndProc( _
         case MSG_USER_TOPTABS_CHANGED
             ' Show the new tab
             gTTabCtl.DisplayScintilla( gTTabCtl.CurSel, true )
-            frmMain_PositionWindows
+            frmMain_PositionWindows()
             dim pDoc as clsDocument ptr = gTTabCtl.tabs(gTTabCtl.CurSel).pDoc
             if pDoc then
                 AfxRedrawWindow( pDoc->hWindow(0) )  ' makes the code window display quicker especially when loading Project.
@@ -1468,7 +1468,7 @@ function frmMain_WndProc( _
         case MSG_USER_SETFOCUS
             ' Set focus to current Scintilla window and update the document
             ' display such as Line#, Col#, Filename, etc.
-            frmMain_SetStatusbar
+            frmMain_SetStatusbar()
             dim pDoc as clsDocument ptr = gTTabCtl.GetActiveDocumentPtr()
             if pDoc then SetFocus( pDoc->hWndActiveScintilla )
 

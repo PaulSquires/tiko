@@ -28,26 +28,21 @@ function frmTopTabsInfo_PositionWindows() as LRESULT
     dim as Rect rc: GetClientRect( HWND_FRMMAIN_TOPTABSINFO, @rc )
             
     ' Calculate the RECT positions for all of the top tabs
-    dim pDoc as clsDocument ptr 
-    dim as long nTextWidth = 0
-    dim as long nLeft = rc.left 
     dim as long TabHeight = TOPTABS_INFO_HEIGHT
-    dim as long rcTextWidth = 70
-    dim as long rcCloseWidth = 20
-    dim as long rcIconWidth = 20 
-    dim as long rcIconHeight = 20 
-    dim as long rightBorderWidth = 2
-    dim as long hmargin = 1
+    dim as long rcIconWidth = 30 
+    dim as long rcIconHeight = 30 
     dim as long vmargin = 1
     dim as long nPadding = 10   ' 5 left 5 right
+    
+    ' Ensure that the StatusBar info has been set because we depend on the gSBPanels(FILETYPE_PANEL).wszText
+    ' to calculate the filetype string size and value.
+    frmMain_SetStatusbar()
 
     ' Info area under the row of tabs 
-    vmargin = (TOPTABS_INFO_HEIGHT - rcIconHeight) / 2
     gTTabCtl.rcFindButton = rc
     gTTabCtl.rcFindButton.left = gTTabCtl.rcPrevTabs.left 
     gTTabCtl.rcFindButton.top += pWindow->ScaleY(vmargin)
-    gTTabCtl.rcFindButton.bottom = gTTabCtl.rcFindButton.top + pWindow->ScaleY( rcIconHeight )
-    gTTabCtl.rcFindButton.right = gTTabCtl.rcPrevTabs.right 
+    gTTabCtl.rcFindButton.right = gTTabCtl.rcFindButton.left + pWindow->ScaleX( rcIconWidth )
     
     gTTabCtl.rcDiskFilename = rc
     gTTabCtl.rcDiskFilename.left += pWindow->ScaleX(15)
@@ -55,8 +50,10 @@ function frmTopTabsInfo_PositionWindows() as LRESULT
     
     gTTabCtl.rcFileTypeButton = rc
     gTTabCtl.rcFileTypeButton.left = gTTabCtl.rcFindButton.right + pWindow->ScaleX(6)
+    gTTabCtl.rcFileTypeButton.top += pWindow->ScaleY(vmargin)
     gTTabCtl.rcFileTypeButton.right = gTTabCtl.rcFileTypeButton.left + _
             pWindow->ScaleX( getTextWidth(HWND_FRMMAIN_TOPTABSINFO, gSBPanels(FILETYPE_PANEL).wszText, GUIFONT_9) + (nPadding * 2))
+    gTTabCtl.rcFileTypeButton.bottom -= pWindow->ScaleY(vmargin)
     
     AfxRedrawWindow( HWND_FRMMAIN_TOPTABSINFO )
 
@@ -159,6 +156,8 @@ function frmTopTabsInfo_WndProc( _
     case WM_LBUTTONUP
         if isMouseOverRECT(hwnd, gTTabCtl.rcFindButton) then
             PostMessage( HWND_FRMMAIN, WM_COMMAND, MAKEWPARAM(IDM_FIND, 0), 0 )
+        elseif isMouseOverRECT(hwnd, gTTabCtl.rcFileTypeButton) then
+            PostMessage( HWND_FRMMAIN, WM_COMMAND, MAKEWPARAM(IDM_PROJECTFILETYPE, 0), 0 )
         end if
 
 

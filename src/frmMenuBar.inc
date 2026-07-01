@@ -46,10 +46,10 @@ function frmMenuBar_PositionWindows() as LRESULT
     gMenuUpdateMessage.wszText = getMenuText(gMenuUpdateMessage.id)
     nWidth = pWindow->ScaleX(getTextWidth( HWND_FRMMAIN, gMenuUpdateMessage.wszText, GUIFONT_10) + nPadding)
     nLeft = AfxGetWindowClientWidth( HWND_FRMMAIN ) - nWidth - nPadding
-    gMenuUpdateMessage.rcItem = type(nLeft, nTop, nLeft + nWidth, nTop + nHeight)
+    gMenuUpdateMessage.rcItem = type<RECT>(nLeft, nTop, nLeft + nWidth, nTop + nHeight)
     
     AfxRedrawWindow( HWND_FRMMAIN_MENUBAR )
-    
+
     function = 0
 end function
 
@@ -140,16 +140,18 @@ function frmMenuBar_WndProc( _
         next
         
         ' Paint the Update Available message
-        if isMouseOverRECT( hwnd, gMenuUpdateMessage.rcItem ) then
-            b.SetBackColors( ghMenuBar.BackColorHot, ghMenuBar.BackColorHot )
-            b.SetForeColors( ghMenuBar.ForeColorHot, ghMenuBar.ForeColorHot )
-        else
-            b.SetBackColors( ghMenuBar.BackColor, ghMenuBar.BackColorHot )
-            b.SetForeColors( ghMenuBar.ForeColor, ghMenuBar.ForeColorHot )
+        if len(gMenuUpdateMessage.wszText) then
+            if isMouseOverRECT( hwnd, gMenuUpdateMessage.rcItem ) then
+                b.SetBackColors( ghMenuBar.BackColorHot, ghMenuBar.BackColorHot )
+                b.SetForeColors( ghMenuBar.ForeColorHot, ghMenuBar.ForeColorHot )
+            else
+                b.SetBackColors( ghMenuBar.BackColor, ghMenuBar.BackColorHot )
+                b.SetForeColors( ghMenuBar.ForeColor, ghMenuBar.ForeColorHot )
+            end if
+            b.PaintRect( @gMenuUpdateMessage.rcItem )
+            b.PaintText( gMenuUpdateMessage.wszText, @gMenuUpdateMessage.rcItem, DT_CENTER, true )
         end if
-        b.PaintRect( @gMenuUpdateMessage.rcItem )
-        b.PaintText( gMenuUpdateMessage.wszText, @gMenuUpdateMessage.rcItem, DT_CENTER, true )
-        
+            
         b.EndDoubleBuffer()
 
         return 0

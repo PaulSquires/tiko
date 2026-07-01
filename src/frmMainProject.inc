@@ -200,7 +200,7 @@ function OnCommand_ProjectSetFileType( _
         LoadExplorerFiles()
         ' Highlight the selected tab file in the Explorer listbox
         frmExplorer_SelectItemData( pDoc )
-        frmMain_SetStatusbar
+        frmTopTabsInfo_PositionWindows()
     end if
 
     function = 0

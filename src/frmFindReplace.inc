@@ -935,7 +935,7 @@ function frmFindReplace_PositionMainWindow() as LRESULT
     ' window just below the toptabs or the menubar if the toptabs are not showing.
     ' Place the window the width of 2 scrollbars from the right of the main window.
     dim as HWND hCtrl = iif( IsWindowVisible(HWND_FRMMAIN_TOPTABS), _
-                                HWND_FRMMAIN_TOPTABS, HWND_FRMMAIN_MENUBAR )  
+                                HWND_FRMMAIN_TOPTABSINFO, HWND_FRMMAIN_MENUBAR )  
 
     dim pWindow as CWindow ptr = AfxCWindowPtr( HWND_FRMFINDREPLACE )
 
