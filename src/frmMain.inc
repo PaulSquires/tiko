@@ -780,10 +780,10 @@ function frmMain_PositionWindows() as LRESULT
                     nLeft, nTop, _
                     rc.Right - nWidthPanel, nHeightTabControl, _
                     SWP_SHOWWINDOW or SWP_NOZORDER )
-        nHeightTabInfoControl = AfxGetWindowHeight(HWND_FRMMAIN_TOPTABSINFO)
+        nHeightTabInfoControl = pWindow->ScaleY(gTTabCtl.InfoPanelHeight)
         SetWindowPos( HWND_FRMMAIN_TOPTABSINFO, 0, _
-                    nLeft, nTop + nHeightTabControl, _
-                    rc.Right - nWidthPanel, nHeightTabInfoControl, _
+                    nLeft, nTop + nHeightTabControl, _     
+                    rc.Right - nWidthPanel, nHeightTabInfoControl, _  
                     SWP_SHOWWINDOW or SWP_NOZORDER )
         frmTopTabs_PositionWindows()   ' also calls to frmTopTabsInfo_PositionWindows
     end if

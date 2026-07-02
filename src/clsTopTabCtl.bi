@@ -47,6 +47,8 @@ type clsTopTabCtl
         rcFindButton     as RECT
         rcFileTypeButton as RECT        ' Main, Modulesm Normal, etc
         wszFileType      as DWSTRING
+        InfoPanelHeight  as long = TOPTABS_INFO_HEIGHT
+            ' TOPTABS_INFO_HEIGHT, TOPTABS_INFO_HEIGHT_FIND, TOPTABS_INFO_HEIGHT_REPLACE
 
         tabs(any)        as TOPTABS_TYPE
         

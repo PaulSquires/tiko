@@ -711,6 +711,10 @@ function frmFindReplace_WndProc( _
         dim as CWindow ptr pWindow = AfxCWindowPtr(hwnd)
         if pWindow then delete(pWindow)
         HWND_FRMFINDREPLACE = 0
+
+        gTTabCtl.InfoPanelHeight = TOPTABS_INFO_HEIGHT
+        frmMain_PositionWindows()
+
         return 0
 
     case WM_ACTIVATE
@@ -973,6 +977,13 @@ function frmFindReplace_Show( _
     dim as HWND hCtl
     dim as String sFindText
     dim as HWND hCtlFind, hCtlReplace 
+
+
+    ' Expand the size of frmTopTabsInfo to accomodate the Find and/or Replace controls.
+    gTTabCtl.InfoPanelHeight = iif( fShowReplace, TOPTABS_INFO_HEIGHT_REPLACE, TOPTABS_INFO_HEIGHT_FIND )
+    frmMain_PositionWindows()
+    
+
     
     gFind.bExpanded = fShowReplace
 

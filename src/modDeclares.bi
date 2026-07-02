@@ -293,6 +293,8 @@ const OUTPUT_TABS_HEIGHT = 40
 
 const TOPTABS_HEIGHT = 36
 const TOPTABS_INFO_HEIGHT = 40    ' the area below the tab itself
+const TOPTABS_INFO_HEIGHT_FIND = 80    ' the area below the tab itself
+const TOPTABS_INFO_HEIGHT_REPLACE = 120    ' the area below the tab itself
 
 const MENUITEM_HEIGHT_COMPACT = 20
 const EXPLORERITEM_HEIGHT_COMPACT = 19 

@@ -31,7 +31,7 @@ function frmTopTabsInfo_PositionWindows() as LRESULT
     dim as long TabHeight = TOPTABS_INFO_HEIGHT
     dim as long rcIconWidth = 30 
     dim as long rcIconHeight = 30 
-    dim as long vmargin = 1
+    dim as long vmargin = pWindow->ScaleY(1)
     dim as long nPadding = 10   ' 5 left 5 right
     
     ' Ensure that the StatusBar info has been set because we depend on the gSBPanels(FILETYPE_PANEL).wszText
@@ -41,19 +41,22 @@ function frmTopTabsInfo_PositionWindows() as LRESULT
     ' Info area under the row of tabs 
     gTTabCtl.rcFindButton = rc
     gTTabCtl.rcFindButton.left = gTTabCtl.rcPrevTabs.left 
-    gTTabCtl.rcFindButton.top += pWindow->ScaleY(vmargin)
+    gTTabCtl.rcFindButton.top += vmargin
     gTTabCtl.rcFindButton.right = gTTabCtl.rcFindButton.left + pWindow->ScaleX( rcIconWidth )
+    gTTabCtl.rcFindButton.bottom = gTTabCtl.rcFindButton.top + pWindow->ScaleY(TOPTABS_INFO_HEIGHT-1) - vmargin
     
     gTTabCtl.rcDiskFilename = rc
+    gTTabCtl.rcDiskFilename.top += vmargin
     gTTabCtl.rcDiskFilename.left += pWindow->ScaleX(15)
     gTTabCtl.rcDiskFilename.right = gTTabCtl.rcFindButton.left
+    gTTabCtl.rcDiskFilename.bottom = gTTabCtl.rcDiskFilename.top + pWindow->ScaleY(TOPTABS_INFO_HEIGHT-1) - vmargin
     
     gTTabCtl.rcFileTypeButton = rc
     gTTabCtl.rcFileTypeButton.left = gTTabCtl.rcFindButton.right + pWindow->ScaleX(6)
-    gTTabCtl.rcFileTypeButton.top += pWindow->ScaleY(vmargin)
+    gTTabCtl.rcFileTypeButton.top += vmargin
     gTTabCtl.rcFileTypeButton.right = gTTabCtl.rcFileTypeButton.left + _
             pWindow->ScaleX( getTextWidth(HWND_FRMMAIN_TOPTABSINFO, gSBPanels(FILETYPE_PANEL).wszText, GUIFONT_9) + (nPadding * 2))
-    gTTabCtl.rcFileTypeButton.bottom -= pWindow->ScaleY(vmargin)
+    gTTabCtl.rcFileTypeButton.bottom = gTTabCtl.rcFileTypeButton.top + pWindow->ScaleY(TOPTABS_INFO_HEIGHT-1) - vmargin
     
     AfxRedrawWindow( HWND_FRMMAIN_TOPTABSINFO )
 
